@@ -163,8 +163,11 @@ The technical documentation suite has been established in the project directory:
     - Built `LandingNavbar.jsx` with responsive dropdowns, mobile drawer, and prominent "Launch Live App" CTA.
     - Built `LandingFooter.jsx` with complete 19-link sitemap and real-time engine status bar.
     - Built `LandingView.jsx` master coordinator with URL hash routing and scroll synchronization.
-    - Integrated bidirectional switching in `client/src/App.jsx`: Landing page defaults on root URL with 1-click jump into the live chessboard, and "Pricing & Site" header button to return to marketing pages anytime.
-    - Verified complete production build with Vite (`npm run build`), confirming 1,625 modules compiled cleanly with zero errors.
+    - **Customer-Facing Copy Overhaul (Zero Internal Jargon)**:
+      - Cleaned all landing pages and navigation components to eliminate internal team and developer jargon (e.g., "Trojan Horse", "Neuro-symbolic", "AVX-512", "Bitboards", "Rentier Economy", "CAPS2").
+      - Re-anchored every headline, benefit bullet, and comparison table to plain, relatable chess improver language ("Plain-English Explanations", "Find Your Bad Habits Across 50 Games", "World Champion Engine", "How to Get a Free Google Key in 60 Seconds", "Zero Monthly Fees").
+      - Verified production build (`npm run build`) and committed locally to branch `commercial` (`03c75d4`).
+
 
 
 
