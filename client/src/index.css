@@ -31,3 +31,120 @@
   user-select: none;
   -webkit-user-select: none;
 }
+
+/* Coach Markdown Rich Typography */
+.coach-markdown {
+  font-size: 0.8125rem; /* 13px */
+  line-height: 1.6;
+  color: #cbd5e1;
+}
+
+.coach-markdown h1,
+.coach-markdown h2,
+.coach-markdown h3,
+.coach-markdown h4 {
+  color: #ffffff;
+  font-weight: 700;
+  margin-top: 0.6rem;
+  margin-bottom: 0.3rem;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.coach-markdown h1 {
+  font-size: 0.95rem;
+  color: #34d399;
+}
+
+.coach-markdown h2 {
+  font-size: 0.9rem;
+  color: #6ee7b7;
+}
+
+.coach-markdown h3 {
+  font-size: 0.85rem;
+  color: #a7f3d0;
+  border-bottom: 1px solid rgba(51, 65, 85, 0.4);
+  padding-bottom: 0.2rem;
+}
+
+.coach-markdown p {
+  margin-bottom: 0.5rem;
+}
+
+.coach-markdown p:last-child {
+  margin-bottom: 0;
+}
+
+.coach-markdown strong,
+.coach-markdown b {
+  color: #f8fafc;
+  font-weight: 700;
+}
+
+.coach-markdown em,
+.coach-markdown i {
+  font-style: italic;
+  color: #94a3b8;
+}
+
+.coach-markdown code {
+  background-color: #0b1120;
+  border: 1px solid #334155;
+  color: #34d399;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.75rem;
+  padding: 0.1rem 0.35rem;
+  border-radius: 0.375rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.coach-markdown pre {
+  background-color: #0b1120;
+  border: 1px solid #1e293b;
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+  overflow-x: auto;
+  margin: 0.5rem 0;
+}
+
+.coach-markdown pre code {
+  background: transparent;
+  border: none;
+  padding: 0;
+  color: #e2e8f0;
+}
+
+.coach-markdown ul {
+  list-style-type: disc;
+  padding-left: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.coach-markdown ol {
+  list-style-type: decimal;
+  padding-left: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.coach-markdown li {
+  margin-bottom: 0.25rem;
+  padding-left: 0.15rem;
+}
+
+.coach-markdown blockquote {
+  border-left: 3px solid #10b981;
+  background: rgba(16, 185, 129, 0.08);
+  padding: 0.35rem 0.65rem;
+  border-radius: 0 0.375rem 0.375rem 0;
+  margin: 0.5rem 0;
+  font-style: italic;
+  color: #94a3b8;
+}
+
+.coach-markdown hr {
+  border-color: #334155;
+  margin: 0.6rem 0;
+}

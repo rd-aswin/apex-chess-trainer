@@ -1,4 +1,5 @@
-﻿import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { marked } from 'marked';
 import {
   Send,
   Sparkles,
@@ -17,6 +18,20 @@ import {
   ChevronDown,
   ChevronUp
 } from 'lucide-react';
+
+// Configure marked for clean chess notes, headings, and lists
+marked.setOptions({
+  gfm: true,
+  breaks: true
+});
+
+function renderMarkdown(content) {
+  try {
+    return { __html: marked.parse(content || '') };
+  } catch (err) {
+    return { __html: content || '' };
+  }
+}
 
 /**
  * AI Coach Conversational Panel ("Apex Coach")
@@ -278,18 +293,23 @@ export function AiCoachChat({
               )}
 
               <div
-                className={`max-w-[85%] rounded-xl px-3 py-2 text-xs leading-relaxed ${
+                className={`max-w-[90%] rounded-xl px-3.5 py-2.5 text-xs leading-relaxed ${
                   isUser
-                    ? 'bg-emerald-600 text-white rounded-br-none shadow-md'
-                    : 'bg-slate-800/90 text-slate-200 border border-slate-700/80 rounded-bl-none shadow'
+                    ? 'bg-emerald-600 text-white rounded-br-none shadow-md font-medium'
+                    : 'bg-slate-800/95 text-slate-200 border border-slate-700/80 rounded-bl-none shadow-lg'
                 }`}
               >
-                <div className="prose prose-invert prose-xs max-w-none break-words whitespace-pre-wrap">
-                  {msg.content}
-                </div>
+                {isUser ? (
+                  <div className="whitespace-pre-wrap">{msg.content}</div>
+                ) : (
+                  <div
+                    className="coach-markdown"
+                    dangerouslySetInnerHTML={renderMarkdown(msg.content)}
+                  />
+                )}
 
                 {msg.needsKey && (
-                  <div className="mt-2 pt-2 border-t border-slate-700/60 flex items-center justify-between text-[10px] text-amber-300">
+                  <div className="mt-2.5 pt-2 border-t border-slate-700/60 flex items-center justify-between text-[10px] text-amber-300">
                     <span>Answered via Opening Knowledge Base.</span>
                     <button
                       onClick={() => setIsSettingsOpen(true)}
