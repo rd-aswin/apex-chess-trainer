@@ -66,15 +66,24 @@ export function FeatureLeakDetectionPage({ onNavigate, onLaunchApp }) {
         {/* BOTTOM CALLOUT */}
         <div className="bg-gradient-to-r from-rose-500/10 via-slate-900 to-slate-950 border border-rose-500/30 rounded-3xl p-8 flex flex-col sm:flex-row items-center justify-between gap-6">
           <div>
-            <h3 className="text-xl font-bold text-white">Audit Your Subconscious Chess Habits</h3>
-            <p className="text-xs text-slate-400 mt-1">Connect your Chess.com or Lichess account and run a full 50-game audit.</p>
+            <div className="text-xs font-bold uppercase tracking-wider text-rose-400">Included in Apex Pro & Lifetime Pass</div>
+            <h3 className="text-xl font-bold text-white mt-1">Audit Your Subconscious Chess Habits</h3>
+            <p className="text-xs text-slate-400 mt-1">Multi-game leak audits are part of Apex Pro & Lifetime. You can also review individual games for free anytime.</p>
           </div>
-          <button
-            onClick={onLaunchApp}
-            className="px-6 py-3.5 rounded-xl font-black text-xs uppercase tracking-wider text-slate-950 bg-emerald-400 hover:bg-emerald-300 transition-colors shadow-lg shadow-emerald-500/20 shrink-0"
-          >
-            Run 50-Game Audit Free
-          </button>
+          <div className="flex flex-col sm:flex-row gap-3 shrink-0">
+            <button
+              onClick={onLaunchApp}
+              className="px-6 py-3.5 rounded-xl font-black text-xs uppercase tracking-wider text-slate-950 bg-emerald-400 hover:bg-emerald-300 transition-colors shadow-lg shadow-emerald-500/20 text-center"
+            >
+              Start Free Game Review
+            </button>
+            <button
+              onClick={() => onNavigate('pricing')}
+              className="px-5 py-3.5 rounded-xl font-bold text-xs text-slate-300 hover:text-white bg-slate-900 hover:bg-slate-800 border border-slate-700 transition-colors text-center"
+            >
+              View Pro Plans ($39/yr)
+            </button>
+          </div>
         </div>
 
       </div>

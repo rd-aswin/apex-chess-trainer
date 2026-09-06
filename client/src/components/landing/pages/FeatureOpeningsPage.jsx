@@ -56,7 +56,7 @@ export function FeatureOpeningsPage({ onNavigate, onLaunchApp }) {
             onClick={onLaunchApp}
             className="px-6 py-3.5 rounded-xl font-black text-xs uppercase tracking-wider text-slate-950 bg-emerald-400 hover:bg-emerald-300 transition-colors shadow-lg shadow-emerald-500/20 shrink-0"
           >
-            Explore Repertoire Coach
+            Review Your Openings Free
           </button>
         </div>
 

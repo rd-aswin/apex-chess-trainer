@@ -393,11 +393,11 @@ export function HomePage({ onNavigate, onLaunchApp }) {
                 <Flame className="w-5 h-5" />
               </div>
               <h3 className="text-base font-bold text-white mb-2 flex items-center justify-between">
-                <span>Find Your Bad Habits</span>
+                <span>Find Your Bad Habits (Pro)</span>
                 <ArrowRight className="w-4 h-4 text-slate-500 group-hover:text-rose-400 group-hover:translate-x-1 transition-all" />
               </h3>
               <p className="text-xs text-slate-400 leading-relaxed">
-                Identifies recurring habits across your last 50 games: pieces left unguarded, king safety oversights, or giving away active bishops.
+                Identifies recurring habits across your games: pieces left unguarded, king safety oversights, or giving away active bishops. Available with Apex Pro.
               </p>
             </div>
 
@@ -427,11 +427,11 @@ export function HomePage({ onNavigate, onLaunchApp }) {
                 <Award className="w-5 h-5" />
               </div>
               <h3 className="text-base font-bold text-white mb-2 flex items-center justify-between">
-                <span>Custom Blunder Practice Drills</span>
+                <span>Custom Practice Drills (Pro)</span>
                 <ArrowRight className="w-4 h-4 text-slate-500 group-hover:text-indigo-400 group-hover:translate-x-1 transition-all" />
               </h3>
               <p className="text-xs text-slate-400 leading-relaxed">
-                Converts your actual game mistakes into interactive puzzles and Anki flashcards so you never make the same error twice.
+                Re-test your actual game mistakes against the engine and export positions for flashcard study so you never repeat the same error.
               </p>
             </div>
 

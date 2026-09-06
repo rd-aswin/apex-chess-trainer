@@ -221,8 +221,8 @@ export function LandingNavbar({ currentPage, onNavigate, onLaunchApp }) {
                   onClick={() => handleNav('use-cases/coaches')}
                   className="w-full text-left p-2.5 rounded-xl hover:bg-slate-800/80 transition-colors"
                 >
-                  <div className="text-xs font-bold text-white">Coaches & Academies</div>
-                  <div className="text-[11px] text-slate-400">Review student games automatically</div>
+                  <div className="text-xs font-bold text-white">Coaches & Teachers</div>
+                  <div className="text-[11px] text-slate-400">Review student games faster</div>
                 </button>
               </div>
             )}

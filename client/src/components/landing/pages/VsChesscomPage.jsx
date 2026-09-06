@@ -62,7 +62,7 @@ export function VsChesscomPage({ onNavigate, onLaunchApp }) {
                 <tr>
                   <td className="p-4 sm:p-5 font-bold text-white">Habit & Pattern Tracking</td>
                   <td className="p-4 sm:p-5 text-slate-300">Basic rating breakdown and general accuracy score</td>
-                  <td className="p-4 sm:p-5 text-slate-200 bg-emerald-500/5">Audits repeating blunder patterns across your last 50 games</td>
+                  <td className="p-4 sm:p-5 text-slate-200 bg-emerald-500/5">Audits repeating blunder patterns across your games (Apex Pro)</td>
                 </tr>
                 <tr>
                   <td className="p-4 sm:p-5 font-bold text-white">Data Privacy & Storage</td>

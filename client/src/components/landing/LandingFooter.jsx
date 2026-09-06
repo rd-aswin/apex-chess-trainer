@@ -160,7 +160,7 @@ export function LandingFooter({ onNavigate, onLaunchApp }) {
               </li>
               <li>
                 <button onClick={() => handleNav('use-cases/coaches')} className="hover:text-emerald-400 transition-colors">
-                  Coaches & Academies
+                  Coaches & Teachers
                 </button>
               </li>
             </ul>
