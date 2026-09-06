@@ -130,6 +130,14 @@ The technical documentation suite has been established in the project directory:
     - Added backend routes `POST /api/coach/chat`, `POST /api/coach/opening`, `GET/POST /api/coach/config` supporting Gemini, local Ollama, and built-in offline heuristic fallback.
     - Built `client/src/components/AiCoachChat.jsx` conversational interface with quick question chips ("Why is this move played in this opening?", "What is my plan here?", "What is opponent threatening?"), opening badges, expandable strategic guides, and API key settings modal.
     - Integrated "Ask Coach (AI)" tab in Game Review mode and quick "Ask Coach" button in the navigation header during live play.
+  - **Check for Updates & Tool Health Center (Stockfish, AI Models, npm Packages)**:
+    - Built `server/updater.js` with automated version querying across GitHub API (`official-stockfish/Stockfish/releases/latest`), Google Gemini AI model catalog (`gemini-2.5-flash`, `gemini-2.0-flash`, `gemini-1.5-pro`), and NPM registry (`chess.js`, `@google/genai`, `lucide-react`, `vite`, `express`).
+    - Implemented a 3-minute in-memory cache and `User-Agent: ApexChessTrainer-UpdateCheck` to prevent unauthenticated GitHub API rate limits (60 req/hr).
+    - Exposed `GET /api/updates/check` (with `?force=true` manual refresh bypass) in `server/index.js`.
+    - Built `client/src/components/UpdateModal.jsx` featuring a high-tech dark HUD aesthetic, animated radar scan sweep, pulsing sonar rings, live tool health status, and 1-click Windows x86-64 binary zip download direct from official GitHub releases.
+    - Integrated "Updates" button and dynamic update notification badge into `client/src/App.jsx` with silent background health check on mount.
+    - Local Git Commit Policy: Preserved local-only commit state without remote pushing per user instructions.
+
 
 
 

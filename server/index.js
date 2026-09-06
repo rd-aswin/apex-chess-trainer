@@ -8,6 +8,7 @@ import { analyzeGame } from './analyzer.js';
 import { getGameHistory, saveGameToHistory, getGameById, findGameByMoves } from './history.js';
 import { identifyOpening } from './openingBook.js';
 import { chatWithCoach, getCoachConfig, saveCoachConfig } from './aiCoach.js';
+import { getUpdateReport } from './updater.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -251,7 +252,19 @@ app.post('/api/coach/config', (req, res) => {
   }
 });
 
-// 7. Create Desktop Shortcut Endpoint
+// 7. Update & Tool Health Check Endpoint
+app.get('/api/updates/check', async (req, res) => {
+  try {
+    const force = req.query.force === 'true';
+    const report = await getUpdateReport(force);
+    res.json({ success: true, ...report });
+  } catch (err) {
+    console.error('[API /updates/check Error]:', err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// 8. Create Desktop Shortcut Endpoint
 app.post('/api/create-shortcut', (req, res) => {
   try {
     const desktop = path.join(process.env.USERPROFILE || process.env.HOME || '', 'Desktop');

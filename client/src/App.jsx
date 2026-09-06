@@ -9,8 +9,9 @@ import { AccuracyBadge } from './components/AccuracyBadge';
 import { GameHistoryModal } from './components/GameHistoryModal';
 import { DesktopAppModal } from './components/DesktopAppModal';
 import { AiCoachChat } from './components/AiCoachChat';
+import { UpdateModal } from './components/UpdateModal';
 import { useSoundEffects } from './hooks/useSoundEffects';
-import { Swords, RotateCcw, Flag, Sparkles, Award, History, Volume2, VolumeX, Monitor, Bot } from 'lucide-react';
+import { Swords, RotateCcw, Flag, Sparkles, Award, History, Volume2, VolumeX, Monitor, Bot, RefreshCw } from 'lucide-react';
 
 const API_BASE = 'http://localhost:5000/api';
 
@@ -49,7 +50,21 @@ export function App() {
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [isNewGameModalOpen, setIsNewGameModalOpen] = useState(false);
   const [isDesktopModalOpen, setIsDesktopModalOpen] = useState(false);
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+  const [updateAvailableBadge, setUpdateAvailableBadge] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
+
+  // Background check for updates on app mount
+  useEffect(() => {
+    fetch('http://localhost:5000/api/updates/check')
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.success && data.isUpdateAvailable) {
+          setUpdateAvailableBadge(true);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   // Procedural Audio
   const sounds = useSoundEffects();
@@ -655,6 +670,18 @@ export function App() {
           </button>
 
           <button
+            onClick={() => setIsUpdateModalOpen(true)}
+            className="relative flex items-center gap-1 px-2.5 py-1 rounded hover:bg-slate-800 text-slate-300 hover:text-white transition-colors border border-slate-700/80 bg-slate-800/60"
+            title="Check for Updates & Tool Health"
+          >
+            <RefreshCw size={13} className="text-emerald-400" />
+            <span className="text-[11px] font-semibold hidden md:inline">Updates</span>
+            {updateAvailableBadge && (
+              <span className="w-2 h-2 rounded-full bg-amber-400 absolute -top-0.5 -right-0.5 ring-2 ring-slate-900 animate-pulse" />
+            )}
+          </button>
+
+          <button
             onClick={() => setIsMuted((m) => !m)}
             className="p-1.5 rounded hover:bg-slate-800 text-slate-400 hover:text-slate-200 transition-colors"
             title={isMuted ? 'Unmute' : 'Mute'}
@@ -905,6 +932,12 @@ export function App() {
       <DesktopAppModal
         isOpen={isDesktopModalOpen}
         onClose={() => setIsDesktopModalOpen(false)}
+      />
+
+      {/* Tool & Engine Health Center Modal */}
+      <UpdateModal
+        isOpen={isUpdateModalOpen}
+        onClose={() => setIsUpdateModalOpen(false)}
       />
 
       {/* Play Mode - AI Coach Chat Modal */}
