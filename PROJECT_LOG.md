@@ -178,6 +178,15 @@ The technical documentation suite has been established in the project directory:
         - Features a side-by-side comparison table showing why plain-English coaching without subscriptions beats recurring billing.
       - Tested clean production build with Vite (1,625 modules compiled with 0 errors).
       - Committed locally to branch `commercial` (`f67d42b`).
+    - **Commercial Plan Truthfulness & Capability Audit**:
+      - Audited all 19 pages against the actual commercial plan defined in `docs/08_COMMERCIALIZATION_AND_ACQUISITION.md` to ensure zero over-promising.
+      - In `UseCaseCoachesPage.jsx`: Eliminated fictional LMS features ("Batch 30 student audits", "Classroom blunder fingerprinting across a class", "Printable classroom worksheets", "Coach Workspace"). Reframed around real capabilities: 1-click student match import, plain-English lesson prep, and eliminating student subscription costs.
+      - In `FeatureLeakDetectionPage.jsx`: Removed the misleading "Run 50-Game Audit Free" CTA and properly demarcated 50-game leak audits as an Apex Pro / Lifetime Founder feature while preserving free single-game reviews.
+      - In `FeatureDrillsPage.jsx`: Removed claims of automated background spaced repetition schedulers and binary `.apkg` deck compilers; grounded in blunder re-testing against Stockfish 19 and study exports.
+      - In `FeatureOpeningsPage.jsx`: Updated CTA to "Review Your Openings Free" to reflect post-game opening ECO recognition and middlegame plan advice.
+      - In `HomePage.jsx` and `VsChesscomPage.jsx`: Added explicit `(Pro)` tier badges and notes on multi-game habit detection and custom drills.
+      - In `LandingNavbar.jsx` & `LandingFooter.jsx`: Replaced "Coaches & Academies / Review student games automatically" with "Coaches & Teachers / Review student games faster".
+      - Verified production build (`npm run build`) and committed locally to branch `commercial` (`6187802`).
 
 
 
