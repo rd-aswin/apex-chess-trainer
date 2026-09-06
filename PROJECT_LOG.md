@@ -167,6 +167,17 @@ The technical documentation suite has been established in the project directory:
       - Cleaned all landing pages and navigation components to eliminate internal team and developer jargon (e.g., "Trojan Horse", "Neuro-symbolic", "AVX-512", "Bitboards", "Rentier Economy", "CAPS2").
       - Re-anchored every headline, benefit bullet, and comparison table to plain, relatable chess improver language ("Plain-English Explanations", "Find Your Bad Habits Across 50 Games", "World Champion Engine", "How to Get a Free Google Key in 60 Seconds", "Zero Monthly Fees").
       - Verified production build (`npm run build`) and committed locally to branch `commercial` (`03c75d4`).
+    - **Calculator Replacement & Simplification (Zero AI/Token Jargon)**:
+      - Removed the technical AI model token calculator from `PricingPage.jsx` (which previously showed raw token rates like \$0.00035/game, Claude 3.5 Sonnet, GPT-4o Mini, and Ollama buttons).
+      - Added customer peace-of-mind guarantees to `PricingPage.jsx` (30-Day Money-Back Guarantee, Free Google Key Guarantee, Instant 1-Click Chess.com/Lichess Import).
+      - Replaced `RoiCalculatorPage.jsx` with an intuitive **Chess Subscription Comparison Calculator**:
+        - Allows players to select what they currently pay: Chess.com Diamond (\$160/yr), Chess.com Platinum (\$100/yr), Aimchess (\$119/yr), or Chess.com Gold (\$60/yr).
+        - Select 1, 3, or 5-year timeline.
+        - Compare against Apex Free Key (\$0), Apex Lifetime (\$59 once), or Apex Pro (\$39/yr).
+        - Clearly shows exact cash kept in the player's pocket (\$420+ saved) and real-world value equivalents (tournament entries, wooden sets, chess books).
+        - Features a side-by-side comparison table showing why plain-English coaching without subscriptions beats recurring billing.
+      - Tested clean production build with Vite (1,625 modules compiled with 0 errors).
+      - Committed locally to branch `commercial` (`f67d42b`).
 
 
 
