@@ -11,6 +11,7 @@ import { DesktopAppModal } from './components/DesktopAppModal';
 import { AiCoachChat } from './components/AiCoachChat';
 import { UpdateModal } from './components/UpdateModal';
 import ImportGameModal from './components/ImportGameModal';
+import { LandingView } from './components/landing/LandingView';
 import { useSoundEffects } from './hooks/useSoundEffects';
 import { Swords, RotateCcw, Flag, Sparkles, Award, History, Volume2, VolumeX, Monitor, Bot, RefreshCw, UploadCloud, Loader2 } from 'lucide-react';
 
@@ -55,6 +56,29 @@ export function App() {
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [updateAvailableBadge, setUpdateAvailableBadge] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
+
+  // View state: 'landing' (19-page marketing website) vs 'app' (chess trainer board)
+  const [view, setView] = useState(() => {
+    const hash = window.location.hash.toLowerCase();
+    if (hash === '#app') return 'app';
+    return 'landing';
+  });
+
+  // Sync hash changes
+  useEffect(() => {
+    const handleHash = () => {
+      const hash = window.location.hash.toLowerCase();
+      if (hash === '#app') {
+        setView('app');
+      } else if (!hash || hash === '#landing' || hash === '#home' || hash.length > 1) {
+        if (hash !== '#app') {
+          setView('landing');
+        }
+      }
+    };
+    window.addEventListener('hashchange', handleHash);
+    return () => window.removeEventListener('hashchange', handleHash);
+  }, []);
 
   // Background check for updates on app mount
   useEffect(() => {
@@ -663,6 +687,18 @@ export function App() {
     return analysis.steps.find((s) => s.ply === currentPly) || null;
   }, [analysis, currentPly]);
 
+  // When in landing view, render the 19-page acquisition website
+  if (view === 'landing') {
+    return (
+      <LandingView
+        onLaunchApp={() => {
+          setView('app');
+          window.location.hash = '#app';
+        }}
+      />
+    );
+  }
+
   return (
     <div className="h-screen max-h-screen overflow-hidden bg-slate-950 text-slate-100 flex flex-col font-sans select-none">
       {/* Sleek Minimal Header (44px) */}
@@ -727,6 +763,18 @@ export function App() {
           >
             <UploadCloud size={14} className="text-cyan-400" />
             <span className="hidden sm:inline">Import</span>
+          </button>
+
+          <button
+            onClick={() => {
+              setView('landing');
+              window.location.hash = '#home';
+            }}
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded hover:bg-slate-800 text-emerald-400 hover:text-emerald-300 transition-colors border border-emerald-500/30 bg-emerald-500/10 text-xs font-semibold"
+            title="Explore Pricing, Features & Anti-Subscription Manifesto"
+          >
+            <Sparkles size={13} className="text-emerald-400" />
+            <span className="hidden sm:inline">Pricing & Site</span>
           </button>
 
           {isAnalyzing && (

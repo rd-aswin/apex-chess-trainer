@@ -51,6 +51,7 @@ The technical documentation suite has been established in the project directory:
 | **05. Explainable AI Pipeline**| [`docs/05_EXPLAINABLE_AI_PIPELINE.md`](file:///c:/Users/aswin/Desktop/WebDev/chessTrainer/docs/05_EXPLAINABLE_AI_PIPELINE.md) | 3-stage Neuro-Symbolic pipeline, DecodeChess threat model, CAPS2 math. |
 | **06. UI/UX Specification** | [`docs/06_UI_UX_SPECIFICATION.md`](file:///c:/Users/aswin/Desktop/WebDev/chessTrainer/docs/06_UI_UX_SPECIFICATION.md) | Wireframes, SVG board, arrows, eval bar, Web Audio sound design. |
 | **07. Open-Source Audit** | [`docs/07_OPEN_SOURCE_LICENSE_AUDIT.md`](file:///c:/Users/aswin/Desktop/WebDev/chessTrainer/docs/07_OPEN_SOURCE_LICENSE_AUDIT.md) | Zero-capital guarantee, complete FOSS license audit. |
+| **08. Commercialization & Acquisition** | [`docs/08_COMMERCIALIZATION_AND_ACQUISITION.md`](file:///c:/Users/aswin/Desktop/WebDev/chessTrainer/docs/08_COMMERCIALIZATION_AND_ACQUISITION.md) | BYOK-Led Trojan Horse pricing, 6 conversion psychology pillars, 19-page acquisition blueprint. |
 
 ---
 
@@ -136,13 +137,35 @@ The technical documentation suite has been established in the project directory:
     - Exposed `GET /api/updates/check` (with `?force=true` manual refresh bypass) in `server/index.js`.
     - Built `client/src/components/UpdateModal.jsx` featuring a high-tech dark HUD aesthetic, animated radar scan sweep, pulsing sonar rings, live tool health status, and 1-click Windows x86-64 binary zip download direct from official GitHub releases.
     - Synchronized to GitHub: Pushed commits (`a84f397`, `fa1b84d`) to `origin/main` on GitHub upon user review and approval.
-  - **1-Click Online Game Import (Chess.com, Lichess, PGN / FEN Paste)**:
-    - Built `server/importer.js` querying Chess.com public archives (`api.chess.com/pub/player/{username}/games/archives`) and Lichess game stream (`lichess.org/api/games/user/{username}`).
-    - Configured automatic filtering strictly for standard chess (`rules === 'chess'` and `variant === 'standard'`) to prevent engine crashes on unsupported variants (Chess960, Atomic, Horde).
-    - Added in-memory 2-minute caching and proper `User-Agent` headers to safeguard upstream rate limits.
-    - Added backend routes `GET /api/import/chesscom`, `GET /api/import/lichess`, and `POST /api/import/sanitize-pgn` in `server/index.js`.
-    - Built `client/src/components/ImportGameModal.jsx` tabbed modal with user search, recent search chips (`localStorage`), match cards with rating & time-control badges, and interactive PGN validator.
-    - Integrated "Import" button into navigation header in `client/src/App.jsx` and auto-review pipeline feeding imported matches into Stockfish 19 & AI Coach.
+  - **19-Page Customer Acquisition Website & BYOK Marketing Platform**:
+    - Formulated the "BYOK-Led Trojan Horse" (Freemium + Frictionless Pro) commercialization strategy based on research into high-growth BYOK pioneers (TypingMind, Cursor, Bolt).
+    - Authored comprehensive architectural specification `docs/08_COMMERCIALIZATION_AND_ACQUISITION.md` documenting unit economics (~$0.00035/game on Gemini Flash), 4-tier pricing model (Free BYOK $0, 3-Game Hosted Free Trial $0, Pro $4.99/mo, Lifetime Founder $59), and 6 core conversion psychology pillars.
+    - Designed and implemented a responsive, multi-page client-side acquisition platform with 19 dedicated high-intent routes:
+      1. Flagship Homepage (`/` / `#home`) with interactive blunder comparison demo and 3-year subscription graveyard.
+      2. Pricing & Plans (`#pricing`) with 4-tier matrix and interactive Token Burn calculator.
+      3. How BYOK Works (`#how-byok-works`) with 60-second visual setup guide and TLS direct privacy guarantee.
+      4. Apex vs. Chess.com Diamond (`#vs-chesscom`) teardown comparing canned scripts against articulate AI coaching.
+      5. Apex vs. Lichess (`#vs-lichess`) positioning Apex as an open-source pedagogical companion with 1-click import.
+      6. Explainable AI Post-Game Review (`#features/ai-review`) detailing the 3-stage Neuro-Symbolic truth engine.
+      7. Socratic Move-by-Move Sparring (`#features/socratic-sparring`) for active recall and idea testing.
+      8. 50-Game Subconscious Leak Detector (`#features/leak-detection`) auditing recurring subconscious habit flaws.
+      9. Stockfish 19 NNUE & AVX-512 (`#features/engine`) showcasing locked 3650+ Elo local CPU vectorization.
+      10. Personalized Blunder Drills & Anki (`#features/drills`) for spaced-repetition active recall.
+      11. Opening Repertoire & ECO Explorer (`#features/openings`) explaining master strategic plans.
+      12. 1200–1500 Plateaued Improver (`#use-cases/1200-1500`) addressing undefended piece blindness.
+      13. 1600–1900 Club Competitor (`#use-cases/1600-1900`) mastering pawn structures, outposts, and prophylaxis.
+      14. Busy Adult Improver (`#use-cases/adult-improver`) with 15-minute high-yield routine and zero idle subscription guilt.
+      15. Coaches & Chess Academies (`#use-cases/coaches`) with batch PGN evaluation and class blunder profiles.
+      16. Anti-Subscription Manifesto (`#manifesto`) covering "The Rentier Economy Ruined Software".
+      17. Interactive 3-Year ROI Calculator (`#calculator`) with live sliders and dynamic savings computation ($400+ saved).
+      18. Zero-Friction Interactive Sandbox (`#demo`) for instant playable blunder analysis without account setup.
+      19. Master FAQ & Security (`#faq-privacy`) crushing objections on API key safety, local encryption, and GPL-3 rights.
+    - Built `LandingNavbar.jsx` with responsive dropdowns, mobile drawer, and prominent "Launch Live App" CTA.
+    - Built `LandingFooter.jsx` with complete 19-link sitemap and real-time engine status bar.
+    - Built `LandingView.jsx` master coordinator with URL hash routing and scroll synchronization.
+    - Integrated bidirectional switching in `client/src/App.jsx`: Landing page defaults on root URL with 1-click jump into the live chessboard, and "Pricing & Site" header button to return to marketing pages anytime.
+    - Verified complete production build with Vite (`npm run build`), confirming 1,625 modules compiled cleanly with zero errors.
+
 
 
 
