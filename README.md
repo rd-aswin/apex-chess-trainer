@@ -23,15 +23,14 @@
 
 **Apex Chess Trainer** is a personal training platform engineered to let players confront the absolute strongest chess entity in existence: **Stockfish 19 NNUE (~3650+ Elo)** running at locked maximum difficulty (Skill Level 20, 8-16 threads, AVX-512 hardware acceleration).
 
-Instead of superficial computer scores (-3.4 blunder) or raw engine coordinate strings that confuse human players, Apex Chess Trainer incorporates a **pedagogical tactical engine** that breaks down human mistakes in plain English, explaining hanging pieces, removed guards, king safety flaws, and tactical motifs.
+Instead of superficial computer scores (`-3.4 blunder`) or raw engine coordinate strings that confuse human players, Apex Chess Trainer incorporates a **pedagogical tactical engine** that breaks down human mistakes in plain English, explaining hanging pieces, removed guards, king safety flaws, and tactical motifs.
 
 ---
 
 ## ✨ Core Features
 
 * **👑 Superhuman Opponent (Stockfish 19 NNUE)**:
-  * Powered by the latest dual-NNUE architecture (
-n-1a298aa575a0.nnue) running directly on your CPU with AVX-512 vectorization (8–12+ million nodes/sec).
+  * Powered by the latest dual-NNUE architecture (`nn-1a298aa575a0.nnue`) running directly on your CPU with AVX-512 vectorization (8–12+ million nodes/sec).
   * Locked at maximum difficulty (**Skill Level 20**)—no dumbed-down blunders or artificial handicaps.
 * **🧠 Pedagogical Coach Breakdown**:
   * Human-readable explanations for blunders, mistakes, inaccuracies, and missed tactics.
@@ -47,8 +46,8 @@ n-1a298aa575a0.nnue) running directly on your CPU with AVX-512 vectorization (8�
   * Lichess/Chess.com style CAPS accuracy percentage calculation for both White and Black.
   * Match history archive with instant replay and review caching.
 * **🚀 1-Click Desktop Launcher & PWA**:
-  * Native desktop shortcut (Apex Chess Trainer.lnk) with custom high-res emerald emblem icon.
-  * Starts the local backend and frontend automatically and launches Chrome/Edge in standalone app mode (--app=http://localhost:5173).
+  * Native desktop shortcut (`Apex Chess Trainer.lnk`) with custom high-res emerald emblem icon.
+  * Starts the local backend and frontend automatically and launches Chrome/Edge in standalone app mode (`--app=http://localhost:5173`).
 * **🔒 100% Offline & Free**:
   * Zero paid cloud subscriptions, zero external API keys, zero tracking. All engine computation and review occurs locally on your machine.
 
@@ -58,7 +57,7 @@ n-1a298aa575a0.nnue) running directly on your CPU with AVX-512 vectorization (8�
 
 The application is structured as a decoupled local client-server architecture:
 
-`
+```
 ├── bin/                       # Native chess engine binaries (Stockfish 19 NNUE via Git LFS)
 ├── client/                    # React 19 + Vite + TailwindCSS Single-Page Application
 │   ├── public/                # PWA icons, manifest.json, sw.js, favicon
@@ -76,7 +75,7 @@ The application is structured as a decoupled local client-server architecture:
 ├── docs/                      # Full-depth technical architecture documentation
 ├── run.bat                    # One-click Windows desktop launcher
 └── app.ico                    # Windows application icon
-`
+```
 
 ---
 
@@ -85,48 +84,48 @@ The application is structured as a decoupled local client-server architecture:
 ### Prerequisites
 * [Node.js](https://nodejs.org/) (v18 or higher)
 * [Git](https://git-scm.com/) (with [Git LFS](https://git-lfs.github.com/))
-* Windows 10/11 (for un.bat one-click desktop launch)
+* Windows 10/11 (for `run.bat` one-click desktop launch)
 
 ### Installation
 
 1. **Clone the repository:**
-   `ash
+   ```bash
    git clone https://github.com/rd-aswin/apex-chess-trainer.git
    cd apex-chess-trainer
-   `
+   ```
 
 2. **Pull large engine binary (Git LFS):**
-   `ash
+   ```bash
    git lfs pull
-   `
+   ```
 
 3. **Install dependencies:**
-   `ash
+   ```bash
    # Server dependencies
    cd server && npm install
    
    # Client dependencies
    cd ../client && npm install
    cd ..
-   `
+   ```
 
 4. **Launch the Trainer:**
-   * **Windows**: Double-click un.bat or run it from terminal.
+   * **Windows**: Double-click `run.bat` or run it from terminal.
    * **Manual**:
-     `ash
+     ```bash
      # Terminal 1: Backend
      cd server && node index.js
      
      # Terminal 2: Frontend
      cd client && npm run dev
-     `
-   * Open your browser at http://localhost:5173.
+     ```
+   * Open your browser at `http://localhost:5173`.
 
 ---
 
 ## 📚 Technical Documentation
 
-Complete technical specifications are available in the [docs/](docs/) directory:
+Complete technical specifications are available in the [`docs/`](docs/) directory:
 * [01. Project Overview & Philosophy](docs/01_PROJECT_OVERVIEW.md)
 * [02. System Architecture & API Specification](docs/02_SYSTEM_ARCHITECTURE.md)
 * [03. Hardware Acceleration & Instruction Sets](docs/03_HARDWARE_INTEGRATION.md)
