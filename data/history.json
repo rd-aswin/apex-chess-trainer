@@ -1,0 +1,1986 @@
+[
+  {
+    "id": "game_1788675631701",
+    "date": "2026-09-06T06:20:31.701Z",
+    "moves": [
+      "d2d4",
+      "g8f6",
+      "c2c4",
+      "e7e6",
+      "b1c3",
+      "f8b4",
+      "c1d2",
+      "c7c5",
+      "d4d5",
+      "e8g8",
+      "e2e4",
+      "b4c3",
+      "d2c3",
+      "f6e4",
+      "d1g4",
+      "e4c3",
+      "b2c3",
+      "e6d5",
+      "c4d5",
+      "f8e8",
+      "f1e2",
+      "d7d6",
+      "g4g3",
+      "d8a5",
+      "e1c1",
+      "b8d7",
+      "c1b1",
+      "d7f6",
+      "d1d3",
+      "c8f5",
+      "g3d6",
+      "a5c3",
+      "g1f3",
+      "e8e2",
+      "h1c1",
+      "c3b2"
+    ],
+    "userColor": "w",
+    "result": "Archived match (Checkmate! Black wins.)",
+    "accuracy": {
+      "white": 90.7,
+      "black": 93.6
+    },
+    "counts": {
+      "white": {
+        "best": 7,
+        "good": 5,
+        "inaccuracy": 2,
+        "mistake": 1,
+        "blunder": 3,
+        "missedWin": 0
+      },
+      "black": {
+        "best": 18,
+        "good": 0,
+        "inaccuracy": 0,
+        "mistake": 0,
+        "blunder": 0,
+        "missedWin": 0
+      }
+    },
+    "steps": [
+      {
+        "ply": 1,
+        "moveNumber": 1,
+        "turn": "w",
+        "playedMoveUci": "d2d4",
+        "playedMoveSan": "d4",
+        "fenBefore": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        "fenAfter": "rnbqkbnr/pppppppp/8/8/3P4/8/PPP1PPPP/RNBQKBNR b KQkq - 0 1",
+        "score": {
+          "type": "cp",
+          "value": 19
+        },
+        "whiteEvalCp": 19,
+        "bestMoveUci": "e2e4",
+        "bestMoveSan": "e4",
+        "refutationPv": [
+          "g8f6",
+          "g1f3",
+          "e7e6",
+          "c2c4",
+          "d7d5",
+          "b1c3",
+          "c7c5",
+          "e2e3",
+          "f8d6",
+          "c4d5",
+          "e6d5",
+          "d4c5",
+          "d6c5",
+          "a2a3",
+          "e8g8"
+        ],
+        "classification": {
+          "classification": "Good",
+          "label": "Good",
+          "glyph": "✔",
+          "color": "blue"
+        },
+        "accuracy": 90.8,
+        "explanation": null
+      },
+      {
+        "ply": 2,
+        "moveNumber": 1,
+        "turn": "b",
+        "playedMoveUci": "g8f6",
+        "playedMoveSan": "Nf6",
+        "fenBefore": "rnbqkbnr/pppppppp/8/8/3P4/8/PPP1PPPP/RNBQKBNR b KQkq - 0 1",
+        "fenAfter": "rnbqkb1r/pppppppp/5n2/8/3P4/8/PPP1PPPP/RNBQKBNR w KQkq - 1 2",
+        "score": {
+          "type": "cp",
+          "value": 28
+        },
+        "whiteEvalCp": 28,
+        "bestMoveUci": "g8f6",
+        "bestMoveSan": "Nf6",
+        "refutationPv": [
+          "c2c4",
+          "e7e6",
+          "g2g3",
+          "d7d5",
+          "f1g2",
+          "f8e7",
+          "g1f3",
+          "e8g8",
+          "e1g1",
+          "d5c4",
+          "d1c2",
+          "b7b5",
+          "a2a4",
+          "c8b7",
+          "a4b5",
+          "a7a6",
+          "b5a6",
+          "b8a6",
+          "c2c4"
+        ],
+        "classification": {
+          "classification": "Best",
+          "label": "Best Move",
+          "glyph": "★",
+          "color": "emerald"
+        },
+        "accuracy": 100,
+        "explanation": null
+      },
+      {
+        "ply": 3,
+        "moveNumber": 2,
+        "turn": "w",
+        "playedMoveUci": "c2c4",
+        "playedMoveSan": "c4",
+        "fenBefore": "rnbqkb1r/pppppppp/5n2/8/3P4/8/PPP1PPPP/RNBQKBNR w KQkq - 1 2",
+        "fenAfter": "rnbqkb1r/pppppppp/5n2/8/2PP4/8/PP2PPPP/RNBQKBNR b KQkq - 0 2",
+        "score": {
+          "type": "cp",
+          "value": 24
+        },
+        "whiteEvalCp": 24,
+        "bestMoveUci": "c2c4",
+        "bestMoveSan": "c4",
+        "refutationPv": [
+          "e7e6",
+          "g2g3",
+          "d7d5",
+          "f1g2",
+          "f8e7",
+          "g1f3",
+          "e8g8",
+          "e1g1",
+          "d5c4",
+          "d1c2",
+          "b7b5",
+          "a2a4",
+          "c8b7",
+          "a4b5",
+          "a7a6",
+          "b5a6",
+          "b8a6",
+          "c2c4",
+          "b7d5",
+          "c4b5"
+        ],
+        "classification": {
+          "classification": "Best",
+          "label": "Best Move",
+          "glyph": "★",
+          "color": "emerald"
+        },
+        "accuracy": 97.5,
+        "explanation": null
+      },
+      {
+        "ply": 4,
+        "moveNumber": 2,
+        "turn": "b",
+        "playedMoveUci": "e7e6",
+        "playedMoveSan": "e6",
+        "fenBefore": "rnbqkb1r/pppppppp/5n2/8/2PP4/8/PP2PPPP/RNBQKBNR b KQkq - 0 2",
+        "fenAfter": "rnbqkb1r/pppp1ppp/4pn2/8/2PP4/8/PP2PPPP/RNBQKBNR w KQkq - 0 3",
+        "score": {
+          "type": "cp",
+          "value": 28
+        },
+        "whiteEvalCp": 28,
+        "bestMoveUci": "e7e6",
+        "bestMoveSan": "e6",
+        "refutationPv": [
+          "g2g3",
+          "d7d5",
+          "g1f3",
+          "d5c4",
+          "f1g2",
+          "b8d7",
+          "e1g1",
+          "a8b8",
+          "a2a4",
+          "a7a6",
+          "d1c2",
+          "b7b5",
+          "f3e5",
+          "d7e5",
+          "d4e5"
+        ],
+        "classification": {
+          "classification": "Best",
+          "label": "Best Move",
+          "glyph": "★",
+          "color": "emerald"
+        },
+        "accuracy": 100,
+        "explanation": null
+      },
+      {
+        "ply": 5,
+        "moveNumber": 3,
+        "turn": "w",
+        "playedMoveUci": "b1c3",
+        "playedMoveSan": "Nc3",
+        "fenBefore": "rnbqkb1r/pppp1ppp/4pn2/8/2PP4/8/PP2PPPP/RNBQKBNR w KQkq - 0 3",
+        "fenAfter": "rnbqkb1r/pppp1ppp/4pn2/8/2PP4/2N5/PP2PPPP/R1BQKBNR b KQkq - 1 3",
+        "score": {
+          "type": "cp",
+          "value": 18
+        },
+        "whiteEvalCp": 18,
+        "bestMoveUci": "g2g3",
+        "bestMoveSan": "g3",
+        "refutationPv": [
+          "f8b4",
+          "g1f3",
+          "b7b6",
+          "d1c2",
+          "c8b7",
+          "a2a3",
+          "b4c3",
+          "c2c3",
+          "d8e7",
+          "e2e3",
+          "e8g8",
+          "b2b4"
+        ],
+        "classification": {
+          "classification": "Best",
+          "label": "Best Move",
+          "glyph": "★",
+          "color": "emerald"
+        },
+        "accuracy": 93.8,
+        "explanation": null
+      },
+      {
+        "ply": 6,
+        "moveNumber": 3,
+        "turn": "b",
+        "playedMoveUci": "f8b4",
+        "playedMoveSan": "Bb4",
+        "fenBefore": "rnbqkb1r/pppp1ppp/4pn2/8/2PP4/2N5/PP2PPPP/R1BQKBNR b KQkq - 1 3",
+        "fenAfter": "rnbqk2r/pppp1ppp/4pn2/8/1bPP4/2N5/PP2PPPP/R1BQKBNR w KQkq - 2 4",
+        "score": {
+          "type": "cp",
+          "value": 24
+        },
+        "whiteEvalCp": 24,
+        "bestMoveUci": "f8b4",
+        "bestMoveSan": "Bb4",
+        "refutationPv": [
+          "g1f3",
+          "b7b6",
+          "d1c2",
+          "c8b7",
+          "a2a3",
+          "b4c3",
+          "c2c3",
+          "e8g8",
+          "c1g5",
+          "d7d6",
+          "e2e3"
+        ],
+        "classification": {
+          "classification": "Best",
+          "label": "Best Move",
+          "glyph": "★",
+          "color": "emerald"
+        },
+        "accuracy": 100,
+        "explanation": null
+      },
+      {
+        "ply": 7,
+        "moveNumber": 4,
+        "turn": "w",
+        "playedMoveUci": "c1d2",
+        "playedMoveSan": "Bd2",
+        "fenBefore": "rnbqk2r/pppp1ppp/4pn2/8/1bPP4/2N5/PP2PPPP/R1BQKBNR w KQkq - 2 4",
+        "fenAfter": "rnbqk2r/pppp1ppp/4pn2/8/1bPP4/2N5/PP1BPPPP/R2QKBNR b KQkq - 3 4",
+        "score": {
+          "type": "cp",
+          "value": 2
+        },
+        "whiteEvalCp": 2,
+        "bestMoveUci": "g1f3",
+        "bestMoveSan": "Nf3",
+        "refutationPv": [
+          "c7c5",
+          "e2e3",
+          "c5d4",
+          "e3d4",
+          "d7d5",
+          "c4d5",
+          "e6d5",
+          "f1d3",
+          "b8c6",
+          "g1e2",
+          "h7h6",
+          "e1g1",
+          "e8g8",
+          "h2h3",
+          "f8e8",
+          "a1c1"
+        ],
+        "classification": {
+          "classification": "Good",
+          "label": "Good",
+          "glyph": "✔",
+          "color": "blue"
+        },
+        "accuracy": 86.7,
+        "explanation": null
+      },
+      {
+        "ply": 8,
+        "moveNumber": 4,
+        "turn": "b",
+        "playedMoveUci": "c7c5",
+        "playedMoveSan": "c5",
+        "fenBefore": "rnbqk2r/pppp1ppp/4pn2/8/1bPP4/2N5/PP1BPPPP/R2QKBNR b KQkq - 3 4",
+        "fenAfter": "rnbqk2r/pp1p1ppp/4pn2/2p5/1bPP4/2N5/PP1BPPPP/R2QKBNR w KQkq - 0 5",
+        "score": {
+          "type": "cp",
+          "value": 1
+        },
+        "whiteEvalCp": 1,
+        "bestMoveUci": "c7c5",
+        "bestMoveSan": "c5",
+        "refutationPv": [
+          "e2e3",
+          "c5d4",
+          "e3d4",
+          "e8g8",
+          "f1d3",
+          "b8c6",
+          "g1f3",
+          "d7d5",
+          "c4d5",
+          "e6d5",
+          "e1g1",
+          "c8g4",
+          "d2g5",
+          "b4e7",
+          "f1e1",
+          "h7h6",
+          "g5f6",
+          "e7f6",
+          "h2h3",
+          "g4h5",
+          "g2g4",
+          "h5g6",
+          "d3g6",
+          "f7g6",
+          "d1d3"
+        ],
+        "classification": {
+          "classification": "Best",
+          "label": "Best Move",
+          "glyph": "★",
+          "color": "emerald"
+        },
+        "accuracy": 99.4,
+        "explanation": null
+      },
+      {
+        "ply": 9,
+        "moveNumber": 5,
+        "turn": "w",
+        "playedMoveUci": "d4d5",
+        "playedMoveSan": "d5",
+        "fenBefore": "rnbqk2r/pp1p1ppp/4pn2/2p5/1bPP4/2N5/PP1BPPPP/R2QKBNR w KQkq - 0 5",
+        "fenAfter": "rnbqk2r/pp1p1ppp/4pn2/2pP4/1bP5/2N5/PP1BPPPP/R2QKBNR b KQkq - 0 5",
+        "score": {
+          "type": "cp",
+          "value": 2
+        },
+        "whiteEvalCp": 2,
+        "bestMoveUci": "e2e3",
+        "bestMoveSan": "e3",
+        "refutationPv": [
+          "e8g8",
+          "e2e3",
+          "e6d5",
+          "c3d5",
+          "f6d5",
+          "c4d5",
+          "b4d2",
+          "d1d2",
+          "d7d6",
+          "g1e2",
+          "b8d7",
+          "e2c3",
+          "f7f5",
+          "a2a4",
+          "d8e7",
+          "f1e2",
+          "d7f6",
+          "e1g1",
+          "c8d7",
+          "e2d3"
+        ],
+        "classification": {
+          "classification": "Best",
+          "label": "Best Move",
+          "glyph": "★",
+          "color": "emerald"
+        },
+        "accuracy": 100,
+        "explanation": null
+      },
+      {
+        "ply": 10,
+        "moveNumber": 5,
+        "turn": "b",
+        "playedMoveUci": "e8g8",
+        "playedMoveSan": "O-O",
+        "fenBefore": "rnbqk2r/pp1p1ppp/4pn2/2pP4/1bP5/2N5/PP1BPPPP/R2QKBNR b KQkq - 0 5",
+        "fenAfter": "rnbq1rk1/pp1p1ppp/4pn2/2pP4/1bP5/2N5/PP1BPPPP/R2QKBNR w KQ - 1 6",
+        "score": {
+          "type": "cp",
+          "value": 3
+        },
+        "whiteEvalCp": 3,
+        "bestMoveUci": "e8g8",
+        "bestMoveSan": "O-O",
+        "refutationPv": [
+          "e2e3",
+          "e6d5",
+          "c3d5",
+          "f6d5",
+          "c4d5",
+          "b4d2",
+          "d1d2",
+          "d7d6",
+          "g1e2",
+          "f8e8",
+          "e2c3",
+          "b8d7",
+          "f1e2",
+          "d8g5",
+          "e1g1",
+          "d7f6",
+          "f2f4"
+        ],
+        "classification": {
+          "classification": "Best",
+          "label": "Best Move",
+          "glyph": "★",
+          "color": "emerald"
+        },
+        "accuracy": 100,
+        "explanation": null
+      },
+      {
+        "ply": 11,
+        "moveNumber": 6,
+        "turn": "w",
+        "playedMoveUci": "e2e4",
+        "playedMoveSan": "e4",
+        "fenBefore": "rnbq1rk1/pp1p1ppp/4pn2/2pP4/1bP5/2N5/PP1BPPPP/R2QKBNR w KQ - 1 6",
+        "fenAfter": "rnbq1rk1/pp1p1ppp/4pn2/2pP4/1bP1P3/2N5/PP1B1PPP/R2QKBNR b KQ - 0 6",
+        "score": {
+          "type": "cp",
+          "value": -56
+        },
+        "whiteEvalCp": -56,
+        "bestMoveUci": "e2e3",
+        "bestMoveSan": "e3",
+        "refutationPv": [
+          "b4c3",
+          "d2c3",
+          "f6e4",
+          "c3g7",
+          "f8e8",
+          "d5d6",
+          "f7f5",
+          "g7h6",
+          "d8a5",
+          "h6d2",
+          "a5d2",
+          "d1d2",
+          "e4d2",
+          "e1d2",
+          "b7b6",
+          "g1f3",
+          "c8b7",
+          "h1g1",
+          "b7f3",
+          "g2f3",
+          "g8f7",
+          "f3f4",
+          "b8c6",
+          "f1e2",
+          "f7f6",
+          "g1g3",
+          "c6d4",
+          "e2h5",
+          "e8g8",
+          "a1g1",
+          "g8g3",
+          "h2g3",
+          "a8c8",
+          "g1h1",
+          "f6g7"
+        ],
+        "classification": {
+          "classification": "Inaccuracy",
+          "label": "Inaccuracy",
+          "glyph": "?!",
+          "color": "yellow"
+        },
+        "accuracy": 68.3,
+        "explanation": {
+          "tacticalMotifs": [
+            "Material Loss"
+          ],
+          "tacticalMotif": "Material Loss",
+          "why": "e4 blunders material: Stockfish wins your knight with Bxc3.",
+          "whySummary": "e4 blunders material: Stockfish wins your knight with Bxc3.",
+          "whyBetter": "e3 controls key central squares, avoids tactical weaknesses, and denies opponent pieces forward outposts.",
+          "refutationExplanation": "Stockfish plays Bxc3, capturing your knight on c3.",
+          "refutationPv": "b4c3 d2c3 f6e4 c3g7 f8e8 d5d6 f7f5 g7h6 d8a5 h6d2 a5d2 d1d2 e4d2 e1d2 b7b6 g1f3 c8b7 h1g1 b7f3 g2f3 g8f7 f3f4 b8c6 f1e2 f7f6 g1g3 c6d4 e2h5 e8g8 a1g1 g8g3 h2g3 a8c8 g1h1 f6g7",
+          "classification": "Inaccuracy"
+        }
+      },
+      {
+        "ply": 12,
+        "moveNumber": 6,
+        "turn": "b",
+        "playedMoveUci": "b4c3",
+        "playedMoveSan": "Bxc3",
+        "fenBefore": "rnbq1rk1/pp1p1ppp/4pn2/2pP4/1bP1P3/2N5/PP1B1PPP/R2QKBNR b KQ - 0 6",
+        "fenAfter": "rnbq1rk1/pp1p1ppp/4pn2/2pP4/2P1P3/2b5/PP1B1PPP/R2QKBNR w KQ - 0 7",
+        "score": {
+          "type": "cp",
+          "value": -71
+        },
+        "whiteEvalCp": -71,
+        "bestMoveUci": "b4c3",
+        "bestMoveSan": "Bxc3",
+        "refutationPv": [
+          "d2c3",
+          "f6e4",
+          "c3g7",
+          "f8e8",
+          "d5d6",
+          "f7f5",
+          "g7c3",
+          "e4c3",
+          "b2c3",
+          "d8f6",
+          "d1d2",
+          "b7b6",
+          "e1c1",
+          "c8b7",
+          "f2f4",
+          "b8c6",
+          "g1f3",
+          "e6e5",
+          "d2d5",
+          "e8e6",
+          "f4e5",
+          "f6h6",
+          "d5d2",
+          "h6d2",
+          "c1d2",
+          "c6e5",
+          "f3e5",
+          "e6e5",
+          "f1d3",
+          "a8f8"
+        ],
+        "classification": {
+          "classification": "Best",
+          "label": "Best Move",
+          "glyph": "★",
+          "color": "emerald"
+        },
+        "accuracy": 91,
+        "explanation": null
+      },
+      {
+        "ply": 13,
+        "moveNumber": 7,
+        "turn": "w",
+        "playedMoveUci": "d2c3",
+        "playedMoveSan": "Bxc3",
+        "fenBefore": "rnbq1rk1/pp1p1ppp/4pn2/2pP4/2P1P3/2b5/PP1B1PPP/R2QKBNR w KQ - 0 7",
+        "fenAfter": "rnbq1rk1/pp1p1ppp/4pn2/2pP4/2P1P3/2B5/PP3PPP/R2QKBNR b KQ - 0 7",
+        "score": {
+          "type": "cp",
+          "value": -57
+        },
+        "whiteEvalCp": -57,
+        "bestMoveUci": "d2c3",
+        "bestMoveSan": "Bxc3",
+        "refutationPv": [
+          "f6e4",
+          "c3g7",
+          "f8e8",
+          "d5d6",
+          "f7f5",
+          "g7c3",
+          "e4c3",
+          "b2c3",
+          "d8f6",
+          "g1e2",
+          "b7b6",
+          "d1d2",
+          "c8b7",
+          "e1c1",
+          "g8h8",
+          "e2g3",
+          "e8g8",
+          "f1e2",
+          "b8c6",
+          "h1g1",
+          "f6f7"
+        ],
+        "classification": {
+          "classification": "Best",
+          "label": "Best Move",
+          "glyph": "★",
+          "color": "emerald"
+        },
+        "accuracy": 100,
+        "explanation": null
+      },
+      {
+        "ply": 14,
+        "moveNumber": 7,
+        "turn": "b",
+        "playedMoveUci": "f6e4",
+        "playedMoveSan": "Nxe4",
+        "fenBefore": "rnbq1rk1/pp1p1ppp/4pn2/2pP4/2P1P3/2B5/PP3PPP/R2QKBNR b KQ - 0 7",
+        "fenAfter": "rnbq1rk1/pp1p1ppp/4p3/2pP4/2P1n3/2B5/PP3PPP/R2QKBNR w KQ - 0 8",
+        "score": {
+          "type": "cp",
+          "value": -54
+        },
+        "whiteEvalCp": -54,
+        "bestMoveUci": "f6e4",
+        "bestMoveSan": "Nxe4",
+        "refutationPv": [
+          "c3g7",
+          "f8e8",
+          "d5d6",
+          "f7f5",
+          "g7c3",
+          "e4c3",
+          "b2c3",
+          "d8f6",
+          "d1d2",
+          "b7b6",
+          "e1c1",
+          "c8b7",
+          "g1h3",
+          "g8h8",
+          "h3f4",
+          "e8g8",
+          "f1e2",
+          "f6h6",
+          "h2h4",
+          "b8c6",
+          "h4h5",
+          "e6e5",
+          "f4g6",
+          "h8g7",
+          "d2h6",
+          "g7h6",
+          "g6e7",
+          "g8g5",
+          "h1g1",
+          "a8f8"
+        ],
+        "classification": {
+          "classification": "Best",
+          "label": "Best Move",
+          "glyph": "★",
+          "color": "emerald"
+        },
+        "accuracy": 100,
+        "explanation": null
+      },
+      {
+        "ply": 15,
+        "moveNumber": 8,
+        "turn": "w",
+        "playedMoveUci": "d1g4",
+        "playedMoveSan": "Qg4",
+        "fenBefore": "rnbq1rk1/pp1p1ppp/4p3/2pP4/2P1n3/2B5/PP3PPP/R2QKBNR w KQ - 0 8",
+        "fenAfter": "rnbq1rk1/pp1p1ppp/4p3/2pP4/2P1n1Q1/2B5/PP3PPP/R3KBNR b KQ - 1 8",
+        "score": {
+          "type": "cp",
+          "value": -505
+        },
+        "whiteEvalCp": -505,
+        "bestMoveUci": "c3g7",
+        "bestMoveSan": "Bxg7",
+        "refutationPv": [
+          "e4c3",
+          "b2c3",
+          "e6d5",
+          "f1d3",
+          "d7d6",
+          "g4d1",
+          "d5c4",
+          "d3c4",
+          "b8d7",
+          "g1e2",
+          "d7f6",
+          "c4b3",
+          "d6d5",
+          "e1g1",
+          "c8f5",
+          "d1d2",
+          "d8a5"
+        ],
+        "classification": {
+          "classification": "Blunder",
+          "label": "Blunder",
+          "glyph": "??",
+          "color": "red"
+        },
+        "accuracy": 17.3,
+        "explanation": {
+          "tacticalMotifs": [
+            "Material Loss"
+          ],
+          "tacticalMotif": "Material Loss",
+          "why": "Qg4 blunders material: Stockfish wins your bishop with Nxc3.",
+          "whySummary": "Qg4 blunders material: Stockfish wins your bishop with Nxc3.",
+          "whyBetter": "Bxg7 develops your bishop actively to a defended square, maintaining piece coordination without hanging material.",
+          "refutationExplanation": "Stockfish plays Nxc3, capturing your bishop on c3.",
+          "refutationPv": "e4c3 b2c3 e6d5 f1d3 d7d6 g4d1 d5c4 d3c4 b8d7 g1e2 d7f6 c4b3 d6d5 e1g1 c8f5 d1d2 d8a5",
+          "classification": "Blunder"
+        }
+      },
+      {
+        "ply": 16,
+        "moveNumber": 8,
+        "turn": "b",
+        "playedMoveUci": "e4c3",
+        "playedMoveSan": "Nxc3",
+        "fenBefore": "rnbq1rk1/pp1p1ppp/4p3/2pP4/2P1n1Q1/2B5/PP3PPP/R3KBNR b KQ - 1 8",
+        "fenAfter": "rnbq1rk1/pp1p1ppp/4p3/2pP4/2P3Q1/2n5/PP3PPP/R3KBNR w KQ - 0 9",
+        "score": {
+          "type": "cp",
+          "value": -497
+        },
+        "whiteEvalCp": -497,
+        "bestMoveUci": "e4c3",
+        "bestMoveSan": "Nxc3",
+        "refutationPv": [
+          "b2c3",
+          "e6d5",
+          "f1d3",
+          "d7d6",
+          "g4d1",
+          "d5c4",
+          "d3c4",
+          "b8d7",
+          "g1e2",
+          "d7f6",
+          "e1g1",
+          "d6d5",
+          "c4b3",
+          "c8f5",
+          "e2f4",
+          "c5c4",
+          "b3a4",
+          "d8a5",
+          "a4c2",
+          "f5c2",
+          "d1c2",
+          "a8d8"
+        ],
+        "classification": {
+          "classification": "Best",
+          "label": "Best Move",
+          "glyph": "★",
+          "color": "emerald"
+        },
+        "accuracy": 100,
+        "explanation": null
+      },
+      {
+        "ply": 17,
+        "moveNumber": 9,
+        "turn": "w",
+        "playedMoveUci": "b2c3",
+        "playedMoveSan": "bxc3",
+        "fenBefore": "rnbq1rk1/pp1p1ppp/4p3/2pP4/2P3Q1/2n5/PP3PPP/R3KBNR w KQ - 0 9",
+        "fenAfter": "rnbq1rk1/pp1p1ppp/4p3/2pP4/2P3Q1/2P5/P4PPP/R3KBNR b KQ - 0 9",
+        "score": {
+          "type": "cp",
+          "value": -488
+        },
+        "whiteEvalCp": -488,
+        "bestMoveUci": "b2c3",
+        "bestMoveSan": "bxc3",
+        "refutationPv": [
+          "e6d5",
+          "f1d3",
+          "d7d6",
+          "g4d1",
+          "d5c4",
+          "d3c4",
+          "b8d7",
+          "g1e2",
+          "d7f6",
+          "e1g1",
+          "d6d5",
+          "c4b3",
+          "c8f5",
+          "f2f3",
+          "h7h5"
+        ],
+        "classification": {
+          "classification": "Best",
+          "label": "Best Move",
+          "glyph": "★",
+          "color": "emerald"
+        },
+        "accuracy": 100,
+        "explanation": null
+      },
+      {
+        "ply": 18,
+        "moveNumber": 9,
+        "turn": "b",
+        "playedMoveUci": "e6d5",
+        "playedMoveSan": "exd5",
+        "fenBefore": "rnbq1rk1/pp1p1ppp/4p3/2pP4/2P3Q1/2P5/P4PPP/R3KBNR b KQ - 0 9",
+        "fenAfter": "rnbq1rk1/pp1p1ppp/8/2pp4/2P3Q1/2P5/P4PPP/R3KBNR w KQ - 0 10",
+        "score": {
+          "type": "cp",
+          "value": -495
+        },
+        "whiteEvalCp": -495,
+        "bestMoveUci": "e6d5",
+        "bestMoveSan": "exd5",
+        "refutationPv": [
+          "f1d3",
+          "d7d6",
+          "g4d1",
+          "d5c4",
+          "d3c4",
+          "b8d7",
+          "g1e2",
+          "d7f6",
+          "e1g1",
+          "d6d5",
+          "c4b3",
+          "c8f5",
+          "f2f3",
+          "f5g6",
+          "a1b1"
+        ],
+        "classification": {
+          "classification": "Best",
+          "label": "Best Move",
+          "glyph": "★",
+          "color": "emerald"
+        },
+        "accuracy": 99.1,
+        "explanation": null
+      },
+      {
+        "ply": 19,
+        "moveNumber": 10,
+        "turn": "w",
+        "playedMoveUci": "c4d5",
+        "playedMoveSan": "cxd5",
+        "fenBefore": "rnbq1rk1/pp1p1ppp/8/2pp4/2P3Q1/2P5/P4PPP/R3KBNR w KQ - 0 10",
+        "fenAfter": "rnbq1rk1/pp1p1ppp/8/2pP4/6Q1/2P5/P4PPP/R3KBNR b KQ - 0 10",
+        "score": {
+          "type": "cp",
+          "value": -527
+        },
+        "whiteEvalCp": -527,
+        "bestMoveUci": "f1d3",
+        "bestMoveSan": "Bd3",
+        "refutationPv": [
+          "f8e8",
+          "g1e2",
+          "d7d6",
+          "g4f4",
+          "b8d7",
+          "e1c1",
+          "d8a5",
+          "f4d2",
+          "d7b6",
+          "e2g3",
+          "c5c4",
+          "f1e2",
+          "c8d7",
+          "h1e1",
+          "e8d8"
+        ],
+        "classification": {
+          "classification": "Good",
+          "label": "Good",
+          "glyph": "✔",
+          "color": "blue"
+        },
+        "accuracy": 96.1,
+        "explanation": null
+      },
+      {
+        "ply": 20,
+        "moveNumber": 10,
+        "turn": "b",
+        "playedMoveUci": "f8e8",
+        "playedMoveSan": "Re8+",
+        "fenBefore": "rnbq1rk1/pp1p1ppp/8/2pP4/6Q1/2P5/P4PPP/R3KBNR b KQ - 0 10",
+        "fenAfter": "rnbqr1k1/pp1p1ppp/8/2pP4/6Q1/2P5/P4PPP/R3KBNR w KQ - 1 11",
+        "score": {
+          "type": "cp",
+          "value": -543
+        },
+        "whiteEvalCp": -543,
+        "bestMoveUci": "f8e8",
+        "bestMoveSan": "Re8+",
+        "refutationPv": [
+          "f1e2",
+          "d7d6",
+          "g4f4",
+          "b8d7",
+          "a2a4",
+          "d8a5",
+          "f4d2",
+          "c5c4",
+          "g1f3",
+          "d7c5",
+          "f3d4",
+          "c5e4",
+          "d2b2",
+          "e4c3",
+          "e1g1",
+          "c8d7"
+        ],
+        "classification": {
+          "classification": "Best",
+          "label": "Best Move",
+          "glyph": "★",
+          "color": "emerald"
+        },
+        "accuracy": 98.3,
+        "explanation": null
+      },
+      {
+        "ply": 21,
+        "moveNumber": 11,
+        "turn": "w",
+        "playedMoveUci": "f1e2",
+        "playedMoveSan": "Be2",
+        "fenBefore": "rnbqr1k1/pp1p1ppp/8/2pP4/6Q1/2P5/P4PPP/R3KBNR w KQ - 1 11",
+        "fenAfter": "rnbqr1k1/pp1p1ppp/8/2pP4/6Q1/2P5/P3BPPP/R3K1NR b KQ - 2 11",
+        "score": {
+          "type": "cp",
+          "value": -550
+        },
+        "whiteEvalCp": -550,
+        "bestMoveUci": "f1e2",
+        "bestMoveSan": "Be2",
+        "refutationPv": [
+          "d7d6",
+          "g4f4",
+          "b8d7",
+          "e1f1",
+          "d7f6",
+          "e2f3",
+          "e8e5",
+          "g2g3",
+          "c8d7",
+          "c3c4",
+          "b7b5",
+          "h2h4",
+          "b5c4",
+          "f1g2",
+          "a8b8",
+          "g1e2",
+          "b8b2"
+        ],
+        "classification": {
+          "classification": "Best",
+          "label": "Best Move",
+          "glyph": "★",
+          "color": "emerald"
+        },
+        "accuracy": 99.3,
+        "explanation": null
+      },
+      {
+        "ply": 22,
+        "moveNumber": 11,
+        "turn": "b",
+        "playedMoveUci": "d7d6",
+        "playedMoveSan": "d6",
+        "fenBefore": "rnbqr1k1/pp1p1ppp/8/2pP4/6Q1/2P5/P3BPPP/R3K1NR b KQ - 2 11",
+        "fenAfter": "rnbqr1k1/pp3ppp/3p4/2pP4/6Q1/2P5/P3BPPP/R3K1NR w KQ - 0 12",
+        "score": {
+          "type": "cp",
+          "value": -531
+        },
+        "whiteEvalCp": -531,
+        "bestMoveUci": "d7d6",
+        "bestMoveSan": "d6",
+        "refutationPv": [
+          "g4f4",
+          "b8d7",
+          "e1f1",
+          "d7f6",
+          "e2f3",
+          "e8e5",
+          "g2g3",
+          "f6d5",
+          "f4d2",
+          "c8e6",
+          "h2h4",
+          "d8d7",
+          "a1d1",
+          "a8d8",
+          "f1g2",
+          "d5f6",
+          "g1h3",
+          "e6g4",
+          "f3g4",
+          "f6g4",
+          "h3f4",
+          "d7c6",
+          "f4d5",
+          "g4f6",
+          "c3c4"
+        ],
+        "classification": {
+          "classification": "Best",
+          "label": "Best Move",
+          "glyph": "★",
+          "color": "emerald"
+        },
+        "accuracy": 100,
+        "explanation": null
+      },
+      {
+        "ply": 23,
+        "moveNumber": 12,
+        "turn": "w",
+        "playedMoveUci": "g4g3",
+        "playedMoveSan": "Qg3",
+        "fenBefore": "rnbqr1k1/pp3ppp/3p4/2pP4/6Q1/2P5/P3BPPP/R3K1NR w KQ - 0 12",
+        "fenAfter": "rnbqr1k1/pp3ppp/3p4/2pP4/8/2P3Q1/P3BPPP/R3K1NR b KQ - 1 12",
+        "score": {
+          "type": "cp",
+          "value": -579
+        },
+        "whiteEvalCp": -579,
+        "bestMoveUci": "g4f4",
+        "bestMoveSan": "Qf4",
+        "refutationPv": [
+          "d8a5",
+          "e1f1",
+          "b8d7",
+          "e2d3",
+          "d7f6",
+          "h2h3",
+          "f6d5",
+          "g1e2",
+          "d5f6",
+          "f1g1",
+          "d6d5",
+          "e2f4",
+          "c5c4",
+          "d3b1",
+          "c8d7"
+        ],
+        "classification": {
+          "classification": "Good",
+          "label": "Good",
+          "glyph": "✔",
+          "color": "blue"
+        },
+        "accuracy": 95.4,
+        "explanation": null
+      },
+      {
+        "ply": 24,
+        "moveNumber": 12,
+        "turn": "b",
+        "playedMoveUci": "d8a5",
+        "playedMoveSan": "Qa5",
+        "fenBefore": "rnbqr1k1/pp3ppp/3p4/2pP4/8/2P3Q1/P3BPPP/R3K1NR b KQ - 1 12",
+        "fenAfter": "rnb1r1k1/pp3ppp/3p4/q1pP4/8/2P3Q1/P3BPPP/R3K1NR w KQ - 2 13",
+        "score": {
+          "type": "cp",
+          "value": -585
+        },
+        "whiteEvalCp": -585,
+        "bestMoveUci": "d8a5",
+        "bestMoveSan": "Qa5",
+        "refutationPv": [
+          "e1f1",
+          "b8d7",
+          "g3d3",
+          "d7f6",
+          "g1f3",
+          "b7b5",
+          "h2h4",
+          "h7h6",
+          "f3d2",
+          "c5c4"
+        ],
+        "classification": {
+          "classification": "Best",
+          "label": "Best Move",
+          "glyph": "★",
+          "color": "emerald"
+        },
+        "accuracy": 99.5,
+        "explanation": null
+      },
+      {
+        "ply": 25,
+        "moveNumber": 13,
+        "turn": "w",
+        "playedMoveUci": "e1c1",
+        "playedMoveSan": "O-O-O",
+        "fenBefore": "rnb1r1k1/pp3ppp/3p4/q1pP4/8/2P3Q1/P3BPPP/R3K1NR w KQ - 2 13",
+        "fenAfter": "rnb1r1k1/pp3ppp/3p4/q1pP4/8/2P3Q1/P3BPPP/2KR2NR b - - 3 13",
+        "score": {
+          "type": "cp",
+          "value": -660
+        },
+        "whiteEvalCp": -660,
+        "bestMoveUci": "e1f1",
+        "bestMoveSan": "Kf1",
+        "refutationPv": [
+          "b8d7",
+          "c1b2",
+          "d7f6",
+          "g3d3",
+          "f6e4",
+          "d3e3",
+          "c8f5",
+          "d1c1",
+          "b7b5",
+          "g2g4",
+          "f5d7",
+          "g1f3"
+        ],
+        "classification": {
+          "classification": "Inaccuracy",
+          "label": "Inaccuracy",
+          "glyph": "?!",
+          "color": "yellow"
+        },
+        "accuracy": 95,
+        "explanation": {
+          "tacticalMotifs": [
+            "Premature King Walk"
+          ],
+          "tacticalMotif": "Premature King Walk",
+          "why": "O-O-O wanders your king out unnecessarily, forfeiting castling rights and leaving it vulnerable to open lines.",
+          "whySummary": "O-O-O wanders your king out unnecessarily, forfeiting castling rights and leaving it vulnerable to open lines.",
+          "whyBetter": "Kf1 preserves your positional balance and avoids walking into Stockfish's counter-tactics.",
+          "refutationExplanation": "Stockfish refutes this with: b8d7 c1b2 d7f6",
+          "refutationPv": "b8d7 c1b2 d7f6 g3d3 f6e4 d3e3 c8f5 d1c1 b7b5 g2g4 f5d7 g1f3",
+          "classification": "Inaccuracy"
+        }
+      },
+      {
+        "ply": 26,
+        "moveNumber": 13,
+        "turn": "b",
+        "playedMoveUci": "b8d7",
+        "playedMoveSan": "Nd7",
+        "fenBefore": "rnb1r1k1/pp3ppp/3p4/q1pP4/8/2P3Q1/P3BPPP/2KR2NR b - - 3 13",
+        "fenAfter": "r1b1r1k1/pp1n1ppp/3p4/q1pP4/8/2P3Q1/P3BPPP/2KR2NR w - - 4 14",
+        "score": {
+          "type": "cp",
+          "value": -672
+        },
+        "whiteEvalCp": -672,
+        "bestMoveUci": "b8d7",
+        "bestMoveSan": "Nd7",
+        "refutationPv": [
+          "g3d3",
+          "d7b6",
+          "c3c4",
+          "a5a2",
+          "d1d2",
+          "a2a1",
+          "d3b1",
+          "a1f6",
+          "g1f3",
+          "c8g4",
+          "b1d3",
+          "g4f3",
+          "g2f3",
+          "e8e5",
+          "e2d1",
+          "a8e8",
+          "d1b3",
+          "f6f4"
+        ],
+        "classification": {
+          "classification": "Best",
+          "label": "Best Move",
+          "glyph": "★",
+          "color": "emerald"
+        },
+        "accuracy": 99.4,
+        "explanation": null
+      },
+      {
+        "ply": 27,
+        "moveNumber": 14,
+        "turn": "w",
+        "playedMoveUci": "c1b1",
+        "playedMoveSan": "Kb1",
+        "fenBefore": "r1b1r1k1/pp1n1ppp/3p4/q1pP4/8/2P3Q1/P3BPPP/2KR2NR w - - 4 14",
+        "fenAfter": "r1b1r1k1/pp1n1ppp/3p4/q1pP4/8/2P3Q1/P3BPPP/1K1R2NR b - - 5 14",
+        "score": {
+          "type": "cp",
+          "value": -693
+        },
+        "whiteEvalCp": -693,
+        "bestMoveUci": "g3d3",
+        "bestMoveSan": "Qd3",
+        "refutationPv": [
+          "d7f6",
+          "d1c1",
+          "f6d5",
+          "e2c4",
+          "c8f5",
+          "b1a1",
+          "d5f6",
+          "g1h3",
+          "d6d5",
+          "c4d3",
+          "f6e4",
+          "g3f3"
+        ],
+        "classification": {
+          "classification": "Good",
+          "label": "Good",
+          "glyph": "✔",
+          "color": "blue"
+        },
+        "accuracy": 99,
+        "explanation": null
+      },
+      {
+        "ply": 28,
+        "moveNumber": 14,
+        "turn": "b",
+        "playedMoveUci": "d7f6",
+        "playedMoveSan": "Nf6",
+        "fenBefore": "r1b1r1k1/pp1n1ppp/3p4/q1pP4/8/2P3Q1/P3BPPP/1K1R2NR b - - 5 14",
+        "fenAfter": "r1b1r1k1/pp3ppp/3p1n2/q1pP4/8/2P3Q1/P3BPPP/1K1R2NR w - - 6 15",
+        "score": {
+          "type": "cp",
+          "value": -720
+        },
+        "whiteEvalCp": -720,
+        "bestMoveUci": "d7f6",
+        "bestMoveSan": "Nf6",
+        "refutationPv": [
+          "d1c1",
+          "f6d5",
+          "g3f3",
+          "d5f6",
+          "c1c2",
+          "c8e6",
+          "b1a1",
+          "b7b5",
+          "f3f4",
+          "f6d5",
+          "f4d2",
+          "b5b4",
+          "c3b4",
+          "c5b4",
+          "c2b2"
+        ],
+        "classification": {
+          "classification": "Best",
+          "label": "Best Move",
+          "glyph": "★",
+          "color": "emerald"
+        },
+        "accuracy": 98.8,
+        "explanation": null
+      },
+      {
+        "ply": 29,
+        "moveNumber": 15,
+        "turn": "w",
+        "playedMoveUci": "d1d3",
+        "playedMoveSan": "Rd3",
+        "fenBefore": "r1b1r1k1/pp3ppp/3p1n2/q1pP4/8/2P3Q1/P3BPPP/1K1R2NR w - - 6 15",
+        "fenAfter": "r1b1r1k1/pp3ppp/3p1n2/q1pP4/8/2PR2Q1/P3BPPP/1K4NR b - - 7 15",
+        "score": {
+          "type": "cp",
+          "value": -954
+        },
+        "whiteEvalCp": -954,
+        "bestMoveUci": "d1c1",
+        "bestMoveSan": "Rc1",
+        "refutationPv": [
+          "c8f5",
+          "b1b2",
+          "a5b5",
+          "b2a1",
+          "f5d3",
+          "g3d3",
+          "b5d3",
+          "e2d3",
+          "e8e1",
+          "a1b2",
+          "f6g4",
+          "g1h3",
+          "e1h1",
+          "d3e4",
+          "g4h2",
+          "g2g3",
+          "h1f1",
+          "e4g2",
+          "b7b5",
+          "g2f1",
+          "h2f1"
+        ],
+        "classification": {
+          "classification": "Mistake",
+          "label": "Mistake",
+          "glyph": "?",
+          "color": "amber"
+        },
+        "accuracy": 95,
+        "explanation": {
+          "tacticalMotifs": [
+            "Allowed Tactical Fork"
+          ],
+          "tacticalMotif": "Allowed Tactical Fork",
+          "why": "Rd3 allows Stockfish to fork your rook on d3 and bishop on e2 with Bf5.",
+          "whySummary": "Rd3 allows Stockfish to fork your rook on d3 and bishop on e2 with Bf5.",
+          "whyBetter": "Rc1 repositions your rook to an open file or active diagonal while keeping your defenses solid.",
+          "refutationExplanation": "Stockfish plays Bf5, executing a devastating fork against your rook on d3 and bishop on e2.",
+          "refutationPv": "c8f5 b1b2 a5b5 b2a1 f5d3 g3d3 b5d3 e2d3 e8e1 a1b2 f6g4 g1h3 e1h1 d3e4 g4h2 g2g3 h1f1 e4g2 b7b5 g2f1 h2f1",
+          "classification": "Mistake"
+        }
+      },
+      {
+        "ply": 30,
+        "moveNumber": 15,
+        "turn": "b",
+        "playedMoveUci": "c8f5",
+        "playedMoveSan": "Bf5",
+        "fenBefore": "r1b1r1k1/pp3ppp/3p1n2/q1pP4/8/2PR2Q1/P3BPPP/1K4NR b - - 7 15",
+        "fenAfter": "r3r1k1/pp3ppp/3p1n2/q1pP1b2/8/2PR2Q1/P3BPPP/1K4NR w - - 8 16",
+        "score": {
+          "type": "cp",
+          "value": -915
+        },
+        "whiteEvalCp": -915,
+        "bestMoveUci": "c8f5",
+        "bestMoveSan": "Bf5",
+        "refutationPv": [
+          "b1b2",
+          "a5b5",
+          "b2a1",
+          "f5d3",
+          "g3d3",
+          "b5d3",
+          "e2d3",
+          "e8e1",
+          "a1b2",
+          "f6g4",
+          "h2h4",
+          "g4f2",
+          "h1h3",
+          "e1g1",
+          "h3f3",
+          "f2d3",
+          "b2a3"
+        ],
+        "classification": {
+          "classification": "Best",
+          "label": "Best Move",
+          "glyph": "★",
+          "color": "emerald"
+        },
+        "accuracy": 100,
+        "explanation": null
+      },
+      {
+        "ply": 31,
+        "moveNumber": 16,
+        "turn": "w",
+        "playedMoveUci": "g3d6",
+        "playedMoveSan": "Qxd6",
+        "fenBefore": "r3r1k1/pp3ppp/3p1n2/q1pP1b2/8/2PR2Q1/P3BPPP/1K4NR w - - 8 16",
+        "fenAfter": "r3r1k1/pp3ppp/3Q1n2/q1pP1b2/8/2PR4/P3BPPP/1K4NR b - - 0 16",
+        "score": {
+          "type": "cp",
+          "value": -1512
+        },
+        "whiteEvalCp": -1512,
+        "bestMoveUci": "b1b2",
+        "bestMoveSan": "Kb2",
+        "refutationPv": [
+          "a5c3",
+          "d6e6",
+          "f7e6",
+          "d5d6",
+          "f5d3",
+          "e2d3",
+          "c3d3",
+          "b1c1",
+          "d3c3",
+          "c1b1",
+          "c3e1",
+          "b1b2",
+          "e1f2",
+          "g1e2",
+          "f2e2",
+          "b2a1"
+        ],
+        "classification": {
+          "classification": "Blunder",
+          "label": "Blunder",
+          "glyph": "??",
+          "color": "red"
+        },
+        "accuracy": 97.8,
+        "explanation": {
+          "tacticalMotifs": [
+            "Material Loss",
+            "Allowed Tactical Fork"
+          ],
+          "tacticalMotif": "Material Loss",
+          "why": "Qxd6 blunders material: Stockfish wins your pawn with Qxc3.",
+          "whySummary": "Qxd6 blunders material: Stockfish wins your pawn with Qxc3.",
+          "whyBetter": "Kb2 preserves your positional balance and avoids walking into Stockfish's counter-tactics.",
+          "refutationExplanation": "Stockfish plays Qxc3, executing a devastating fork against your rook on d3 and bishop on e2.",
+          "refutationPv": "a5c3 d6e6 f7e6 d5d6 f5d3 e2d3 c3d3 b1c1 d3c3 c1b1 c3e1 b1b2 e1f2 g1e2 f2e2 b2a1",
+          "classification": "Blunder"
+        }
+      },
+      {
+        "ply": 32,
+        "moveNumber": 16,
+        "turn": "b",
+        "playedMoveUci": "a5c3",
+        "playedMoveSan": "Qxc3",
+        "fenBefore": "r3r1k1/pp3ppp/3Q1n2/q1pP1b2/8/2PR4/P3BPPP/1K4NR b - - 0 16",
+        "fenAfter": "r3r1k1/pp3ppp/3Q1n2/2pP1b2/8/2qR4/P3BPPP/1K4NR w - - 0 17",
+        "score": {
+          "type": "cp",
+          "value": -1591
+        },
+        "whiteEvalCp": -1591,
+        "bestMoveUci": "a5c3",
+        "bestMoveSan": "Qxc3",
+        "refutationPv": [
+          "d6e6",
+          "f7e6",
+          "g1f3",
+          "f5d3",
+          "e2d3",
+          "c3d3",
+          "b1b2",
+          "e6d5",
+          "h1e1",
+          "e8e1",
+          "f3e1",
+          "d3d4",
+          "b2b1"
+        ],
+        "classification": {
+          "classification": "Best",
+          "label": "Best Move",
+          "glyph": "★",
+          "color": "emerald"
+        },
+        "accuracy": 100,
+        "explanation": null
+      },
+      {
+        "ply": 33,
+        "moveNumber": 17,
+        "turn": "w",
+        "playedMoveUci": "g1f3",
+        "playedMoveSan": "Nf3",
+        "fenBefore": "r3r1k1/pp3ppp/3Q1n2/2pP1b2/8/2qR4/P3BPPP/1K4NR w - - 0 17",
+        "fenAfter": "r3r1k1/pp3ppp/3Q1n2/2pP1b2/8/2qR1N2/P3BPPP/1K5R b - - 1 17",
+        "score": {
+          "type": "mate",
+          "value": -3
+        },
+        "whiteEvalCp": -1000,
+        "bestMoveUci": "d6e6",
+        "bestMoveSan": "Qe6",
+        "refutationPv": [
+          "e8e2",
+          "d6b8",
+          "a8b8",
+          "f3d4",
+          "c3b2"
+        ],
+        "classification": {
+          "classification": "Blunder",
+          "label": "Blunder",
+          "glyph": "??",
+          "color": "red"
+        },
+        "accuracy": 100,
+        "explanation": {
+          "tacticalMotifs": [
+            "Allowed Forced Checkmate"
+          ],
+          "tacticalMotif": "Allowed Forced Checkmate",
+          "why": "Nf3 leaves your king without shelter, permitting Stockfish to force checkmate in 3 moves.",
+          "whySummary": "Nf3 leaves your king without shelter, permitting Stockfish to force checkmate in 3 moves.",
+          "whyBetter": "Qe6 prevents the checkmate net by creating an escape square or blocking the attack.",
+          "refutationExplanation": "Stockfish plays Rxe2, capturing your bishop on e2.",
+          "refutationPv": "e8e2 d6b8 a8b8 f3d4 c3b2",
+          "classification": "Blunder"
+        }
+      },
+      {
+        "ply": 34,
+        "moveNumber": 17,
+        "turn": "b",
+        "playedMoveUci": "e8e2",
+        "playedMoveSan": "Rxe2",
+        "fenBefore": "r3r1k1/pp3ppp/3Q1n2/2pP1b2/8/2qR1N2/P3BPPP/1K5R b - - 1 17",
+        "fenAfter": "r5k1/pp3ppp/3Q1n2/2pP1b2/8/2qR1N2/P3rPPP/1K5R w - - 0 18",
+        "score": {
+          "type": "mate",
+          "value": -2
+        },
+        "whiteEvalCp": -1000,
+        "bestMoveUci": "e8e2",
+        "bestMoveSan": "Rxe2",
+        "refutationPv": [
+          "d6b8",
+          "a8b8",
+          "f3d4",
+          "c3b2"
+        ],
+        "classification": {
+          "classification": "Best",
+          "label": "Best Move",
+          "glyph": "★",
+          "color": "emerald"
+        },
+        "accuracy": 100,
+        "explanation": null
+      },
+      {
+        "ply": 35,
+        "moveNumber": 18,
+        "turn": "w",
+        "playedMoveUci": "h1c1",
+        "playedMoveSan": "Rc1",
+        "fenBefore": "r5k1/pp3ppp/3Q1n2/2pP1b2/8/2qR1N2/P3rPPP/1K5R w - - 0 18",
+        "fenAfter": "r5k1/pp3ppp/3Q1n2/2pP1b2/8/2qR1N2/P3rPPP/1KR5 b - - 1 18",
+        "score": {
+          "type": "mate",
+          "value": -1
+        },
+        "whiteEvalCp": -1000,
+        "bestMoveUci": "d6b8",
+        "bestMoveSan": "Qb8+",
+        "refutationPv": [
+          "c3b2"
+        ],
+        "classification": {
+          "classification": "Best",
+          "label": "Best Move",
+          "glyph": "★",
+          "color": "emerald"
+        },
+        "accuracy": 100,
+        "explanation": null
+      },
+      {
+        "ply": 36,
+        "moveNumber": 18,
+        "turn": "b",
+        "playedMoveUci": "c3b2",
+        "playedMoveSan": "Qb2#",
+        "fenBefore": "r5k1/pp3ppp/3Q1n2/2pP1b2/8/2qR1N2/P3rPPP/1KR5 b - - 1 18",
+        "fenAfter": "r5k1/pp3ppp/3Q1n2/2pP1b2/8/3R1N2/Pq2rPPP/1KR5 w - - 2 19",
+        "score": {
+          "type": "mate",
+          "value": -1
+        },
+        "whiteEvalCp": -1000,
+        "bestMoveUci": "c3b2",
+        "bestMoveSan": "Qb2#",
+        "refutationPv": [],
+        "classification": {
+          "classification": "Best",
+          "label": "Best Move",
+          "glyph": "★",
+          "color": "emerald"
+        },
+        "accuracy": 0,
+        "explanation": null
+      }
+    ]
+  },
+  {
+    "id": "game_1788674531044",
+    "date": "2026-09-06T06:02:11.044Z",
+    "moves": [
+      "e2e4",
+      "e7e5",
+      "d1h5",
+      "b8c6",
+      "f1c4",
+      "g8f6",
+      "h5f7"
+    ],
+    "userColor": "b",
+    "result": "1-0",
+    "accuracy": {
+      "white": 66.4,
+      "black": 70.2
+    },
+    "counts": {
+      "white": {
+        "best": 3,
+        "good": 0,
+        "inaccuracy": 1,
+        "mistake": 0,
+        "blunder": 0,
+        "missedWin": 0
+      },
+      "black": {
+        "best": 2,
+        "good": 0,
+        "inaccuracy": 0,
+        "mistake": 0,
+        "blunder": 1,
+        "missedWin": 0
+      }
+    },
+    "steps": [
+      {
+        "ply": 1,
+        "moveNumber": 1,
+        "turn": "w",
+        "playedMoveUci": "e2e4",
+        "playedMoveSan": "e4",
+        "fenBefore": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        "fenAfter": "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1",
+        "score": {
+          "type": "cp",
+          "value": 19
+        },
+        "whiteEvalCp": 19,
+        "bestMoveUci": "e2e4",
+        "bestMoveSan": "e4",
+        "refutationPv": [
+          "e7e5",
+          "g1f3",
+          "b8c6",
+          "f1b5",
+          "g8f6",
+          "e1g1",
+          "f6e4",
+          "f1e1",
+          "e4d6",
+          "f3e5",
+          "c6e5",
+          "e1e5",
+          "f8e7",
+          "b5f1",
+          "e8g8",
+          "d2d4",
+          "e7f6",
+          "e5e1",
+          "f8e8",
+          "c1f4",
+          "e8e1",
+          "d1e1",
+          "d6e8",
+          "c2c3",
+          "c7c6",
+          "b1d2",
+          "d7d5",
+          "d2f3"
+        ],
+        "classification": {
+          "classification": "Best",
+          "label": "Best Move",
+          "glyph": "★",
+          "color": "emerald"
+        },
+        "accuracy": 100,
+        "explanation": null
+      },
+      {
+        "ply": 2,
+        "moveNumber": 1,
+        "turn": "b",
+        "playedMoveUci": "e7e5",
+        "playedMoveSan": "e5",
+        "fenBefore": "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1",
+        "fenAfter": "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2",
+        "score": {
+          "type": "cp",
+          "value": 25
+        },
+        "whiteEvalCp": 25,
+        "bestMoveUci": "e7e5",
+        "bestMoveSan": "e5",
+        "refutationPv": [
+          "g1f3",
+          "b8c6",
+          "f1b5",
+          "g8f6",
+          "e1g1",
+          "f6e4",
+          "f1e1",
+          "e4d6",
+          "f3e5",
+          "f8e7",
+          "b5f1",
+          "c6e5",
+          "e1e5",
+          "e8g8",
+          "d2d4",
+          "e7f6",
+          "e5e1",
+          "f8e8",
+          "c1f4",
+          "e8e1",
+          "d1e1",
+          "d6e8",
+          "c2c3",
+          "d7d6"
+        ],
+        "classification": {
+          "classification": "Best",
+          "label": "Best Move",
+          "glyph": "★",
+          "color": "emerald"
+        },
+        "accuracy": 100,
+        "explanation": null
+      },
+      {
+        "ply": 3,
+        "moveNumber": 2,
+        "turn": "w",
+        "playedMoveUci": "d1h5",
+        "playedMoveSan": "Qh5",
+        "fenBefore": "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2",
+        "fenAfter": "rnbqkbnr/pppp1ppp/8/4p2Q/4P3/8/PPPP1PPP/RNB1KBNR b KQkq - 1 2",
+        "score": {
+          "type": "cp",
+          "value": -36
+        },
+        "whiteEvalCp": -36,
+        "bestMoveUci": "g1f3",
+        "bestMoveSan": "Nf3",
+        "refutationPv": [
+          "b8c6",
+          "f1c4",
+          "g7g6",
+          "h5d1",
+          "f8g7",
+          "g1f3",
+          "g8f6",
+          "d2d3",
+          "d7d5",
+          "e4d5",
+          "f6d5",
+          "c1d2"
+        ],
+        "classification": {
+          "classification": "Inaccuracy",
+          "label": "Inaccuracy",
+          "glyph": "?!",
+          "color": "yellow"
+        },
+        "accuracy": 67.3,
+        "explanation": {
+          "tacticalMotif": "Positional Inaccuracy",
+          "whySummary": "Qh5 surrenders dynamic balance, allowing Black to seize complete control of the initiative.",
+          "refutationExplanation": "Stockfish refutes this with: b8c6 f1c4 g7g6 h5d1",
+          "alternativeExplanation": "Best was Nf3, maintaining piece coordination and neutralizing Stockfish's threats.",
+          "classification": "Inaccuracy"
+        }
+      },
+      {
+        "ply": 4,
+        "moveNumber": 2,
+        "turn": "b",
+        "playedMoveUci": "b8c6",
+        "playedMoveSan": "Nc6",
+        "fenBefore": "rnbqkbnr/pppp1ppp/8/4p2Q/4P3/8/PPPP1PPP/RNB1KBNR b KQkq - 1 2",
+        "fenAfter": "r1bqkbnr/pppp1ppp/2n5/4p2Q/4P3/8/PPPP1PPP/RNB1KBNR w KQkq - 2 3",
+        "score": {
+          "type": "cp",
+          "value": -22
+        },
+        "whiteEvalCp": -22,
+        "bestMoveUci": "b8c6",
+        "bestMoveSan": "Nc6",
+        "refutationPv": [
+          "f1c4",
+          "g7g6",
+          "h5f3",
+          "g8f6",
+          "g1e2",
+          "f8g7",
+          "b1c3",
+          "d7d6",
+          "d2d3",
+          "e8g8",
+          "a2a3",
+          "c6d4",
+          "e2d4",
+          "e5d4",
+          "c3d5",
+          "f6g4",
+          "c4a2"
+        ],
+        "classification": {
+          "classification": "Best",
+          "label": "Best Move",
+          "glyph": "★",
+          "color": "emerald"
+        },
+        "accuracy": 100,
+        "explanation": null
+      },
+      {
+        "ply": 5,
+        "moveNumber": 3,
+        "turn": "w",
+        "playedMoveUci": "f1c4",
+        "playedMoveSan": "Bc4",
+        "fenBefore": "r1bqkbnr/pppp1ppp/2n5/4p2Q/4P3/8/PPPP1PPP/RNB1KBNR w KQkq - 2 3",
+        "fenAfter": "r1bqkbnr/pppp1ppp/2n5/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 3 3",
+        "score": {
+          "type": "cp",
+          "value": -25
+        },
+        "whiteEvalCp": -25,
+        "bestMoveUci": "f1c4",
+        "bestMoveSan": "Bc4",
+        "refutationPv": [
+          "g7g6",
+          "h5f3",
+          "g8f6",
+          "g1e2",
+          "f8g7",
+          "d2d3",
+          "d7d6",
+          "b1c3",
+          "e8g8",
+          "h2h3",
+          "a7a6",
+          "a2a3",
+          "b7b5"
+        ],
+        "classification": {
+          "classification": "Best",
+          "label": "Best Move",
+          "glyph": "★",
+          "color": "emerald"
+        },
+        "accuracy": 98.1,
+        "explanation": null
+      },
+      {
+        "ply": 6,
+        "moveNumber": 3,
+        "turn": "b",
+        "playedMoveUci": "g8f6",
+        "playedMoveSan": "Nf6",
+        "fenBefore": "r1bqkbnr/pppp1ppp/2n5/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 3 3",
+        "fenAfter": "r1bqkb1r/pppp1ppp/2n2n2/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR w KQkq - 4 4",
+        "score": {
+          "type": "mate",
+          "value": 1
+        },
+        "whiteEvalCp": 1000,
+        "bestMoveUci": "g7g6",
+        "bestMoveSan": "g6",
+        "refutationPv": [
+          "h5f7"
+        ],
+        "classification": {
+          "classification": "Blunder",
+          "label": "Blunder",
+          "glyph": "??",
+          "color": "red"
+        },
+        "accuracy": 10.5,
+        "explanation": {
+          "tacticalMotif": "Allowed Forced Checkmate",
+          "whySummary": "Nf6 blunders immediate checkmate! Stockfish can deliver checkmate on the very next move.",
+          "refutationExplanation": "Stockfish plays Qxf7#, finishing the game immediately with checkmate.",
+          "alternativeExplanation": "Best was g6, reinforcing central control and preventing opponent infiltration.",
+          "classification": "Blunder"
+        }
+      },
+      {
+        "ply": 7,
+        "moveNumber": 4,
+        "turn": "w",
+        "playedMoveUci": "h5f7",
+        "playedMoveSan": "Qxf7#",
+        "fenBefore": "r1bqkb1r/pppp1ppp/2n2n2/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR w KQkq - 4 4",
+        "fenAfter": "r1bqkb1r/pppp1Qpp/2n2n2/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 0 4",
+        "score": {
+          "type": "mate",
+          "value": 1
+        },
+        "whiteEvalCp": 1000,
+        "bestMoveUci": "h5f7",
+        "bestMoveSan": "Qxf7#",
+        "refutationPv": [],
+        "classification": {
+          "classification": "Best",
+          "label": "Best Move",
+          "glyph": "★",
+          "color": "emerald"
+        },
+        "accuracy": 0,
+        "explanation": null
+      }
+    ]
+  }
+]

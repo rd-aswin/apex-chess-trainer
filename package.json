@@ -1,0 +1,14 @@
+{
+  "name": "chess-trainer",
+  "version": "1.0.0",
+  "description": "100% Free & Offline Personal Chess Trainer powered by Stockfish 19 NNUE (AVX-512) and Pedagogical Coach Analysis",
+  "private": true,
+  "scripts": {
+    "server": "node server/index.js",
+    "client": "npm.cmd --prefix client run dev",
+    "build": "npm.cmd --prefix client run build"
+  },
+  "keywords": ["chess", "stockfish", "nnue", "training", "offline"],
+  "author": "Aswin",
+  "license": "GPL-3.0"
+}
