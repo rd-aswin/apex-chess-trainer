@@ -1,26 +1,11 @@
 import React, { useState } from 'react';
 import { 
   Check, Sparkles, HelpCircle, ShieldCheck, Zap, 
-  ArrowRight, Key, Flame, DollarSign, Calculator, Lock
+  ArrowRight, Key, Flame, DollarSign, Lock
 } from 'lucide-react';
 
 export function PricingPage({ onNavigate, onLaunchApp }) {
   const [billingCycle, setBillingCycle] = useState('yearly'); // 'monthly' | 'yearly'
-  const [gamesPerWeek, setGamesPerWeek] = useState(15);
-  const [selectedModel, setSelectedModel] = useState('gemini-flash');
-
-  const modelCosts = {
-    'gemini-flash': 0.00035,
-    'gpt4o-mini': 0.002,
-    'sonnet': 0.012,
-    'ollama': 0.00000
-  };
-
-  const monthlyGames = gamesPerWeek * 4.33;
-  const rawApiCostPerMonth = monthlyGames * modelCosts[selectedModel];
-  const threeYearChessComCost = 480.00;
-  const threeYearApexFounderCost = 59.00 + (rawApiCostPerMonth * 36);
-  const totalThreeYearSavings = Math.max(0, threeYearChessComCost - threeYearApexFounderCost);
 
   return (
     <div className="min-h-screen text-slate-100 pt-28 pb-20 selection:bg-emerald-500/30 selection:text-emerald-200">
@@ -227,135 +212,63 @@ export function PricingPage({ onNavigate, onLaunchApp }) {
         </div>
       </div>
 
-      {/* SAVINGS CALCULATOR */}
+      {/* RISK-FREE GUARANTEES & PEACE OF MIND */}
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 mt-20">
-        <div className="bg-slate-950 border border-slate-800 rounded-3xl p-8 shadow-2xl">
-          <div className="text-center max-w-2xl mx-auto mb-8">
-            <h3 className="text-2xl font-black text-white flex items-center justify-center gap-2">
-              <Calculator className="w-6 h-6 text-emerald-400" />
-              <span>See How Much You Save</span>
+        <div className="bg-slate-900/60 border border-slate-800 rounded-3xl p-8 sm:p-10 shadow-2xl">
+          <div className="text-center max-w-2xl mx-auto mb-10">
+            <h3 className="text-2xl font-black text-white">
+              Why Chess Players Choose Apex
             </h3>
-            <p className="text-xs text-slate-400 mt-2">
-              Compare 3 years of Chess.com Diamond ($480) with Apex Lifetime ($59).
+            <p className="text-xs sm:text-sm text-slate-400 mt-2">
+              Built for chess enthusiasts who want clear, patient explanations without paying \$160 every year.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-8 items-center">
-            
-            {/* Left: Sliders */}
-            <div className="space-y-6 bg-slate-900/60 p-6 rounded-2xl border border-slate-800">
-              <div>
-                <div className="flex justify-between items-center text-xs font-semibold text-slate-300 mb-2">
-                  <span>Games Reviewed Per Week:</span>
-                  <span className="text-emerald-400 font-mono text-sm">{gamesPerWeek} games</span>
-                </div>
-                <input
-                  type="range"
-                  min="2"
-                  max="50"
-                  value={gamesPerWeek}
-                  onChange={(e) => setGamesPerWeek(Number(e.target.value))}
-                  className="w-full accent-emerald-400 bg-slate-800 h-2 rounded-lg cursor-pointer"
-                />
-                <div className="flex justify-between text-[10px] text-slate-400 mt-1">
-                  <span>2 (Casual)</span>
-                  <span>15 (Active)</span>
-                  <span>50 (Hardcore)</span>
-                </div>
+          <div className="grid md:grid-cols-3 gap-6">
+            <div className="bg-slate-950 p-6 rounded-2xl border border-slate-800/80">
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-400 mb-4 border border-emerald-500/20">
+                <ShieldCheck className="w-5 h-5" />
               </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-2">
-                  AI Model:
-                </label>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    onClick={() => setSelectedModel('gemini-flash')}
-                    className={`p-2.5 rounded-xl text-left border text-xs transition-all ${
-                      selectedModel === 'gemini-flash' 
-                        ? 'border-emerald-500 bg-emerald-500/10 text-emerald-300 font-bold' 
-                        : 'border-slate-800 bg-slate-900 text-slate-400'
-                    }`}
-                  >
-                    <div>Google Gemini</div>
-                    <div className="text-[10px] text-emerald-400 font-bold">Free ($0.00)</div>
-                  </button>
-                  <button
-                    onClick={() => setSelectedModel('gpt4o-mini')}
-                    className={`p-2.5 rounded-xl text-left border text-xs transition-all ${
-                      selectedModel === 'gpt4o-mini' 
-                        ? 'border-emerald-500 bg-emerald-500/10 text-emerald-300 font-bold' 
-                        : 'border-slate-800 bg-slate-900 text-slate-400'
-                    }`}
-                  >
-                    <div>GPT-4o Mini</div>
-                    <div className="text-[10px] opacity-75">$0.002 / game</div>
-                  </button>
-                  <button
-                    onClick={() => setSelectedModel('sonnet')}
-                    className={`p-2.5 rounded-xl text-left border text-xs transition-all ${
-                      selectedModel === 'sonnet' 
-                        ? 'border-emerald-500 bg-emerald-500/10 text-emerald-300 font-bold' 
-                        : 'border-slate-800 bg-slate-900 text-slate-400'
-                    }`}
-                  >
-                    <div>Claude 3.5 Sonnet</div>
-                    <div className="text-[10px] opacity-75">$0.012 / game</div>
-                  </button>
-                  <button
-                    onClick={() => setSelectedModel('ollama')}
-                    className={`p-2.5 rounded-xl text-left border text-xs transition-all ${
-                      selectedModel === 'ollama' 
-                        ? 'border-emerald-500 bg-emerald-500/10 text-emerald-300 font-bold' 
-                        : 'border-slate-800 bg-slate-900 text-slate-400'
-                    }`}
-                  >
-                    <div>Offline Engine</div>
-                    <div className="text-[10px] text-emerald-400 font-bold">100% Free ($0)</div>
-                  </button>
-                </div>
-              </div>
+              <h4 className="text-sm font-bold text-white mb-1">30-Day Money-Back Guarantee</h4>
+              <p className="text-xs text-slate-400 leading-relaxed">
+                If you purchase the Lifetime Pass or Pro and don't feel your tactical vision improved, just email us within 30 days for a full, prompt refund.
+              </p>
             </div>
 
-            {/* Right: Breakdown */}
-            <div className="bg-slate-900/90 border border-emerald-500/30 p-6 rounded-2xl space-y-4">
-              <div className="border-b border-slate-800 pb-3">
-                <div className="text-xs text-slate-400">Your Monthly AI Cost:</div>
-                <div className="text-2xl font-black text-emerald-400 font-mono">
-                  ${rawApiCostPerMonth.toFixed(4)} <span className="text-xs font-normal text-slate-400">/ month</span>
-                </div>
-                <div className="text-[11px] text-slate-400 mt-0.5">
-                  ({Math.round(monthlyGames)} games reviewed per month)
-                </div>
+            <div className="bg-slate-950 p-6 rounded-2xl border border-slate-800/80">
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-400 mb-4 border border-emerald-500/20">
+                <Key className="w-5 h-5" />
               </div>
-
-              <div className="space-y-2 text-xs">
-                <div className="flex justify-between text-slate-400">
-                  <span>3-Year Chess.com Diamond:</span>
-                  <span className="font-mono text-rose-400 font-bold">$480.00</span>
-                </div>
-                <div className="flex justify-between text-slate-400">
-                  <span>3-Year Apex Lifetime Pass:</span>
-                  <span className="font-mono text-emerald-400 font-bold">${threeYearApexFounderCost.toFixed(2)}</span>
-                </div>
-                <div className="pt-3 border-t border-slate-800 flex justify-between items-center text-sm font-bold text-white">
-                  <span>Your 3-Year Savings:</span>
-                  <span className="text-emerald-400 font-black text-lg font-mono">
-                    ${totalThreeYearSavings.toFixed(2)}
-                  </span>
-                </div>
-              </div>
-
-              <div className="pt-2">
-                <button
-                  onClick={onLaunchApp}
-                  className="w-full py-2.5 rounded-xl font-bold text-xs text-slate-950 bg-emerald-400 hover:bg-emerald-300 transition-colors shadow-md shadow-emerald-500/20"
-                >
-                  Start Training Free
-                </button>
-              </div>
+              <h4 className="text-sm font-bold text-white mb-1">Free Forever with Google Key</h4>
+              <p className="text-xs text-slate-400 leading-relaxed">
+                Google provides a free personal key that easily handles unlimited chess game reviews at \$0.00/month. We never charge you to use it.
+              </p>
             </div>
 
+            <div className="bg-slate-950 p-6 rounded-2xl border border-slate-800/80">
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-400 mb-4 border border-emerald-500/20">
+                <Zap className="w-5 h-5" />
+              </div>
+              <h4 className="text-sm font-bold text-white mb-1">Instant 1-Click Import</h4>
+              <p className="text-xs text-slate-400 leading-relaxed">
+                Paste your Chess.com or Lichess username to review your latest games immediately. No passwords required, and your data stays on your machine.
+              </p>
+            </div>
+          </div>
+
+          {/* Interactive Savings Calculator Link */}
+          <div className="mt-8 pt-8 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div>
+              <div className="text-sm font-bold text-white">Wondering how much you spend on chess subscriptions?</div>
+              <div className="text-xs text-slate-400">See your exact 1, 3, and 5-year savings compared to Chess.com Diamond or Aimchess.</div>
+            </div>
+            <button
+              onClick={() => onNavigate('#calculator')}
+              className="px-5 py-2.5 rounded-xl text-xs font-bold text-emerald-300 bg-emerald-500/10 border border-emerald-500/30 hover:bg-emerald-500/20 transition-all flex items-center gap-2 shrink-0"
+            >
+              <span>Open Subscription Calculator</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
           </div>
         </div>
       </div>
