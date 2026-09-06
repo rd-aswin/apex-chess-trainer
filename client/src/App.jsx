@@ -12,7 +12,7 @@ import { AiCoachChat } from './components/AiCoachChat';
 import { UpdateModal } from './components/UpdateModal';
 import ImportGameModal from './components/ImportGameModal';
 import { useSoundEffects } from './hooks/useSoundEffects';
-import { Swords, RotateCcw, Flag, Sparkles, Award, History, Volume2, VolumeX, Monitor, Bot, RefreshCw, UploadCloud } from 'lucide-react';
+import { Swords, RotateCcw, Flag, Sparkles, Award, History, Volume2, VolumeX, Monitor, Bot, RefreshCw, UploadCloud, Loader2 } from 'lucide-react';
 
 const API_BASE = 'http://localhost:5000/api';
 
@@ -237,7 +237,7 @@ export function App() {
         setAnalyzedKey(currentKey);
         setMode('review');
         setReviewTab('coach');
-        setCurrentPly(gameMoves.length);
+        handleSelectPly(gameMoves.length, data);
       }
     } catch (err) {
       console.error('Analysis error:', err);
@@ -460,7 +460,7 @@ export function App() {
   };
 
   // Select Ply in Review
-  const handleSelectPly = (ply) => {
+  const handleSelectPly = (ply, overrideAnalysis = null) => {
     setCurrentPly(ply);
 
     if (ply === 0) {
@@ -476,8 +476,9 @@ export function App() {
       setGame(new Chess(targetMove.fen));
       setLastMove({ from: targetMove.from, to: targetMove.to });
 
-      if (analysis && analysis.steps) {
-        const step = analysis.steps.find((s) => s.ply === ply);
+      const activeAnalysis = overrideAnalysis || analysis;
+      if (activeAnalysis && activeAnalysis.steps) {
+        const step = activeAnalysis.steps.find((s) => s.ply === ply);
         if (step) {
           const stepScore = (step.whiteEvalCp !== undefined && step.score?.type !== 'mate')
             ? { type: 'cp', value: step.whiteEvalCp }
@@ -646,7 +647,9 @@ export function App() {
       if (data.success) {
         setAnalysis(data);
         setAnalyzedKey(currentKey);
-        handleSelectPly(loadedMoves.length);
+        handleSelectPly(loadedMoves.length, data);
+      } else {
+        console.warn('Backend analysis returned unsuccessful:', data.error);
       }
     } catch (err) {
       console.error('Failed to import and analyze game:', err);
@@ -726,6 +729,13 @@ export function App() {
             <span className="hidden sm:inline">Import</span>
           </button>
 
+          {isAnalyzing && (
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 text-xs font-semibold animate-pulse">
+              <Loader2 size={13} className="animate-spin text-emerald-400" />
+              <span className="hidden sm:inline">Stockfish Analyzing...</span>
+            </div>
+          )}
+
           <button
             onClick={() => {
               if (mode === 'play') {
@@ -802,6 +812,36 @@ export function App() {
                 onResetSandbox={handleResetSandbox}
                 onExitSandbox={handleExitSandbox}
               />
+            </div>
+          )}
+
+          {/* Review Mode - Stockfish Analysis In-Progress HUD */}
+          {mode === 'review' && isAnalyzing && (
+            <div className="p-3.5 bg-gradient-to-b from-emerald-950/40 via-slate-900 to-slate-900 border-b border-emerald-500/30 flex flex-col gap-2.5 shrink-0 animate-in fade-in duration-200">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-xs font-bold text-emerald-400">
+                  <Loader2 size={15} className="animate-spin text-emerald-400 shrink-0" />
+                  <span>Stockfish 19 Evaluating Match...</span>
+                </div>
+                <span className="text-[10px] font-mono uppercase tracking-wider font-semibold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                  Depth 16 NNUE
+                </span>
+              </div>
+              
+              <p className="text-[11px] text-slate-300 leading-relaxed">
+                Calculating move qualities, blunders, and refutations for all <span className="font-semibold text-white">{moves.length} moves</span>. Advantage graph will appear once complete (~15–25s).
+              </p>
+
+              <div className="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+                <div className="h-full bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-500 rounded-full animate-pulse w-3/4" />
+              </div>
+
+              <div className="flex items-center justify-between text-[10px] text-slate-400 pt-0.5">
+                <span>⏱️ Sequential NNUE analysis</span>
+                <span className="text-emerald-400 font-medium">
+                  ♟️ Move navigation active below
+                </span>
+              </div>
             </div>
           )}
 
