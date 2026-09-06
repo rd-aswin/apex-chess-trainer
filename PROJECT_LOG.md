@@ -116,6 +116,13 @@ The technical documentation suite has been established in the project directory:
     - Created Windows Desktop Shortcut `C:\Users\aswin\Desktop\Apex Chess Trainer.lnk` linked to `run.bat` with the custom logo icon.
     - Overhauled `run.bat` to detect running ports (5000 & 5173), boot servers automatically if offline, and launch Chrome or Edge in native standalone app mode (`--app=http://localhost:5173`) with zero browser bars or tabs.
     - Built interactive `DesktopAppModal.jsx` in the frontend header allowing players to create or refresh their desktop shortcut with 1-click via backend endpoint `POST /api/create-shortcut` and download the `.bat` launcher.
+  - **GitHub Repository & Cloud Version Control**:
+    - Initialized Git repository with `main` branch.
+    - Configured comprehensive `.gitignore` excluding `node_modules`, `.vite`, build artifacts, and OS temp files.
+    - Integrated **Git LFS** (Large File Storage) for `bin/stockfish.exe` (~98.3 MB) with `.gitattributes` to ensure repository performance and avoid GitHub's 100MB regular blob limit.
+    - Created public GitHub repository [`rd-aswin/apex-chess-trainer`](https://github.com/rd-aswin/apex-chess-trainer).
+    - Crafted comprehensive documentation in root `README.md` (badges, overview, quick start, architecture, documentation links).
+    - Uploaded full base codebase and pushed directly to `origin/main`.
 
 
 
