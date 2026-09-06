@@ -10,8 +10,9 @@ import { GameHistoryModal } from './components/GameHistoryModal';
 import { DesktopAppModal } from './components/DesktopAppModal';
 import { AiCoachChat } from './components/AiCoachChat';
 import { UpdateModal } from './components/UpdateModal';
+import ImportGameModal from './components/ImportGameModal';
 import { useSoundEffects } from './hooks/useSoundEffects';
-import { Swords, RotateCcw, Flag, Sparkles, Award, History, Volume2, VolumeX, Monitor, Bot, RefreshCw } from 'lucide-react';
+import { Swords, RotateCcw, Flag, Sparkles, Award, History, Volume2, VolumeX, Monitor, Bot, RefreshCw, UploadCloud } from 'lucide-react';
 
 const API_BASE = 'http://localhost:5000/api';
 
@@ -51,6 +52,7 @@ export function App() {
   const [isNewGameModalOpen, setIsNewGameModalOpen] = useState(false);
   const [isDesktopModalOpen, setIsDesktopModalOpen] = useState(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [updateAvailableBadge, setUpdateAvailableBadge] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
 
@@ -583,6 +585,76 @@ export function App() {
     handleSelectPly(loadedMoves.length);
   };
 
+  const handleImportGame = async (importedGame) => {
+    try {
+      const replayChess = new Chess();
+      replayChess.loadPgn(importedGame.pgn, { strict: false });
+
+      const loadedMoves = [];
+      const verboseHistory = replayChess.history({ verbose: true });
+      const stepChess = new Chess();
+
+      for (const m of verboseHistory) {
+        const res = stepChess.move({ from: m.from, to: m.to, promotion: m.promotion });
+        if (res) {
+          loadedMoves.push({
+            san: res.san,
+            uci: `${m.from}${m.to}${m.promotion || ''}`,
+            from: m.from,
+            to: m.to,
+            fen: stepChess.fen()
+          });
+        }
+      }
+
+      if (loadedMoves.length === 0) {
+        console.warn('Imported game contains no moves.');
+        return;
+      }
+
+      const assignedColor = importedGame.userColor === 'black' ? 'b' : 'w';
+      setUserColor(assignedColor);
+      setMoves(loadedMoves);
+      setGame(new Chess(stepChess.fen()));
+      setCurrentPly(loadedMoves.length);
+      setIsGameOver(true);
+      const matchLabel = `${importedGame.platform || 'Imported'}: ${importedGame.white?.username || 'White'} vs ${importedGame.black?.username || 'Black'}`;
+      setGameOverMessage(matchLabel);
+      setCapturedPieces(computeCapturedPieces(stepChess));
+
+      // Switch to review mode and trigger Stockfish 19 & AI Coach analysis
+      const uciMoves = loadedMoves.map((m) => m.uci);
+      const currentKey = uciMoves.join(',');
+
+      setMode('review');
+      setReviewTab('coach');
+      setIsAnalyzing(true);
+
+      const res = await fetch(`${API_BASE}/analyze`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          moves: uciMoves,
+          userColor: assignedColor,
+          result: importedGame.userOutcome === 'win' 
+            ? (assignedColor === 'w' ? '1-0' : '0-1')
+            : (assignedColor === 'w' ? '0-1' : '1-0')
+        })
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        setAnalysis(data);
+        setAnalyzedKey(currentKey);
+        handleSelectPly(loadedMoves.length);
+      }
+    } catch (err) {
+      console.error('Failed to import and analyze game:', err);
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
   const currentStep = useMemo(() => {
     if (!analysis || !analysis.steps || currentPly === 0) return null;
     return analysis.steps.find((s) => s.ply === currentPly) || null;
@@ -643,6 +715,15 @@ export function App() {
             title="Past Matches"
           >
             <History size={16} />
+          </button>
+
+          <button
+            onClick={() => setIsImportModalOpen(true)}
+            className="flex items-center gap-1 px-2.5 py-1 rounded hover:bg-slate-800 text-cyan-400 hover:text-cyan-300 transition-colors border border-cyan-500/30 bg-cyan-500/10 text-xs font-semibold"
+            title="Import Game from Chess.com, Lichess, or PGN"
+          >
+            <UploadCloud size={14} className="text-cyan-400" />
+            <span className="hidden sm:inline">Import</span>
           </button>
 
           <button
@@ -938,6 +1019,13 @@ export function App() {
       <UpdateModal
         isOpen={isUpdateModalOpen}
         onClose={() => setIsUpdateModalOpen(false)}
+      />
+
+      {/* 1-Click Online Game Importer Modal */}
+      <ImportGameModal
+        isOpen={isImportModalOpen}
+        onClose={() => setIsImportModalOpen(false)}
+        onImportGame={handleImportGame}
       />
 
       {/* Play Mode - AI Coach Chat Modal */}

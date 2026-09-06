@@ -9,6 +9,7 @@ import { getGameHistory, saveGameToHistory, getGameById, findGameByMoves } from 
 import { identifyOpening } from './openingBook.js';
 import { chatWithCoach, getCoachConfig, saveCoachConfig } from './aiCoach.js';
 import { getUpdateReport } from './updater.js';
+import { fetchChessComGames, fetchLichessGames, sanitizePgn } from './importer.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -296,6 +297,43 @@ app.post('/api/create-shortcut', (req, res) => {
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
+});
+
+// 10. Game Import APIs (Chess.com, Lichess, PGN Sanitizer)
+app.get('/api/import/chesscom', async (req, res) => {
+  try {
+    const { username } = req.query;
+    if (!username || typeof username !== 'string' || !username.trim()) {
+      return res.status(400).json({ error: 'Valid username query parameter is required' });
+    }
+    const data = await fetchChessComGames(username);
+    res.json(data);
+  } catch (err) {
+    console.error('[API /import/chesscom Error]:', err.message);
+    const status = err.message.includes('not found') ? 404 : (err.message.includes('rate limit') ? 429 : 500);
+    res.status(status).json({ error: err.message });
+  }
+});
+
+app.get('/api/import/lichess', async (req, res) => {
+  try {
+    const { username } = req.query;
+    if (!username || typeof username !== 'string' || !username.trim()) {
+      return res.status(400).json({ error: 'Valid username query parameter is required' });
+    }
+    const data = await fetchLichessGames(username);
+    res.json(data);
+  } catch (err) {
+    console.error('[API /import/lichess Error]:', err.message);
+    const status = err.message.includes('not found') ? 404 : (err.message.includes('rate limit') ? 429 : 500);
+    res.status(status).json({ error: err.message });
+  }
+});
+
+app.post('/api/import/sanitize-pgn', (req, res) => {
+  const { pgn } = req.body;
+  if (!pgn) return res.status(400).json({ error: 'PGN string is required' });
+  res.json({ pgn: sanitizePgn(pgn) });
 });
 
 app.get('/api/download-launcher', (req, res) => {

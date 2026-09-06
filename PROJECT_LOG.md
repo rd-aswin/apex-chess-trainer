@@ -136,6 +136,14 @@ The technical documentation suite has been established in the project directory:
     - Exposed `GET /api/updates/check` (with `?force=true` manual refresh bypass) in `server/index.js`.
     - Built `client/src/components/UpdateModal.jsx` featuring a high-tech dark HUD aesthetic, animated radar scan sweep, pulsing sonar rings, live tool health status, and 1-click Windows x86-64 binary zip download direct from official GitHub releases.
     - Synchronized to GitHub: Pushed commits (`a84f397`, `fa1b84d`) to `origin/main` on GitHub upon user review and approval.
+  - **1-Click Online Game Import (Chess.com, Lichess, PGN / FEN Paste)**:
+    - Built `server/importer.js` querying Chess.com public archives (`api.chess.com/pub/player/{username}/games/archives`) and Lichess game stream (`lichess.org/api/games/user/{username}`).
+    - Configured automatic filtering strictly for standard chess (`rules === 'chess'` and `variant === 'standard'`) to prevent engine crashes on unsupported variants (Chess960, Atomic, Horde).
+    - Added in-memory 2-minute caching and proper `User-Agent` headers to safeguard upstream rate limits.
+    - Added backend routes `GET /api/import/chesscom`, `GET /api/import/lichess`, and `POST /api/import/sanitize-pgn` in `server/index.js`.
+    - Built `client/src/components/ImportGameModal.jsx` tabbed modal with user search, recent search chips (`localStorage`), match cards with rating & time-control badges, and interactive PGN validator.
+    - Integrated "Import" button into navigation header in `client/src/App.jsx` and auto-review pipeline feeding imported matches into Stockfish 19 & AI Coach.
+
 
 
 
