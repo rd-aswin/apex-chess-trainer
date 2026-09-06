@@ -8,28 +8,28 @@ export function FaqPrivacyPage({ onNavigate, onLaunchApp }) {
 
   const faqs = [
     {
-      q: "Isn't getting an API key technically difficult?",
-      a: "Not at all. It takes less than 60 seconds. You visit Google AI Studio, click 'Get API Key', and copy the code. Google gives you 1,500 full game reviews per day at $0.00 cost with no credit card required. If you can make a free Google account, you can get an API key."
+      q: "Can I really use this 100% free forever?",
+      a: "Yes. Google gives every user a free developer key that allows 1,500 game reviews every day. You don't need to enter a credit card, and Google will never bill you. As long as you use your free key, Apex costs you $0.00."
     },
     {
-      q: "Will I ever be hit with an unexpected cloud bill?",
-      a: "Never. If you use Google AI Studio's free tier, your billing limit is hard-capped at $0.00. Furthermore, Apex has a client-side hard stop mechanism built into the settings where you can lock your spend to zero."
+      q: "Do I need any technical or programming skills?",
+      a: "None at all. Getting a free key takes 60 seconds: you sign in with your normal Google account, click 'Get API key', and copy-paste it into Apex settings once. Or, you can just use our 3 free daily reviews without any setup at all!"
     },
     {
-      q: "Can I use Apex completely without an API key?",
-      a: "Yes! Apex includes native Stockfish 19 NNUE (Skill Level 20, 3650+ Elo) and our symbolic pedagogical explainer running 100% locally on your machine. You can play games, analyze positions, and view accuracy scores completely offline with zero API keys."
+      q: "Is my opening preparation and match history kept private?",
+      a: "100% yes. All your games and PGN files stay on your own computer. We do not have a central database where we store your games, and we never track or sell your data. Your tournament novelties remain private to you."
     },
     {
-      q: "What happens to my opening preparation and game PGNs?",
-      a: "Your game history is stored strictly on your local machine (in data/history.json or your browser's private indexed storage). Apex has zero central cloud databases and zero user tracking. Your tournament novelties remain 100% private to you."
+      q: "Can I use Apex offline on an airplane or when traveling?",
+      a: "Yes. The world-champion Stockfish engine is installed right on your device. You can play practice games, test variations, and review moves completely offline with zero Wi-Fi connection."
     },
     {
-      q: "Does Apex work offline when traveling or on airplanes?",
-      a: "Yes. Stockfish 19 is compiled natively into the platform. When disconnected from the internet, you can play full matches, review tactical mistakes, and spar candidate moves completely offline."
+      q: "Can I import games from both Chess.com and Lichess?",
+      a: "Yes! Simply click 'Import' in the header, type in your Chess.com or Lichess username, and pick any recent match. Apex analyzes the game immediately with plain-English coaching."
     },
     {
-      q: "What is the GPL-3.0 Open-Source guarantee?",
-      a: "Apex Chess Trainer is licensed under the GNU General Public License v3.0. You have the perpetual right to run the software, inspect the source code, modify it, and run it locally on as many computers as you own."
+      q: "What if I don't want to deal with any API keys at all?",
+      a: "You have two great options: you can use our 3 free daily reviews every day with zero setup, or upgrade to Apex Pro ($4.99/mo or $59 Lifetime) where all cloud reviews are completely turnkey with zero keys needed."
     }
   ];
 
@@ -40,13 +40,13 @@ export function FaqPrivacyPage({ onNavigate, onLaunchApp }) {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center pt-8 mb-16">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-semibold border border-emerald-500/20 mb-4">
           <HelpCircle className="w-3.5 h-3.5" />
-          <span>Objection Crusher & Security</span>
+          <span>Frequently Asked Questions</span>
         </div>
         <h1 className="text-4xl sm:text-6xl font-black text-white tracking-tight mb-4">
-          Frequently Asked Questions & Privacy
+          Common Questions & Answers
         </h1>
         <p className="text-base sm:text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed">
-          Clear, plain-English answers to every technical, financial, and privacy question about Apex Chess Trainer.
+          Everything you need to know about getting started, staying private, and breaking your rating plateau.
         </p>
       </div>
 
@@ -81,21 +81,21 @@ export function FaqPrivacyPage({ onNavigate, onLaunchApp }) {
         <div className="bg-slate-950 border border-slate-800 rounded-3xl p-8 space-y-6">
           <div className="flex items-center gap-3">
             <Lock className="w-6 h-6 text-emerald-400" />
-            <h3 className="text-lg font-bold text-white">Our 3 Non-Negotiable Privacy Tenets</h3>
+            <h3 className="text-lg font-bold text-white">Our 3 Core Privacy Guarantees</h3>
           </div>
 
           <div className="grid sm:grid-cols-3 gap-4 pt-2 text-xs text-slate-300">
             <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-800">
-              <strong className="text-emerald-400 block mb-1">1. Zero Trackers</strong>
-              No Google Analytics, Meta Pixels, or fingerprinting scripts. We do not track where you browse.
+              <strong className="text-emerald-400 block mb-1">1. Zero Ad Trackers</strong>
+              We do not track your browsing, run advertising scripts, or sell personal profiles.
             </div>
             <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-800">
-              <strong className="text-emerald-400 block mb-1">2. Local Storage</strong>
-              API keys are saved in your local browser storage and never transmitted to Apex servers.
+              <strong className="text-emerald-400 block mb-1">2. Private Game History</strong>
+              Your match logs stay on your computer. Your opening prep is never uploaded to a central server.
             </div>
             <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-800">
-              <strong className="text-emerald-400 block mb-1">3. FOSS License</strong>
-              Fully transparent source code protected under GNU General Public License v3.0.
+              <strong className="text-emerald-400 block mb-1">3. Zero Surprise Bills</strong>
+              Google's developer tier does not collect card details, making accidental charges impossible.
             </div>
           </div>
 
@@ -105,7 +105,7 @@ export function FaqPrivacyPage({ onNavigate, onLaunchApp }) {
               className="px-8 py-3.5 rounded-xl font-black text-xs uppercase tracking-wider text-slate-950 bg-emerald-400 hover:bg-emerald-300 transition-colors shadow-lg shadow-emerald-500/20 inline-flex items-center gap-2"
             >
               <Swords className="w-4 h-4" />
-              <span>Launch Live App ($0 Free)</span>
+              <span>Start Training Free Today</span>
             </button>
           </div>
         </div>

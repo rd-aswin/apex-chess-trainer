@@ -44,12 +44,12 @@ export function LandingNavbar({ currentPage, onNavigate, onLaunchApp }) {
           </div>
           <div>
             <div className="flex items-center gap-1.5">
-              <span className="font-black tracking-tight text-lg text-white font-sans">APEX</span>
-              <span className="text-xs px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 font-semibold border border-emerald-500/20">
-                BYOK
+              <span className="font-black tracking-tight text-lg text-white font-sans">Apex Chess</span>
+              <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 font-semibold border border-emerald-500/20">
+                AI Coach
               </span>
             </div>
-            <p className="text-[10px] text-slate-400 -mt-1 font-medium tracking-wide uppercase">AI Chess Coach</p>
+            <p className="text-[10px] text-slate-400 -mt-0.5 font-medium tracking-wide">Plain-English Game Review</p>
           </div>
         </button>
 
@@ -80,8 +80,8 @@ export function LandingNavbar({ currentPage, onNavigate, onLaunchApp }) {
                 >
                   <Sparkles className="w-5 h-5 text-emerald-400 mt-0.5 shrink-0" />
                   <div>
-                    <div className="text-sm font-semibold text-white">Explainable AI Review</div>
-                    <div className="text-xs text-slate-400">Neuro-symbolic 3-stage truth engine</div>
+                    <div className="text-sm font-semibold text-white">Plain-English Review</div>
+                    <div className="text-xs text-slate-400">Clear explanations, not cryptic numbers</div>
                   </div>
                 </button>
                 <button 
@@ -90,8 +90,8 @@ export function LandingNavbar({ currentPage, onNavigate, onLaunchApp }) {
                 >
                   <Zap className="w-5 h-5 text-amber-400 mt-0.5 shrink-0" />
                   <div>
-                    <div className="text-sm font-semibold text-white">Socratic Move Sparring</div>
-                    <div className="text-xs text-slate-400">Active recall at critical turning points</div>
+                    <div className="text-sm font-semibold text-white">Interactive Move Sparring</div>
+                    <div className="text-xs text-slate-400">Try your ideas when you make a mistake</div>
                   </div>
                 </button>
                 <button 
@@ -100,8 +100,8 @@ export function LandingNavbar({ currentPage, onNavigate, onLaunchApp }) {
                 >
                   <Flame className="w-5 h-5 text-rose-400 mt-0.5 shrink-0" />
                   <div>
-                    <div className="text-sm font-semibold text-white">Multi-Game Leak Detector</div>
-                    <div className="text-xs text-slate-400">Audit subconscious habit patterns</div>
+                    <div className="text-sm font-semibold text-white">Find Your Bad Habits</div>
+                    <div className="text-xs text-slate-400">Spot mistakes repeated across 50 games</div>
                   </div>
                 </button>
                 <button 
@@ -110,8 +110,8 @@ export function LandingNavbar({ currentPage, onNavigate, onLaunchApp }) {
                 >
                   <Swords className="w-5 h-5 text-cyan-400 mt-0.5 shrink-0" />
                   <div>
-                    <div className="text-sm font-semibold text-white">Stockfish 19 AVX-512</div>
-                    <div className="text-xs text-slate-400">Locked 3650+ Elo local engine</div>
+                    <div className="text-sm font-semibold text-white">World Champion Engine</div>
+                    <div className="text-xs text-slate-400">Instant analysis on your own laptop</div>
                   </div>
                 </button>
                 <button 
@@ -120,8 +120,8 @@ export function LandingNavbar({ currentPage, onNavigate, onLaunchApp }) {
                 >
                   <BookOpen className="w-5 h-5 text-indigo-400 mt-0.5 shrink-0" />
                   <div>
-                    <div className="text-sm font-semibold text-white">Blunder Drills & Anki</div>
-                    <div className="text-xs text-slate-400">Personalized spaced-repetition cards</div>
+                    <div className="text-sm font-semibold text-white">Custom Blunder Drills</div>
+                    <div className="text-xs text-slate-400">Practice puzzles made from your games</div>
                   </div>
                 </button>
                 <button 
@@ -130,8 +130,8 @@ export function LandingNavbar({ currentPage, onNavigate, onLaunchApp }) {
                 >
                   <span className="text-base mt-0.5 shrink-0">📖</span>
                   <div>
-                    <div className="text-sm font-semibold text-white">Opening Repertoire</div>
-                    <div className="text-xs text-slate-400">ECO master concepts & plans</div>
+                    <div className="text-sm font-semibold text-white">Opening Strategy Guide</div>
+                    <div className="text-xs text-slate-400">Learn the plans, not just memorized moves</div>
                   </div>
                 </button>
               </div>
@@ -149,7 +149,7 @@ export function LandingNavbar({ currentPage, onNavigate, onLaunchApp }) {
                   : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
               }`}
             >
-              <span>Vs Incumbents</span>
+              <span>Compare</span>
               <ChevronDown className={`w-3.5 h-3.5 transition-transform ${activeDropdown === 'comparisons' ? 'rotate-180' : ''}`} />
             </button>
 
@@ -163,7 +163,7 @@ export function LandingNavbar({ currentPage, onNavigate, onLaunchApp }) {
                     <span>Vs Chess.com Diamond</span>
                     <span className="text-[10px] px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-400 font-bold">$160/yr</span>
                   </div>
-                  <div className="text-xs text-slate-400 mt-0.5">Why canned reviews fail improvers</div>
+                  <div className="text-xs text-slate-400 mt-0.5">Real coaching vs pre-written templates</div>
                 </button>
                 <button 
                   onClick={() => handleNav('vs-lichess')}
@@ -173,7 +173,7 @@ export function LandingNavbar({ currentPage, onNavigate, onLaunchApp }) {
                     <span>Vs Lichess Engine</span>
                     <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-400 font-bold">100% Free</span>
                   </div>
-                  <div className="text-xs text-slate-400 mt-0.5">Calculators vs Socratic coaches</div>
+                  <div className="text-xs text-slate-400 mt-0.5">A human coach vs a raw calculator</div>
                 </button>
               </div>
             )}
@@ -191,7 +191,7 @@ export function LandingNavbar({ currentPage, onNavigate, onLaunchApp }) {
               }`}
             >
               <Users className="w-4 h-4 text-emerald-400" />
-              <span>For You</span>
+              <span>For Your Level</span>
               <ChevronDown className={`w-3.5 h-3.5 transition-transform ${activeDropdown === 'usecases' ? 'rotate-180' : ''}`} />
             </button>
 
@@ -202,28 +202,28 @@ export function LandingNavbar({ currentPage, onNavigate, onLaunchApp }) {
                   className="w-full text-left p-2.5 rounded-xl hover:bg-slate-800/80 transition-colors"
                 >
                   <div className="text-sm font-semibold text-white">1200–1500 Improvers</div>
-                  <div className="text-xs text-slate-400">Stop piece hanging & tunnel vision</div>
+                  <div className="text-xs text-slate-400">Stop hanging undefended pieces</div>
                 </button>
                 <button 
                   onClick={() => handleNav('use-cases/1600-1900')}
                   className="w-full text-left p-2.5 rounded-xl hover:bg-slate-800/80 transition-colors"
                 >
-                  <div className="text-sm font-semibold text-white">1600–1900 Competitors</div>
-                  <div className="text-xs text-slate-400">Master pawn structures & outposts</div>
+                  <div className="text-sm font-semibold text-white">1600–1900 Club Players</div>
+                  <div className="text-xs text-slate-400">Master pawn structures and knight outposts</div>
                 </button>
                 <button 
                   onClick={() => handleNav('use-cases/adult-improver')}
                   className="w-full text-left p-2.5 rounded-xl hover:bg-slate-800/80 transition-colors"
                 >
                   <div className="text-sm font-semibold text-white">Busy Adult Improvers</div>
-                  <div className="text-xs text-slate-400">High-yield 15-min daily training</div>
+                  <div className="text-xs text-slate-400">High-yield 15-minute daily routine</div>
                 </button>
                 <button 
                   onClick={() => handleNav('use-cases/coaches')}
                   className="w-full text-left p-2.5 rounded-xl hover:bg-slate-800/80 transition-colors"
                 >
                   <div className="text-sm font-semibold text-white">Coaches & Academies</div>
-                  <div className="text-xs text-slate-400">Automate student PGN reviews</div>
+                  <div className="text-xs text-slate-400">Review student games automatically</div>
                 </button>
               </div>
             )}
@@ -238,10 +238,10 @@ export function LandingNavbar({ currentPage, onNavigate, onLaunchApp }) {
                 : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
             }`}
           >
-            Pricing & BYOK
+            Pricing
           </button>
 
-          {/* How BYOK Works */}
+          {/* How Free Key Works */}
           <button
             onClick={() => handleNav('how-byok-works')}
             className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
@@ -250,10 +250,10 @@ export function LandingNavbar({ currentPage, onNavigate, onLaunchApp }) {
                 : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
             }`}
           >
-            How BYOK Works
+            How Free Key Works
           </button>
 
-          {/* ROI Calculator */}
+          {/* Savings Calculator */}
           <button
             onClick={() => handleNav('calculator')}
             className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
@@ -266,7 +266,7 @@ export function LandingNavbar({ currentPage, onNavigate, onLaunchApp }) {
             <span>Savings Calc</span>
           </button>
 
-          {/* Manifesto */}
+          {/* Our Story */}
           <button
             onClick={() => handleNav('manifesto')}
             className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
@@ -275,7 +275,7 @@ export function LandingNavbar({ currentPage, onNavigate, onLaunchApp }) {
                 : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
             }`}
           >
-            Manifesto
+            Our Story
           </button>
         </div>
 
@@ -285,15 +285,15 @@ export function LandingNavbar({ currentPage, onNavigate, onLaunchApp }) {
             onClick={() => handleNav('demo')}
             className="px-3.5 py-2 rounded-xl text-sm font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition-colors border border-slate-700/60"
           >
-            Test Sandbox
+            Try Demo
           </button>
           
           <button
             onClick={onLaunchApp}
-            className="group relative inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold text-slate-950 bg-gradient-to-r from-emerald-400 via-emerald-300 to-teal-400 hover:from-emerald-300 hover:to-teal-300 shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 transition-all duration-200 transform hover:-translate-y-0.5 focus:outline-none"
+            className="group relative inline-flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-bold text-slate-950 bg-gradient-to-r from-emerald-400 via-emerald-300 to-teal-400 hover:from-emerald-300 hover:to-teal-300 shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 transition-all duration-200 transform hover:-translate-y-0.5 focus:outline-none"
           >
             <Swords className="w-4 h-4 text-slate-950" />
-            <span>Launch Live App</span>
+            <span>Start Training Free</span>
             <ArrowRight className="w-3.5 h-3.5 text-slate-950 transition-transform group-hover:translate-x-1" />
           </button>
         </div>
@@ -304,7 +304,7 @@ export function LandingNavbar({ currentPage, onNavigate, onLaunchApp }) {
             onClick={onLaunchApp}
             className="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-950 bg-emerald-400 hover:bg-emerald-300"
           >
-            App
+            Start Free
           </button>
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -330,13 +330,13 @@ export function LandingNavbar({ currentPage, onNavigate, onLaunchApp }) {
               onClick={() => handleNav('pricing')} 
               className="w-full text-left py-2 px-3 rounded-lg text-sm font-semibold text-emerald-400 hover:bg-slate-900"
             >
-              Pricing & BYOK
+              Pricing & Free Key
             </button>
             <button 
               onClick={() => handleNav('how-byok-works')} 
               className="w-full text-left py-2 px-3 rounded-lg text-sm font-semibold text-slate-300 hover:bg-slate-900"
             >
-              How BYOK Works
+              How Free Key Works
             </button>
             <button 
               onClick={() => handleNav('calculator')} 
@@ -348,25 +348,25 @@ export function LandingNavbar({ currentPage, onNavigate, onLaunchApp }) {
               onClick={() => handleNav('manifesto')} 
               className="w-full text-left py-2 px-3 rounded-lg text-sm font-semibold text-slate-300 hover:bg-slate-900"
             >
-              Anti-Subscription Manifesto
+              Our Story (Why No Subscriptions)
             </button>
             <button 
               onClick={() => handleNav('demo')} 
               className="w-full text-left py-2 px-3 rounded-lg text-sm font-semibold text-slate-300 hover:bg-slate-900"
             >
-              Interactive Sandbox Demo
+              Interactive Demo
             </button>
           </div>
 
           <div className="pt-2 border-t border-slate-800/80">
             <p className="text-xs font-semibold text-slate-500 uppercase px-3 mb-1">Features</p>
             <div className="grid grid-cols-2 gap-1">
-              <button onClick={() => handleNav('features/ai-review')} className="text-left text-xs p-2 rounded text-slate-400 hover:text-white">Explainable Review</button>
-              <button onClick={() => handleNav('features/socratic-sparring')} className="text-left text-xs p-2 rounded text-slate-400 hover:text-white">Socratic Sparring</button>
-              <button onClick={() => handleNav('features/leak-detection')} className="text-left text-xs p-2 rounded text-slate-400 hover:text-white">Leak Detector</button>
-              <button onClick={() => handleNav('features/engine')} className="text-left text-xs p-2 rounded text-slate-400 hover:text-white">Stockfish 19 Engine</button>
-              <button onClick={() => handleNav('features/drills')} className="text-left text-xs p-2 rounded text-slate-400 hover:text-white">Blunder Drills & Anki</button>
-              <button onClick={() => handleNav('features/openings')} className="text-left text-xs p-2 rounded text-slate-400 hover:text-white">Opening Repertoire</button>
+              <button onClick={() => handleNav('features/ai-review')} className="text-left text-xs p-2 rounded text-slate-400 hover:text-white">Plain-English Review</button>
+              <button onClick={() => handleNav('features/socratic-sparring')} className="text-left text-xs p-2 rounded text-slate-400 hover:text-white">Move Sparring</button>
+              <button onClick={() => handleNav('features/leak-detection')} className="text-left text-xs p-2 rounded text-slate-400 hover:text-white">Find Bad Habits</button>
+              <button onClick={() => handleNav('features/engine')} className="text-left text-xs p-2 rounded text-slate-400 hover:text-white">World Champion Engine</button>
+              <button onClick={() => handleNav('features/drills')} className="text-left text-xs p-2 rounded text-slate-400 hover:text-white">Custom Drills</button>
+              <button onClick={() => handleNav('features/openings')} className="text-left text-xs p-2 rounded text-slate-400 hover:text-white">Opening Guides</button>
             </div>
           </div>
 
@@ -379,12 +379,12 @@ export function LandingNavbar({ currentPage, onNavigate, onLaunchApp }) {
           </div>
 
           <div className="pt-2 border-t border-slate-800/80">
-            <p className="text-xs font-semibold text-slate-500 uppercase px-3 mb-1">Personas & Solutions</p>
+            <p className="text-xs font-semibold text-slate-500 uppercase px-3 mb-1">For Your Rating</p>
             <div className="grid grid-cols-2 gap-1">
-              <button onClick={() => handleNav('use-cases/1200-1500')} className="text-left text-xs p-2 rounded text-slate-400 hover:text-white">1200–1500 Plateau</button>
-              <button onClick={() => handleNav('use-cases/1600-1900')} className="text-left text-xs p-2 rounded text-slate-400 hover:text-white">1600–1900 Club</button>
-              <button onClick={() => handleNav('use-cases/adult-improver')} className="text-left text-xs p-2 rounded text-slate-400 hover:text-white">Adult Improver</button>
-              <button onClick={() => handleNav('use-cases/coaches')} className="text-left text-xs p-2 rounded text-slate-400 hover:text-white">Coaches & Academies</button>
+              <button onClick={() => handleNav('use-cases/1200-1500')} className="text-left text-xs p-2 rounded text-slate-400 hover:text-white">1200–1500 Rating</button>
+              <button onClick={() => handleNav('use-cases/1600-1900')} className="text-left text-xs p-2 rounded text-slate-400 hover:text-white">1600–1900 Rating</button>
+              <button onClick={() => handleNav('use-cases/adult-improver')} className="text-left text-xs p-2 rounded text-slate-400 hover:text-white">Busy Adults</button>
+              <button onClick={() => handleNav('use-cases/coaches')} className="text-left text-xs p-2 rounded text-slate-400 hover:text-white">Coaches</button>
             </div>
           </div>
 
@@ -393,7 +393,7 @@ export function LandingNavbar({ currentPage, onNavigate, onLaunchApp }) {
               onClick={onLaunchApp}
               className="w-full py-3 rounded-xl text-center font-bold text-slate-950 bg-emerald-400 hover:bg-emerald-300 shadow-lg shadow-emerald-500/20"
             >
-              Launch Live App Now
+              Start Training Free Now
             </button>
           </div>
         </div>

@@ -51,7 +51,7 @@ export function InteractiveDemoPage({ onNavigate, onLaunchApp }) {
           Experience Explainable AI Instantly
         </h1>
         <p className="text-base sm:text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed">
-          No sign-up. No credit card. No API key. Select a critical blunder below and inspect how our neuro-symbolic engine breaks it down.
+          No sign-up. No credit card. No API key. Select a critical blunder below and see how our AI coach explains it in plain English.
         </p>
       </div>
 

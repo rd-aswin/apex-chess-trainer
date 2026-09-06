@@ -45,24 +45,24 @@ export function VsChesscomPage({ onNavigate, onLaunchApp }) {
                   <td className="p-4 sm:p-5 text-emerald-400 font-mono font-bold bg-emerald-500/5">$0.00 to $60.00 (87%+ Savings)</td>
                 </tr>
                 <tr>
-                  <td className="p-4 sm:p-5 font-bold text-white">Analysis Depth & Engine</td>
-                  <td className="p-4 sm:p-5 text-slate-300">Scaled-down cloud engine (depth 18–22)</td>
-                  <td className="p-4 sm:p-5 text-slate-200 bg-emerald-500/5">Stockfish 19 NNUE (Level 20, 3650+ Elo, AVX-512)</td>
+                  <td className="p-4 sm:p-5 font-bold text-white">Engine Strength & Speed</td>
+                  <td className="p-4 sm:p-5 text-slate-300">Scaled-down cloud engine with server queues</td>
+                  <td className="p-4 sm:p-5 text-slate-200 bg-emerald-500/5">Stockfish 19 (Runs fast on your device, max strength)</td>
                 </tr>
                 <tr>
                   <td className="p-4 sm:p-5 font-bold text-white">Explanation Quality</td>
                   <td className="p-4 sm:p-5 text-slate-300">Pre-written canned templates ("You missed a tactic")</td>
-                  <td className="p-4 sm:p-5 text-slate-200 bg-emerald-500/5">Neuro-symbolic explainable AI (explains tactical "Why")</td>
+                  <td className="p-4 sm:p-5 text-slate-200 bg-emerald-500/5">Plain-English coaching (explains the tactical "Why")</td>
                 </tr>
                 <tr>
-                  <td className="p-4 sm:p-5 font-bold text-white">Socratic Sparring</td>
+                  <td className="p-4 sm:p-5 font-bold text-white">Interactive Move Testing</td>
                   <td className="p-4 sm:p-5 text-slate-300">Static "next move" arrows; no candidate testing</td>
-                  <td className="p-4 sm:p-5 text-slate-200 bg-emerald-500/5">Active candidate testing & idea refutation in real time</td>
+                  <td className="p-4 sm:p-5 text-slate-200 bg-emerald-500/5">Test your alternative ideas on the board in real time</td>
                 </tr>
                 <tr>
-                  <td className="p-4 sm:p-5 font-bold text-white">Subconscious Leak Detection</td>
+                  <td className="p-4 sm:p-5 font-bold text-white">Habit & Pattern Tracking</td>
                   <td className="p-4 sm:p-5 text-slate-300">Basic rating breakdown and general accuracy score</td>
-                  <td className="p-4 sm:p-5 text-slate-200 bg-emerald-500/5">50-game subconscious habit audit & blunder clustering</td>
+                  <td className="p-4 sm:p-5 text-slate-200 bg-emerald-500/5">Audits repeating blunder patterns across your last 50 games</td>
                 </tr>
                 <tr>
                   <td className="p-4 sm:p-5 font-bold text-white">Data Privacy & Storage</td>

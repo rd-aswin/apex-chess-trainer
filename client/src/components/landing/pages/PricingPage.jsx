@@ -7,9 +7,8 @@ import {
 export function PricingPage({ onNavigate, onLaunchApp }) {
   const [billingCycle, setBillingCycle] = useState('yearly'); // 'monthly' | 'yearly'
   const [gamesPerWeek, setGamesPerWeek] = useState(15);
-  const [selectedModel, setSelectedModel] = useState('gemini-flash'); // 'gemini-flash' | 'sonnet' | 'gpt4o-mini' | 'ollama'
+  const [selectedModel, setSelectedModel] = useState('gemini-flash');
 
-  // Model costs per 40-move game review
   const modelCosts = {
     'gemini-flash': 0.00035,
     'gpt4o-mini': 0.002,
@@ -30,13 +29,13 @@ export function PricingPage({ onNavigate, onLaunchApp }) {
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center pt-8 mb-16">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-semibold border border-emerald-500/20 mb-4">
           <Sparkles className="w-3.5 h-3.5" />
-          <span>The BYOK-Led Trojan Horse Architecture</span>
+          <span>Simple, Honest Pricing</span>
         </div>
         <h1 className="text-4xl sm:text-6xl font-black text-white tracking-tight mb-4">
           Pay Once. Own Your Coach Forever.
         </h1>
         <p className="text-base sm:text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed">
-          No recurring subscriptions required. Run Stockfish 19 locally on your machine for $0, bring your own free Google Gemini API key, or choose turnkey cloud convenience.
+          No monthly subscription traps. Get unlimited coaching for free using Google's free AI key, try 3 free reviews a day with zero setup, or grab a lifetime license.
         </p>
 
         {/* Monthly vs Yearly Toggle for Pro */}
@@ -65,24 +64,24 @@ export function PricingPage({ onNavigate, onLaunchApp }) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
           
-          {/* TIER 1: FREE FOREVER (BYOK) */}
+          {/* TIER 1: FREE FOREVER */}
           <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6 flex flex-col justify-between hover:border-emerald-500/40 transition-colors">
             <div>
-              <div className="text-xs font-bold uppercase tracking-wider text-emerald-400">1. Free Forever (BYOK)</div>
+              <div className="text-xs font-bold uppercase tracking-wider text-emerald-400">1. Free Forever (Your Key)</div>
               <div className="text-3xl font-black text-white mt-2">$0</div>
-              <div className="text-xs text-slate-400 mt-1">Bring Your Own Key • 100% Free</div>
+              <div className="text-xs text-slate-400 mt-1">Unlimited Free Reviews Forever</div>
               <p className="text-xs text-slate-400 mt-3 leading-relaxed">
-                For tech-savvy players, students, and open-source advocates who want zero fees forever.
+                For players who want unlimited reviews for $0 using Google's free AI key (1,500 games/day).
               </p>
 
               <div className="my-6 border-t border-slate-800/80 pt-4 space-y-2.5 text-xs text-slate-300">
                 <div className="flex items-start gap-2">
                   <Check className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                  <span><strong>Unlimited</strong> game reviews with free Gemini key (1,500/day)</span>
+                  <span><strong>Unlimited</strong> game reviews with free Google key</span>
                 </div>
                 <div className="flex items-start gap-2">
                   <Check className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                  <span>Full tactical & positional pedagogical breakdowns</span>
+                  <span>Plain-English mistake explanations</span>
                 </div>
                 <div className="flex items-start gap-2">
                   <Check className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
@@ -90,7 +89,7 @@ export function PricingPage({ onNavigate, onLaunchApp }) {
                 </div>
                 <div className="flex items-start gap-2">
                   <Check className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                  <span>Stockfish 19 NNUE (Level 20)</span>
+                  <span>World champion Stockfish engine</span>
                 </div>
               </div>
             </div>
@@ -99,36 +98,36 @@ export function PricingPage({ onNavigate, onLaunchApp }) {
               onClick={onLaunchApp}
               className="w-full py-3 rounded-xl text-xs font-bold text-slate-200 bg-slate-900 hover:bg-slate-800 border border-slate-700 transition-colors"
             >
-              Start Free with BYOK
+              Start Free (1-Min Setup)
             </button>
           </div>
 
           {/* TIER 2: FREE TRIAL (HOSTED) */}
           <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6 flex flex-col justify-between hover:border-teal-500/40 transition-colors">
             <div>
-              <div className="text-xs font-bold uppercase tracking-wider text-teal-400">2. Free Trial (Hosted)</div>
+              <div className="text-xs font-bold uppercase tracking-wider text-teal-400">2. Free Trial (Zero Setup)</div>
               <div className="text-3xl font-black text-white mt-2">$0</div>
-              <div className="text-xs text-slate-400 mt-1">3 Full Reviews / Day • Zero Setup</div>
+              <div className="text-xs text-slate-400 mt-1">3 Free Full Reviews / Day</div>
               <p className="text-xs text-slate-400 mt-3 leading-relaxed">
-                First-time visitors testing the waters without signing up or creating an API key.
+                Try it out immediately without signing up, entering a card, or pasting any keys.
               </p>
 
               <div className="my-6 border-t border-slate-800/80 pt-4 space-y-2.5 text-xs text-slate-300">
                 <div className="flex items-start gap-2">
                   <Check className="w-4 h-4 text-teal-400 shrink-0 mt-0.5" />
-                  <span><strong>3 free complete game reviews</strong> every 24 hours</span>
+                  <span><strong>3 free complete game reviews</strong> every day</span>
                 </div>
                 <div className="flex items-start gap-2">
                   <Check className="w-4 h-4 text-teal-400 shrink-0 mt-0.5" />
-                  <span><strong>Zero setup</strong>: No credit card, no sign-up, no API key</span>
+                  <span><strong>Zero setup</strong>: No card, no password, no key</span>
                 </div>
                 <div className="flex items-start gap-2">
                   <Check className="w-4 h-4 text-teal-400 shrink-0 mt-0.5" />
-                  <span>Interactive Socratic blunder sparring</span>
+                  <span>Interactive move testing sandbox</span>
                 </div>
                 <div className="flex items-start gap-2">
                   <Check className="w-4 h-4 text-teal-400 shrink-0 mt-0.5" />
-                  <span>Instant 1-click PGN / username import</span>
+                  <span>Instant 1-click import from Chess.com</span>
                 </div>
               </div>
             </div>
@@ -137,41 +136,41 @@ export function PricingPage({ onNavigate, onLaunchApp }) {
               onClick={onLaunchApp}
               className="w-full py-3 rounded-xl text-xs font-bold text-slate-200 bg-slate-900 hover:bg-slate-800 border border-slate-700 transition-colors"
             >
-              Try 3 Free Reviews Today
+              Try 3 Free Games Today
             </button>
           </div>
 
-          {/* TIER 3: APEX PRO (SUBSCRIPTION) */}
+          {/* TIER 3: APEX PRO */}
           <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6 flex flex-col justify-between hover:border-indigo-500/40 transition-colors">
             <div>
-              <div className="text-xs font-bold uppercase tracking-wider text-indigo-400">3. Apex Pro (Turnkey)</div>
+              <div className="text-xs font-bold uppercase tracking-wider text-indigo-400">3. Apex Pro</div>
               <div className="text-3xl font-black text-white mt-2">
                 {billingCycle === 'monthly' ? '$4.99' : '$39'}
                 <span className="text-xs font-normal text-slate-400">
                   {billingCycle === 'monthly' ? ' / mo' : ' / yr ($3.25/mo)'}
                 </span>
               </div>
-              <div className="text-xs text-indigo-400 font-semibold mt-1">Undercuts Chess.com by 75%</div>
+              <div className="text-xs text-indigo-400 font-semibold mt-1">75% Cheaper Than Chess.com</div>
               <p className="text-xs text-slate-400 mt-3 leading-relaxed">
-                For casual players who want 1-click magic with zero API setup or key management.
+                For players who want 1-click convenience with zero key management or setup.
               </p>
 
               <div className="my-6 border-t border-slate-800/80 pt-4 space-y-2.5 text-xs text-slate-300">
                 <div className="flex items-start gap-2">
                   <Check className="w-4 h-4 text-indigo-400 shrink-0 mt-0.5" />
-                  <span><strong>Unlimited cloud analysis</strong> (Zero API key needed)</span>
+                  <span><strong>Unlimited reviews</strong> (No keys needed)</span>
                 </div>
                 <div className="flex items-start gap-2">
                   <Check className="w-4 h-4 text-indigo-400 shrink-0 mt-0.5" />
-                  <span>Conversational Socratic "Ask Coach" chat</span>
+                  <span>Chat with Grandmaster AI coach anytime</span>
                 </div>
                 <div className="flex items-start gap-2">
                   <Check className="w-4 h-4 text-indigo-400 shrink-0 mt-0.5" />
-                  <span>Multi-game subconscious leak detector (50 games)</span>
+                  <span>50-game bad habit detector</span>
                 </div>
                 <div className="flex items-start gap-2">
                   <Check className="w-4 h-4 text-indigo-400 shrink-0 mt-0.5" />
-                  <span>Custom blunder puzzle generator & Anki export</span>
+                  <span>Custom blunder puzzles & Anki export</span>
                 </div>
               </div>
             </div>
@@ -184,7 +183,7 @@ export function PricingPage({ onNavigate, onLaunchApp }) {
             </button>
           </div>
 
-          {/* TIER 4: LIFETIME FOUNDER (ONE-TIME DEAL) */}
+          {/* TIER 4: LIFETIME FOUNDER */}
           <div className="bg-gradient-to-b from-slate-900 to-slate-950 border-2 border-emerald-500 rounded-3xl p-6 flex flex-col justify-between relative shadow-2xl shadow-emerald-500/15">
             <div className="absolute -top-3.5 right-6 px-3 py-0.5 rounded-full bg-emerald-400 text-slate-950 font-black text-[10px] uppercase tracking-wider">
               Best Long-Term Value
@@ -192,9 +191,9 @@ export function PricingPage({ onNavigate, onLaunchApp }) {
             <div>
               <div className="text-xs font-bold uppercase tracking-wider text-emerald-400">4. Lifetime Founder</div>
               <div className="text-3xl font-black text-white mt-2">$59 <span className="text-xs font-normal text-emerald-300">one-time</span></div>
-              <div className="text-xs text-emerald-400 font-semibold mt-1">Pay once, own for life</div>
+              <div className="text-xs text-emerald-400 font-semibold mt-1">Pay once, own forever</div>
               <p className="text-xs text-slate-400 mt-3 leading-relaxed">
-                The anti-subscription wedge. Power users who want to own their software forever with zero recurring bills.
+                For players who hate recurring bills. Own all features forever with zero monthly charges.
               </p>
 
               <div className="my-6 border-t border-slate-800/80 pt-4 space-y-2.5 text-xs text-slate-200">
@@ -204,15 +203,15 @@ export function PricingPage({ onNavigate, onLaunchApp }) {
                 </div>
                 <div className="flex items-start gap-2">
                   <Check className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                  <span>Perpetual updates to Stockfish & AI pipelines</span>
+                  <span>Free updates to all future versions</span>
                 </div>
                 <div className="flex items-start gap-2">
                   <Check className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                  <span>Use free Gemini key (1,500/day) or hosted fallback</span>
+                  <span>Use free Google key or hosted analysis</span>
                 </div>
                 <div className="flex items-start gap-2">
                   <Check className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                  <span>Early access to upcoming grandmaster fine-tunes</span>
+                  <span>Early access to new coaching models</span>
                 </div>
               </div>
             </div>
@@ -221,33 +220,33 @@ export function PricingPage({ onNavigate, onLaunchApp }) {
               onClick={onLaunchApp}
               className="w-full py-3 rounded-xl text-xs font-black uppercase tracking-wider text-slate-950 bg-emerald-400 hover:bg-emerald-300 transition-colors shadow-lg shadow-emerald-500/30"
             >
-              Get Lifetime Founder Pass
+              Get Lifetime Pass ($59)
             </button>
           </div>
 
         </div>
       </div>
 
-      {/* INTERACTIVE TOKEN BURN & ROI CALCULATOR */}
+      {/* SAVINGS CALCULATOR */}
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 mt-20">
         <div className="bg-slate-950 border border-slate-800 rounded-3xl p-8 shadow-2xl">
           <div className="text-center max-w-2xl mx-auto mb-8">
             <h3 className="text-2xl font-black text-white flex items-center justify-center gap-2">
               <Calculator className="w-6 h-6 text-emerald-400" />
-              <span>Interactive Token Cost & Savings Calculator</span>
+              <span>See How Much You Save</span>
             </h3>
             <p className="text-xs text-slate-400 mt-2">
-              See exactly what your real API costs will be and calculate your net 3-year savings versus Chess.com Diamond.
+              Compare 3 years of Chess.com Diamond ($480) with Apex Lifetime ($59).
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 gap-8 items-center">
             
-            {/* Left: Sliders & Controls */}
+            {/* Left: Sliders */}
             <div className="space-y-6 bg-slate-900/60 p-6 rounded-2xl border border-slate-800">
               <div>
                 <div className="flex justify-between items-center text-xs font-semibold text-slate-300 mb-2">
-                  <span>Games Analyzed Per Week:</span>
+                  <span>Games Reviewed Per Week:</span>
                   <span className="text-emerald-400 font-mono text-sm">{gamesPerWeek} games</span>
                 </div>
                 <input
@@ -261,13 +260,13 @@ export function PricingPage({ onNavigate, onLaunchApp }) {
                 <div className="flex justify-between text-[10px] text-slate-400 mt-1">
                   <span>2 (Casual)</span>
                   <span>15 (Active)</span>
-                  <span>50 (Intensive)</span>
+                  <span>50 (Hardcore)</span>
                 </div>
               </div>
 
               <div>
                 <label className="block text-xs font-semibold text-slate-300 mb-2">
-                  Select Your AI Coaching Model:
+                  AI Model:
                 </label>
                 <div className="grid grid-cols-2 gap-2">
                   <button
@@ -278,8 +277,8 @@ export function PricingPage({ onNavigate, onLaunchApp }) {
                         : 'border-slate-800 bg-slate-900 text-slate-400'
                     }`}
                   >
-                    <div>Google Gemini Flash</div>
-                    <div className="text-[10px] opacity-75">$0.00035 / game</div>
+                    <div>Google Gemini</div>
+                    <div className="text-[10px] text-emerald-400 font-bold">Free ($0.00)</div>
                   </button>
                   <button
                     onClick={() => setSelectedModel('gpt4o-mini')}
@@ -311,17 +310,17 @@ export function PricingPage({ onNavigate, onLaunchApp }) {
                         : 'border-slate-800 bg-slate-900 text-slate-400'
                     }`}
                   >
-                    <div>Local Ollama (Offline)</div>
-                    <div className="text-[10px] text-emerald-400 font-bold">$0.0000 / game</div>
+                    <div>Offline Engine</div>
+                    <div className="text-[10px] text-emerald-400 font-bold">100% Free ($0)</div>
                   </button>
                 </div>
               </div>
             </div>
 
-            {/* Right: Real Economics Breakdown */}
+            {/* Right: Breakdown */}
             <div className="bg-slate-900/90 border border-emerald-500/30 p-6 rounded-2xl space-y-4">
               <div className="border-b border-slate-800 pb-3">
-                <div className="text-xs text-slate-400">Your Real Monthly AI Inference Bill:</div>
+                <div className="text-xs text-slate-400">Your Monthly AI Cost:</div>
                 <div className="text-2xl font-black text-emerald-400 font-mono">
                   ${rawApiCostPerMonth.toFixed(4)} <span className="text-xs font-normal text-slate-400">/ month</span>
                 </div>
@@ -336,11 +335,11 @@ export function PricingPage({ onNavigate, onLaunchApp }) {
                   <span className="font-mono text-rose-400 font-bold">$480.00</span>
                 </div>
                 <div className="flex justify-between text-slate-400">
-                  <span>3-Year Apex Lifetime + Tokens:</span>
+                  <span>3-Year Apex Lifetime Pass:</span>
                   <span className="font-mono text-emerald-400 font-bold">${threeYearApexFounderCost.toFixed(2)}</span>
                 </div>
                 <div className="pt-3 border-t border-slate-800 flex justify-between items-center text-sm font-bold text-white">
-                  <span>Your Net 3-Year Savings:</span>
+                  <span>Your 3-Year Savings:</span>
                   <span className="text-emerald-400 font-black text-lg font-mono">
                     ${totalThreeYearSavings.toFixed(2)}
                   </span>
@@ -352,7 +351,7 @@ export function PricingPage({ onNavigate, onLaunchApp }) {
                   onClick={onLaunchApp}
                   className="w-full py-2.5 rounded-xl font-bold text-xs text-slate-950 bg-emerald-400 hover:bg-emerald-300 transition-colors shadow-md shadow-emerald-500/20"
                 >
-                  Claim These Savings Today
+                  Start Training Free
                 </button>
               </div>
             </div>

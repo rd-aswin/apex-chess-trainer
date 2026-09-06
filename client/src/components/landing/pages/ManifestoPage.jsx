@@ -1,6 +1,6 @@
 import React from 'react';
 import { 
-  Flame, Heart, ShieldCheck, ArrowRight, Sparkles, Swords, DollarSign 
+  Flame, Heart, ShieldCheck, ArrowRight, Sparkles, Swords, CheckCircle2 
 } from 'lucide-react';
 
 export function ManifestoPage({ onNavigate, onLaunchApp }) {
@@ -9,15 +9,15 @@ export function ManifestoPage({ onNavigate, onLaunchApp }) {
       
       {/* Header */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center pt-8 mb-16">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-500/10 text-rose-400 text-xs font-semibold border border-rose-500/20 mb-4">
-          <Flame className="w-3.5 h-3.5" />
-          <span>The Anti-Subscription Manifesto</span>
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-semibold border border-emerald-500/20 mb-4">
+          <Heart className="w-3.5 h-3.5" />
+          <span>Our Story & Mission</span>
         </div>
         <h1 className="text-4xl sm:text-6xl font-black text-white tracking-tight mb-4">
-          The Rentier Economy Ruined Software. We Refuse to Participate.
+          We Believe You Should Own Your Chess Coach.
         </h1>
         <p className="text-base sm:text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed">
-          Why we reject the $16.99/month subscription trap, why AI inference belongs at wholesale cost, and why chess software should be owned for life.
+          Why we got fed up with $16/month subscriptions, why chess AI should be affordable for everyone, and how Apex was built for real players.
         </p>
       </div>
 
@@ -25,43 +25,46 @@ export function ManifestoPage({ onNavigate, onLaunchApp }) {
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 text-sm sm:text-base text-slate-300 leading-relaxed">
         
         <div className="bg-slate-950 border border-slate-800 rounded-3xl p-8 sm:p-10 space-y-6">
-          <h3 className="text-xl font-bold text-white">1. The Golden Age of Ownership</h3>
+          <h3 className="text-xl font-bold text-white">1. What Happened to Owning Your Tools?</h3>
           <p>
-            Twenty years ago, you bought a piece of chess software on a CD or as a downloadable installer. You paid for it once. You owned it. It ran on your machine without requiring a constant internet lifeline. It never threatened to lock you out if your credit card expired, and it never billed you while you were on vacation.
+            Years ago, when you bought chess training software, you paid once and it was yours. It ran on your computer. It didn't lock your game history if you didn't pay this month, and it didn't bill you when you were on vacation with your family.
           </p>
           <p>
-            Then venture capital arrived. Tech monopolies realized that charging a player $15 every month for ten years is vastly more lucrative than selling an honest piece of craftsmanship once.
-          </p>
-
-          <h3 className="text-xl font-bold text-white pt-4">2. The 2,000% AI Markup Racket</h3>
-          <p>
-            With the dawn of large language models, the exploitation worsened. A 40-move full game review using state-of-the-art models like <strong>Google Gemini Flash costs ~$0.00035</strong>.
-          </p>
-          <p>
-            If you analyze 30 games a month, your real computational bill is <strong className="text-emerald-400 font-mono">$0.01</strong>. Yet incumbent platforms charge <strong className="text-rose-400 font-mono">$16.99/month</strong>. That is not software pricing; that is rentier extortion disguised as digital innovation.
+            Over time, the chess world shifted toward endless monthly subscriptions. Today, players are expected to pay $120 to $160 every single year just to see which moves were blunders in their 10-minute games.
           </p>
 
-          <h3 className="text-xl font-bold text-white pt-4">3. The Apex Promise</h3>
+          <h3 className="text-xl font-bold text-white pt-4">2. The Truth About AI Costs</h3>
           <p>
-            We believe in radical transparency, local execution, and user ownership:
+            Modern AI technology is incredible. An AI model like Google Gemini can read an entire 40-move chess game and explain every mistake in warm, human English.
+          </p>
+          <p>
+            The actual computational cost of that review is <strong>less than half of one-tenth of a cent</strong> ($0.00035). Reviewing a game every day for a month costs about 1 cent.
+          </p>
+          <p>
+            So why are players charged $16.99 every month? Because corporate platforms know that chess improvers are passionate and will pay whatever it takes to break their rating plateaus.
+          </p>
+
+          <h3 className="text-xl font-bold text-white pt-4">3. Our Three Simple Promises</h3>
+          <p>
+            We built Apex to be the tool we always wanted as chess players:
           </p>
           <ul className="space-y-3 pt-2 text-xs sm:text-sm text-slate-200">
-            <li className="flex items-start gap-2">
-              <span className="text-emerald-400 font-bold">✓</span>
-              <span><strong>Bring Your Own Key (BYOK):</strong> We pass AI inference through to you at raw wholesale cost—or $0.00 using Google's free 1,500/day tier.</span>
+            <li className="flex items-start gap-2.5">
+              <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
+              <span><strong>Free Forever With Your Key:</strong> Use Google's free developer key (1,500 reviews/day) and pay $0.00 forever. No credit card required.</span>
             </li>
-            <li className="flex items-start gap-2">
-              <span className="text-emerald-400 font-bold">✓</span>
-              <span><strong>Local Stockfish 19:</strong> Engine computations run natively on your machine at locked Level 20 difficulty with zero cloud throttling.</span>
+            <li className="flex items-start gap-2.5">
+              <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
+              <span><strong>Explanations in Plain English:</strong> No more staring at "+1.4" and guessing what it means. We explain the tactical and strategic reason behind your mistake.</span>
             </li>
-            <li className="flex items-start gap-2">
-              <span className="text-emerald-400 font-bold">✓</span>
-              <span><strong>Lifetime Ownership:</strong> If you choose our Pro tools, buy them once and own them for life. No recurring bills. Ever.</span>
+            <li className="flex items-start gap-2.5">
+              <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
+              <span><strong>Zero Monthly Lock-in:</strong> If you want our turnkey Pro experience, pay once and own it for life. No recurring charges.</span>
             </li>
           </ul>
 
           <div className="pt-6 border-t border-slate-800 text-xs text-slate-400 italic">
-            "Chess was created as a noble pursuit of the human mind. The tools used to study it should empower the student, not drain their wallet."
+            "Chess is a game of personal growth and joy. The tools you use to study it should support you, not charge you endless rent."
           </div>
         </div>
 
@@ -72,7 +75,7 @@ export function ManifestoPage({ onNavigate, onLaunchApp }) {
             className="px-8 py-4 rounded-2xl font-black text-sm uppercase tracking-wider text-slate-950 bg-emerald-400 hover:bg-emerald-300 transition-colors shadow-xl shadow-emerald-500/25 inline-flex items-center gap-2"
           >
             <Swords className="w-4 h-4" />
-            <span>Join the Anti-Subscription Movement</span>
+            <span>Try Apex Chess Free Today</span>
           </button>
         </div>
 
