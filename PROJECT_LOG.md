@@ -135,8 +135,7 @@ The technical documentation suite has been established in the project directory:
     - Implemented a 3-minute in-memory cache and `User-Agent: ApexChessTrainer-UpdateCheck` to prevent unauthenticated GitHub API rate limits (60 req/hr).
     - Exposed `GET /api/updates/check` (with `?force=true` manual refresh bypass) in `server/index.js`.
     - Built `client/src/components/UpdateModal.jsx` featuring a high-tech dark HUD aesthetic, animated radar scan sweep, pulsing sonar rings, live tool health status, and 1-click Windows x86-64 binary zip download direct from official GitHub releases.
-    - Integrated "Updates" button and dynamic update notification badge into `client/src/App.jsx` with silent background health check on mount.
-    - Local Git Commit Policy: Preserved local-only commit state without remote pushing per user instructions.
+    - Synchronized to GitHub: Pushed commits (`a84f397`, `fa1b84d`) to `origin/main` on GitHub upon user review and approval.
 
 
 
