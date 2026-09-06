@@ -123,6 +123,13 @@ The technical documentation suite has been established in the project directory:
     - Created public GitHub repository [`rd-aswin/apex-chess-trainer`](https://github.com/rd-aswin/apex-chess-trainer).
     - Crafted comprehensive documentation in root `README.md` (badges, overview, quick start, architecture, documentation links).
     - Uploaded full base codebase and pushed directly to `origin/main`.
+  - **Conversational Grandmaster AI Coach ("Apex Coach")**:
+    - Built `server/openingBook.js` with comprehensive ECO opening classifier, opening concepts, and key move explanations for Ruy Lopez, Sicilian, French, Italian, Caro-Kann, Queen's Gambit, King's Indian, and London System.
+    - Integrated `@google/genai` SDK for Google Gemini 2.5 Flash with free tier access.
+    - Built `server/aiCoach.js` neuro-symbolic grounding engine injecting board state, FEN, moves, ECO opening name, Stockfish evaluation, and tactical motifs into a structured Grandmaster system prompt.
+    - Added backend routes `POST /api/coach/chat`, `POST /api/coach/opening`, `GET/POST /api/coach/config` supporting Gemini, local Ollama, and built-in offline heuristic fallback.
+    - Built `client/src/components/AiCoachChat.jsx` conversational interface with quick question chips ("Why is this move played in this opening?", "What is my plan here?", "What is opponent threatening?"), opening badges, expandable strategic guides, and API key settings modal.
+    - Integrated "Ask Coach (AI)" tab in Game Review mode and quick "Ask Coach" button in the navigation header during live play.
 
 
 

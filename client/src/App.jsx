@@ -8,8 +8,9 @@ import { AnalysisPanel } from './components/AnalysisPanel';
 import { AccuracyBadge } from './components/AccuracyBadge';
 import { GameHistoryModal } from './components/GameHistoryModal';
 import { DesktopAppModal } from './components/DesktopAppModal';
+import { AiCoachChat } from './components/AiCoachChat';
 import { useSoundEffects } from './hooks/useSoundEffects';
-import { Swords, RotateCcw, Flag, Sparkles, Award, History, Volume2, VolumeX, Monitor } from 'lucide-react';
+import { Swords, RotateCcw, Flag, Sparkles, Award, History, Volume2, VolumeX, Monitor, Bot } from 'lucide-react';
 
 const API_BASE = 'http://localhost:5000/api';
 
@@ -18,7 +19,7 @@ export function App() {
   const [game, setGame] = useState(() => new Chess());
   const [userColor, setUserColor] = useState('w');
   const [mode, setMode] = useState('play'); // 'play' | 'review' | 'sandbox'
-  const [reviewTab, setReviewTab] = useState('coach'); // 'coach' | 'accuracy'
+  const [reviewTab, setReviewTab] = useState('coach'); // 'coach' | 'accuracy' | 'chat'
   const [moves, setMoves] = useState([]);
   const [currentPly, setCurrentPly] = useState(0);
   const [lastMove, setLastMove] = useState(null);
@@ -44,6 +45,7 @@ export function App() {
 
   // UI Modals & Drawer
   const [isCoachDrawerOpen, setIsCoachDrawerOpen] = useState(false);
+  const [isPlayCoachOpen, setIsPlayCoachOpen] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [isNewGameModalOpen, setIsNewGameModalOpen] = useState(false);
   const [isDesktopModalOpen, setIsDesktopModalOpen] = useState(false);
@@ -629,6 +631,21 @@ export function App() {
           </button>
 
           <button
+            onClick={() => {
+              if (mode === 'play') {
+                setIsPlayCoachOpen(true);
+              } else {
+                setReviewTab('chat');
+              }
+            }}
+            className="flex items-center gap-1 px-2.5 py-1 rounded hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 transition-colors border border-emerald-500/40 bg-emerald-500/15"
+            title="Chat with Grandmaster AI Coach"
+          >
+            <Bot size={14} className="text-emerald-400" />
+            <span className="text-[11px] font-bold">Ask Coach</span>
+          </button>
+
+          <button
             onClick={() => setIsDesktopModalOpen(true)}
             className="flex items-center gap-1 px-2 py-1 rounded hover:bg-slate-800 text-emerald-400 hover:text-emerald-300 transition-colors border border-emerald-500/30 bg-emerald-500/10"
             title="Desktop App & Shortcut"
@@ -694,6 +711,16 @@ export function App() {
                 <Sparkles size={14} /> Coach Review
               </button>
               <button
+                onClick={() => setReviewTab('chat')}
+                className={`flex-1 py-2 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors ${
+                  reviewTab === 'chat'
+                    ? 'text-emerald-400 border-b-2 border-emerald-400 bg-slate-900/50'
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                <Bot size={14} /> Ask Coach (AI)
+              </button>
+              <button
                 onClick={() => setReviewTab('accuracy')}
                 className={`flex-1 py-2 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors ${
                   reviewTab === 'accuracy'
@@ -701,52 +728,68 @@ export function App() {
                     : 'text-slate-400 hover:text-slate-200'
                 }`}
               >
-                <Award size={14} /> Match Accuracy
+                <Award size={14} /> Accuracy
               </button>
             </div>
           )}
 
-          {/* Review Mode - Advantage Graph Ribbon */}
-          {mode === 'review' && analysis && reviewTab === 'coach' && (
-            <div className="p-2 shrink-0 border-b border-slate-800/80">
-              <EvalGraph
-                steps={analysis.steps}
-                currentPly={currentPly}
-                onSelectPly={(ply) => {
-                  handleSelectPly(ply);
-                }}
-              />
-            </div>
-          )}
-
-          {/* Review Mode - Tab 2: Match Accuracy Matrix */}
-          {mode === 'review' && analysis && reviewTab === 'accuracy' && (
-            <div className="p-2.5 shrink-0 border-b border-slate-800/80 max-h-[300px] overflow-y-auto">
-              <AccuracyBadge
-                accuracy={analysis.accuracy}
-                counts={analysis.counts}
-                userColor={userColor}
-              />
-            </div>
-          )}
-
-          {/* Move History: Has 100% full vertical space by default */}
-          <div className="flex-1 min-h-0 flex flex-col">
-            {mode === 'sandbox' && (
-              <div className="px-2.5 py-1 bg-indigo-950/60 border-b border-indigo-900/40 text-[10px] font-bold text-indigo-300 uppercase tracking-wider shrink-0">
-                Sandbox Moves ({sandboxMoves.length} played)
-              </div>
-            )}
+          {/* AI Coach Conversational View */}
+          {mode === 'review' && reviewTab === 'chat' ? (
             <div className="flex-1 min-h-0">
-              <MoveHistory
-                moves={mode === 'sandbox' ? sandboxMoves : moves}
-                analysisSteps={mode === 'sandbox' ? [] : (analysis?.steps || [])}
-                currentPly={mode === 'sandbox' ? sandboxMoves.length : currentPly}
-                onSelectPly={mode === 'sandbox' ? null : handleSelectPly}
-                capturedPieces={capturedPieces}
+              <AiCoachChat
+                currentFen={game.fen()}
+                moves={moves}
+                currentPly={currentPly}
+                userColor={userColor}
+                currentStep={currentStep}
+                currentScore={currentScore}
               />
             </div>
-          </div>
+          ) : (
+            <>
+              {/* Review Mode - Advantage Graph Ribbon */}
+              {mode === 'review' && analysis && reviewTab === 'coach' && (
+                <div className="p-2 shrink-0 border-b border-slate-800/80">
+                  <EvalGraph
+                    steps={analysis.steps}
+                    currentPly={currentPly}
+                    onSelectPly={(ply) => {
+                      handleSelectPly(ply);
+                    }}
+                  />
+                </div>
+              )}
+
+              {/* Review Mode - Tab 2: Match Accuracy Matrix */}
+              {mode === 'review' && analysis && reviewTab === 'accuracy' && (
+                <div className="p-2.5 shrink-0 border-b border-slate-800/80 max-h-[300px] overflow-y-auto">
+                  <AccuracyBadge
+                    accuracy={analysis.accuracy}
+                    counts={analysis.counts}
+                    userColor={userColor}
+                  />
+                </div>
+              )}
+
+              {/* Move History: Has 100% full vertical space by default */}
+              <div className="flex-1 min-h-0 flex flex-col">
+                {mode === 'sandbox' && (
+                  <div className="px-2.5 py-1 bg-indigo-950/60 border-b border-indigo-900/40 text-[10px] font-bold text-indigo-300 uppercase tracking-wider shrink-0">
+                    Sandbox Moves ({sandboxMoves.length} played)
+                  </div>
+                )}
+                <div className="flex-1 min-h-0">
+                  <MoveHistory
+                    moves={mode === 'sandbox' ? sandboxMoves : moves}
+                    analysisSteps={mode === 'sandbox' ? [] : (analysis?.steps || [])}
+                    currentPly={mode === 'sandbox' ? sandboxMoves.length : currentPly}
+                    onSelectPly={mode === 'sandbox' ? null : handleSelectPly}
+                    capturedPieces={capturedPieces}
+                  />
+                </div>
+              </div>
+            </>
+          )}
 
           {/* Coach Explanation Drawer Trigger Bar (Sticky at bottom of sidebar) */}
           {mode === 'review' && analysis && currentStep && (
@@ -863,6 +906,36 @@ export function App() {
         isOpen={isDesktopModalOpen}
         onClose={() => setIsDesktopModalOpen(false)}
       />
+
+      {/* Play Mode - AI Coach Chat Modal */}
+      {isPlayCoachOpen && (
+        <div className="fixed inset-0 bg-slate-950/75 backdrop-blur-sm z-50 flex items-center justify-center p-3 animate-in fade-in duration-150">
+          <div className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-lg h-[min(85vh,650px)] shadow-2xl flex flex-col overflow-hidden">
+            <div className="px-3 py-2 border-b border-slate-800 flex items-center justify-between bg-slate-950/80 shrink-0">
+              <div className="flex items-center gap-2 font-bold text-sm text-white">
+                <Bot size={16} className="text-emerald-400" />
+                Apex Grandmaster Coach
+              </div>
+              <button
+                onClick={() => setIsPlayCoachOpen(false)}
+                className="text-slate-400 hover:text-white px-2 py-1 rounded hover:bg-slate-800 text-xs font-bold transition-colors"
+              >
+                ✕ Close
+              </button>
+            </div>
+            <div className="flex-1 min-h-0">
+              <AiCoachChat
+                currentFen={game.fen()}
+                moves={moves}
+                currentPly={moves.length}
+                userColor={userColor}
+                currentStep={null}
+                currentScore={currentScore}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

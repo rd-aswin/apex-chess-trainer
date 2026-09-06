@@ -6,6 +6,8 @@ import { exec } from 'child_process';
 import { stockfishEngine } from './engine.js';
 import { analyzeGame } from './analyzer.js';
 import { getGameHistory, saveGameToHistory, getGameById, findGameByMoves } from './history.js';
+import { identifyOpening } from './openingBook.js';
+import { chatWithCoach, getCoachConfig, saveCoachConfig } from './aiCoach.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -167,7 +169,89 @@ app.get('/api/history/:id', (req, res) => {
   res.json({ success: true, game });
 });
 
-// 6. Create Desktop Shortcut Endpoint
+// 6. AI Coach - Conversational Grandmaster Mentor
+app.post('/api/coach/chat', async (req, res) => {
+  try {
+    const {
+      messages = [],
+      currentFen,
+      moves = [],
+      currentPly = 0,
+      userColor = 'w',
+      score = 0,
+      bestMoveSan = '',
+      tacticalFacts = null,
+      apiKey = ''
+    } = req.body;
+
+    const result = await chatWithCoach({
+      messages,
+      currentFen,
+      moves,
+      currentPly,
+      userColor,
+      score,
+      bestMoveSan,
+      tacticalFacts,
+      overrideKey: apiKey
+    });
+
+    res.json({
+      success: true,
+      ...result
+    });
+  } catch (err) {
+    console.error('[API /coach/chat Error]:', err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.post('/api/coach/opening', (req, res) => {
+  try {
+    const { moves = [] } = req.body;
+    const opening = identifyOpening(moves);
+    res.json({ success: true, opening });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.get('/api/coach/config', (req, res) => {
+  try {
+    const config = getCoachConfig();
+    const maskedKey = config.geminiApiKey
+      ? config.geminiApiKey.slice(0, 4) + '...' + config.geminiApiKey.slice(-4)
+      : '';
+
+    res.json({
+      success: true,
+      provider: config.provider,
+      hasGeminiKey: !!config.geminiApiKey,
+      maskedKey,
+      ollamaUrl: config.ollamaUrl,
+      ollamaModel: config.ollamaModel
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.post('/api/coach/config', (req, res) => {
+  try {
+    const { geminiApiKey, provider, ollamaUrl, ollamaModel } = req.body;
+    const updated = saveCoachConfig({
+      ...(geminiApiKey !== undefined ? { geminiApiKey } : {}),
+      ...(provider !== undefined ? { provider } : {}),
+      ...(ollamaUrl !== undefined ? { ollamaUrl } : {}),
+      ...(ollamaModel !== undefined ? { ollamaModel } : {})
+    });
+    res.json({ success: true, provider: updated.provider, hasGeminiKey: !!updated.geminiApiKey });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// 7. Create Desktop Shortcut Endpoint
 app.post('/api/create-shortcut', (req, res) => {
   try {
     const desktop = path.join(process.env.USERPROFILE || process.env.HOME || '', 'Desktop');
