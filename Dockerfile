@@ -8,28 +8,27 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && ln -s /usr/games/stockfish /usr/bin/stockfish \
     && rm -rf /var/lib/apt/lists/*
 
-# Hugging Face Spaces requires running as non-root user with UID 1000
-RUN useradd -m -u 1000 user
-USER user
-ENV HOME=/home/user \
-    PATH=/home/user/.local/bin:$PATH \
+# Use non-root node user (UID 1000) built into node image
+USER node
+ENV HOME=/home/node \
+    PATH=/home/node/.local/bin:$PATH \
     NODE_ENV=production \
     PORT=7860 \
     STOCKFISH_PATH=/usr/bin/stockfish
 
-WORKDIR $HOME/app
+WORKDIR /home/node/app
 
 # Copy dependency manifests first for Docker layer caching
-COPY --chown=user:user package*.json ./
+COPY --chown=node:node package*.json ./
 
 # Install production dependencies
 RUN npm install --omit=dev
 
 # Copy server code and data
-COPY --chown=user:user server/ ./server/
-COPY --chown=user:user data/ ./data/
+COPY --chown=node:node server/ ./server/
+COPY --chown=node:node data/ ./data/
 
-# Hugging Face Spaces default port
+# Default port
 EXPOSE 7860
 
 # Launch server
