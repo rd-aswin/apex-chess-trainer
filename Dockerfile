@@ -20,9 +20,10 @@ WORKDIR /home/node/app
 
 # Copy dependency manifests first for Docker layer caching
 COPY --chown=node:node package*.json ./
+COPY --chown=node:node server/package*.json ./server/
 
 # Install production dependencies
-RUN npm install --omit=dev
+RUN npm install --omit=dev && cd server && npm install --omit=dev
 
 # Copy server code and data
 COPY --chown=node:node server/ ./server/
