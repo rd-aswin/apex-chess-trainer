@@ -17,3 +17,12 @@
 ## 4. Local-Only Version Control (No Unconfirmed Remote Push)
 - When instructed to save or commit locally without uploading, keep all changes strictly on local Git branches. Never execute `git push` until the user explicitly requests a remote upload.
 
+## 5. Visibility of System Status for Asynchronous Compute
+- Whenever a backend engine computation or network import takes longer than 1.5 seconds, the UI must render an immediate, high-visibility loading HUD (spinner, badge, estimated duration, and board interactivity tips).
+- Handlers triggered upon async completion must receive the fresh payload directly as an argument rather than relying on React closure states.
+
+## 6. Cloud Portability & Non-Root Container Standards
+- Never hardcode OS-specific binary paths (e.g. `stockfish.exe`) or hardcoded `localhost:5000` endpoints in source files.
+- Always support environment overrides (`STOCKFISH_PATH`, `PORT`, `VITE_API_BASE`).
+- For Dockerized engine hosting (Hugging Face Spaces), enforce non-root user UID 1000 (`USER user`), bind to `0.0.0.0`, and default to port `7860`.
+
