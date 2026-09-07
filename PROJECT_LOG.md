@@ -188,15 +188,33 @@ The technical documentation suite has been established in the project directory:
       - In `LandingNavbar.jsx` & `LandingFooter.jsx`: Replaced "Coaches & Academies / Review student games automatically" with "Coaches & Teachers / Review student games faster".
       - Verified production build (`npm run build`) and committed locally to branch `commercial` (`6187802`).
 
+---
 
+## 8. Stockfish WebAssembly (WASM) Client-Side Engine & Production Hosting
 
+### 1. The Bottleneck: Free Cloud Container Spin-Downs
+- **Problem**: Free tier serverless containers (e.g. Render 0.1 CPU free tier) spin down after 15 minutes of inactivity. Cold starts induce a 15–25 second wake-up delay before Stockfish move calculation can begin.
+- **Solution**: Implemented the long-term industry gold standard (used by Lichess and Chess.com): **Stockfish compiled to WebAssembly running directly inside the user's browser via dedicated Web Workers**.
 
+### 2. Architecture & Capabilities
+- **WASM Engine Engine Service (`client/src/services/wasmEngine.js`)**:
+  - Manages Web Worker lifecycle with fallback chain: `stockfish.wasm.js` (WebAssembly) -> `stockfish.js` (ASM.js) -> Cloud REST API (`https://apex-chess-api.onrender.com/api/move`).
+  - Sends UCI initialization commands on boot (`uci`, `setoption name Skill Level value 20`, `isready`).
+  - Resolves moves via promise-based request queue with depth 12 calculation (~50ms–120ms).
+  - Normalizes evaluation centipawns to White's perspective (+ = White, - = Black).
+- **Service Worker (`client/public/sw.js`)**:
+  - Bumped to `apex-chess-v3` with network-first strategy for HTML and immutable static caching for `.wasm` and `.wasm.js`.
+  - Enables 100% offline gameplay (PWA) with zero internet connection required.
+- **Vercel SPA Rewrites (`client/vercel.json`)**:
+  - Configured rewrite pattern `"/((?!assets/|.*\\..*).*)"` to bypass `.wasm` and `.js` static files so Vercel does not intercept engine binaries with `index.html`.
 
-
-
-
-
-
-
-
-
+### 3. Production Deployment & Live Status
+- **Frontend (Vercel)**: `https://apex-chess-trainer.vercel.app`
+  - Production Branch configured to `commercial`.
+  - Deploys automatically on git push to `commercial`.
+- **Backend API (Render)**: `https://apex-chess-api.onrender.com`
+  - Hosts Gemini 2.5 Flash Conversational AI Coach (`/api/coach/chat`), Chess.com/Lichess game importers (`/api/import/*`), and cloud engine fallback.
+- **Live Verification**:
+  - Live game played on production (`1. e4 e6 2. Nf3 d5 ...`).
+  - Engine responds in <100ms with zero network requests to `/api/move`.
+  - Full screenshot archived at `production-wasm-live-match.png`.
