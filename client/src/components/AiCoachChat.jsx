@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { marked } from 'marked';
 import { API_BASE } from '../config';
+import { identifyOpening } from '../services/openingBook';
 import {
   Send,
   Sparkles,
@@ -71,34 +72,31 @@ export function AiCoachChat({
 
   const messagesEndRef = useRef(null);
 
-  // Fetch current opening whenever moves or currentPly changes
+  // Identify current opening instantly client-side (0ms latency)
   useEffect(() => {
     const activeMoves = moves.slice(0, currentPly).map((m) => (typeof m === 'string' ? m : m.san || m.uci));
-    fetch(`${API_BASE}/coach/opening`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ moves: activeMoves })
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success && data.opening) {
-          setOpeningInfo(data.opening);
-        }
-      })
-      .catch((err) => console.error('Error fetching opening:', err));
+    const detected = identifyOpening(activeMoves);
+    if (detected) {
+      setOpeningInfo(detected);
+    }
   }, [moves, currentPly]);
 
-  // Load saved coach config
+  // Load saved coach config from localStorage and backend
   useEffect(() => {
+    try {
+      const localKey = localStorage.getItem('apex_gemini_key');
+      if (localKey) {
+        setHasGeminiKey(true);
+        setMaskedKey(localKey.slice(0, 4) + '••••••••' + localKey.slice(-4));
+      }
+    } catch (e) {}
+
     fetch(`${API_BASE}/coach/config`)
       .then((res) => res.json())
       .then((data) => {
-        if (data.success) {
-          setProvider(data.provider || 'gemini');
-          setHasGeminiKey(data.hasGeminiKey || false);
-          setMaskedKey(data.maskedKey || '');
-          if (data.ollamaUrl) setOllamaUrl(data.ollamaUrl);
-          if (data.ollamaModel) setOllamaModel(data.ollamaModel);
+        if (data.hasApiKey) {
+          setHasGeminiKey(true);
+          if (!maskedKey) setMaskedKey('Configured on Cloud');
         }
       })
       .catch(() => {});
@@ -121,6 +119,7 @@ export function AiCoachChat({
     const activeSanMoves = moves.slice(0, currentPly).map((m) => (typeof m === 'string' ? m : m.san || m.uci));
 
     try {
+      const storedKey = localStorage.getItem('apex_gemini_key') || '';
       const res = await fetch(`${API_BASE}/coach/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -132,18 +131,20 @@ export function AiCoachChat({
           userColor,
           score: currentScore?.value || 0,
           bestMoveSan: currentStep?.bestMoveSan || '',
-          tacticalFacts: currentStep?.explanation || null
+          tacticalFacts: currentStep?.explanation || null,
+          opening: openingInfo,
+          apiKey: storedKey
         })
       });
 
       const data = await res.json();
-      if (data.success && data.reply) {
+      if ((data.success || data.reply) && data.reply) {
         setMessages((prev) => [
           ...prev,
           {
             role: 'assistant',
             content: data.reply,
-            provider: data.provider,
+            provider: data.provider || 'gemini',
             needsKey: data.needsKey
           }
         ]);
@@ -164,7 +165,7 @@ export function AiCoachChat({
         ...prev,
         {
           role: 'assistant',
-          content: `⚠️ Failed to reach coach server: ${err.message}`
+          content: `⚠️ Failed to reach coach: ${err.message}`
         }
       ]);
     } finally {
@@ -175,29 +176,17 @@ export function AiCoachChat({
   const handleSaveConfig = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch(`${API_BASE}/coach/config`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          geminiApiKey: geminiApiKey.trim() || undefined,
-          provider,
-          ollamaUrl,
-          ollamaModel
-        })
-      });
-      const data = await res.json();
-      if (data.success) {
-        setSaveStatus('Settings saved successfully!');
-        setHasGeminiKey(data.hasGeminiKey);
-        if (geminiApiKey) {
-          setMaskedKey(geminiApiKey.slice(0, 4) + '...' + geminiApiKey.slice(-4));
-          setGeminiApiKey('');
-        }
-        setTimeout(() => {
-          setSaveStatus('');
-          setIsSettingsOpen(false);
-        }, 1200);
+      if (geminiApiKey && geminiApiKey.trim()) {
+        localStorage.setItem('apex_gemini_key', geminiApiKey.trim());
+        setHasGeminiKey(true);
+        setMaskedKey(geminiApiKey.trim().slice(0, 4) + '••••••••' + geminiApiKey.trim().slice(-4));
+        setGeminiApiKey('');
       }
+      setSaveStatus('Settings saved in browser!');
+      setTimeout(() => {
+        setSaveStatus('');
+        setIsSettingsOpen(false);
+      }, 1200);
     } catch (err) {
       setSaveStatus('Failed to save settings.');
     }

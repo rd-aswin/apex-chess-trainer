@@ -16,6 +16,7 @@ import { useSoundEffects } from './hooks/useSoundEffects';
 import { Swords, RotateCcw, Flag, Sparkles, Award, History, Volume2, VolumeX, Monitor, Bot, RefreshCw, UploadCloud, Loader2 } from 'lucide-react';
 import { API_BASE } from './config';
 import { wasmEngine } from './services/wasmEngine';
+import { analyzeGame } from './services/analyzer';
 
 export function App() {
   // Game & Board State
@@ -33,6 +34,7 @@ export function App() {
   const [isEngineThinking, setIsEngineThinking] = useState(false);
   const [analysis, setAnalysis] = useState(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysisProgress, setAnalysisProgress] = useState(null);
   const [analyzedKey, setAnalyzedKey] = useState('');
 
   // Match State
@@ -243,12 +245,12 @@ export function App() {
     }
   };
 
-  // Run Match Analysis (with client-side caching)
+  // Run Match Analysis (with client-side WASM engine & caching)
   const triggerMatchAnalysis = async (gameMoves, resultStr = '') => {
     const uciMoves = gameMoves.map((m) => m.uci);
     const currentKey = uciMoves.join(',');
 
-    // If already analyzed in current session, switch immediately to review without API call
+    // If already analyzed in current session, switch immediately to review without recalculating
     if (analysis && analyzedKey === currentKey) {
       setMode('review');
       setReviewTab('coach');
@@ -256,29 +258,68 @@ export function App() {
     }
 
     setIsAnalyzing(true);
+    setAnalysisProgress({ current: 0, total: uciMoves.length, percent: 5 });
+
     try {
-      const res = await fetch(`${API_BASE}/analyze`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          moves: uciMoves,
-          userColor,
-          result: resultStr || (userColor === 'w' ? '0-1' : '1-0')
-        })
+      // 1. Primary: Run 100% locally in Stockfish WASM Web Worker
+      const localResult = await analyzeGame({
+        moves: uciMoves,
+        onProgress: ({ current, total, percent }) => {
+          setAnalysisProgress({ current, total, percent });
+        }
       });
 
-      const data = await res.json();
-      if (data.success) {
-        setAnalysis(data);
+      if (localResult && localResult.steps && localResult.steps.length > 0) {
+        const fullData = { success: true, ...localResult };
+        setAnalysis(fullData);
         setAnalyzedKey(currentKey);
         setMode('review');
         setReviewTab('coach');
-        handleSelectPly(gameMoves.length, data);
+        handleSelectPly(gameMoves.length, fullData);
+
+        // Save match locally to browser history
+        try {
+          const pastHistory = JSON.parse(localStorage.getItem('apex_chess_history') || '[]');
+          const newEntry = {
+            id: Date.now().toString(),
+            date: new Date().toLocaleDateString(),
+            moves: uciMoves,
+            result: resultStr || (userColor === 'w' ? '0-1' : '1-0'),
+            userColor,
+            accuracy: localResult.accuracy,
+            stepsCount: localResult.steps.length
+          };
+          localStorage.setItem('apex_chess_history', JSON.stringify([newEntry, ...pastHistory.slice(0, 49)]));
+        } catch (storageErr) {}
+        return;
       }
-    } catch (err) {
-      console.error('Analysis error:', err);
+    } catch (wasmErr) {
+      console.warn('[App] Local WASM analysis failed, attempting API fallback:', wasmErr);
+      try {
+        const res = await fetch(`${API_BASE}/analyze`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            moves: uciMoves,
+            userColor,
+            result: resultStr || (userColor === 'w' ? '0-1' : '1-0')
+          })
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          setAnalysis(data);
+          setAnalyzedKey(currentKey);
+          setMode('review');
+          setReviewTab('coach');
+          handleSelectPly(gameMoves.length, data);
+        }
+      } catch (err) {
+        console.error('Analysis error:', err);
+      }
     } finally {
       setIsAnalyzing(false);
+      setAnalysisProgress(null);
     }
   };
 
@@ -673,31 +714,52 @@ export function App() {
       setMode('review');
       setReviewTab('coach');
       setIsAnalyzing(true);
+      setAnalysisProgress({ current: 0, total: uciMoves.length, percent: 5 });
 
-      const res = await fetch(`${API_BASE}/analyze`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+      try {
+        // 1. Primary: Run client-side Stockfish WASM analysis
+        const localResult = await analyzeGame({
           moves: uciMoves,
-          userColor: assignedColor,
-          result: importedGame.userOutcome === 'win' 
-            ? (assignedColor === 'w' ? '1-0' : '0-1')
-            : (assignedColor === 'w' ? '0-1' : '1-0')
-        })
-      });
+          onProgress: ({ current, total, percent }) => {
+            setAnalysisProgress({ current, total, percent });
+          }
+        });
 
-      const data = await res.json();
-      if (data.success) {
-        setAnalysis(data);
-        setAnalyzedKey(currentKey);
-        handleSelectPly(loadedMoves.length, data);
-      } else {
-        console.warn('Backend analysis returned unsuccessful:', data.error);
+        if (localResult && localResult.steps && localResult.steps.length > 0) {
+          const fullData = { success: true, ...localResult };
+          setAnalysis(fullData);
+          setAnalyzedKey(currentKey);
+          handleSelectPly(loadedMoves.length, fullData);
+          return;
+        }
+      } catch (wasmErr) {
+        console.warn('[App] Local WASM analysis for imported game failed, falling back to API:', wasmErr);
+        const res = await fetch(`${API_BASE}/analyze`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            moves: uciMoves,
+            userColor: assignedColor,
+            result: importedGame.userOutcome === 'win' 
+              ? (assignedColor === 'w' ? '1-0' : '0-1')
+              : (assignedColor === 'w' ? '0-1' : '1-0')
+          })
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          setAnalysis(data);
+          setAnalyzedKey(currentKey);
+          handleSelectPly(loadedMoves.length, data);
+        } else {
+          console.warn('Backend analysis returned unsuccessful:', data.error);
+        }
       }
     } catch (err) {
       console.error('Failed to import and analyze game:', err);
     } finally {
       setIsAnalyzing(false);
+      setAnalysisProgress(null);
     }
   };
 
@@ -888,23 +950,28 @@ export function App() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-xs font-bold text-emerald-400">
                   <Loader2 size={15} className="animate-spin text-emerald-400 shrink-0" />
-                  <span>Stockfish 19 Evaluating Match...</span>
+                  <span>Stockfish WASM Evaluating Match...</span>
                 </div>
                 <span className="text-[10px] font-mono uppercase tracking-wider font-semibold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                  Depth 16 NNUE
+                  {analysisProgress ? `${analysisProgress.percent}%` : 'Client-Side'}
                 </span>
               </div>
               
               <p className="text-[11px] text-slate-300 leading-relaxed">
-                Calculating move qualities, blunders, and refutations for all <span className="font-semibold text-white">{moves.length} moves</span>. Advantage graph will appear once complete (~15–25s).
+                {analysisProgress && analysisProgress.total > 0
+                  ? `Analyzing move ${analysisProgress.current} of ${analysisProgress.total} directly on your device (${analysisProgress.percent}%).`
+                  : `Calculating move qualities, blunders, and refutations for all ${moves.length} moves directly on your device.`}
               </p>
 
-              <div className="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
-                <div className="h-full bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-500 rounded-full animate-pulse w-3/4" />
+              <div className="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-400 rounded-full transition-all duration-300"
+                  style={{ width: `${analysisProgress?.percent || 15}%` }}
+                />
               </div>
 
               <div className="flex items-center justify-between text-[10px] text-slate-400 pt-0.5">
-                <span>⏱️ Sequential NNUE analysis</span>
+                <span>⚡ 0ms Network Delay (WASM Web Worker)</span>
                 <span className="text-emerald-400 font-medium">
                   ♟️ Move navigation active below
                 </span>

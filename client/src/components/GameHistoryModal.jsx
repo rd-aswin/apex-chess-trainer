@@ -20,15 +20,20 @@ export function GameHistoryModal({ isOpen, onClose, onLoadGame }) {
     setLoading(true);
     setError(null);
     try {
+      const localHistory = JSON.parse(localStorage.getItem('apex_chess_history') || '[]');
+      if (localHistory.length > 0) {
+        setGames(localHistory);
+        setLoading(false);
+        return;
+      }
       const res = await fetch(`${API_BASE}/history`);
       const data = await res.json();
       if (data.success) {
         setGames(data.history || []);
-      } else {
-        setError('Failed to load match history');
       }
     } catch (err) {
-      setError(err.message);
+      const localHistory = JSON.parse(localStorage.getItem('apex_chess_history') || '[]');
+      setGames(localHistory);
     } finally {
       setLoading(false);
     }
@@ -36,6 +41,13 @@ export function GameHistoryModal({ isOpen, onClose, onLoadGame }) {
 
   const handleSelectGame = async (gameId) => {
     try {
+      const localHistory = JSON.parse(localStorage.getItem('apex_chess_history') || '[]');
+      const found = localHistory.find((g) => g.id === gameId);
+      if (found) {
+        onLoadGame(found);
+        onClose();
+        return;
+      }
       const res = await fetch(`${API_BASE}/history/${gameId}`);
       const data = await res.json();
       if (data.success && data.game) {
