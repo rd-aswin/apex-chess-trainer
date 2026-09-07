@@ -13,6 +13,7 @@ USER node
 ENV HOME=/home/node \
     PATH=/home/node/.local/bin:$PATH \
     NODE_ENV=production \
+    NODE_PATH=/home/node/app/server/node_modules \
     PORT=7860 \
     STOCKFISH_PATH=/usr/bin/stockfish
 
@@ -22,7 +23,7 @@ WORKDIR /home/node/app
 COPY --chown=node:node package*.json ./
 COPY --chown=node:node server/package*.json ./server/
 
-# Install production dependencies
+# Install production dependencies for root and server
 RUN npm install --omit=dev && cd server && npm install --omit=dev
 
 # Copy server code and data
