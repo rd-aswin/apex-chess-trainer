@@ -208,13 +208,43 @@ The technical documentation suite has been established in the project directory:
 - **Vercel SPA Rewrites (`client/vercel.json`)**:
   - Configured rewrite pattern `"/((?!assets/|.*\\..*).*)"` to bypass `.wasm` and `.js` static files so Vercel does not intercept engine binaries with `index.html`.
 
-### 3. Production Deployment & Live Status
+### 3. Production Deployment & Live Status (Archived Render Baseline)
 - **Frontend (Vercel)**: `https://apex-chess-trainer.vercel.app`
-  - Production Branch configured to `commercial`.
-  - Deploys automatically on git push to `commercial`.
-- **Backend API (Render)**: `https://apex-chess-api.onrender.com`
-  - Hosts Gemini 2.5 Flash Conversational AI Coach (`/api/coach/chat`), Chess.com/Lichess game importers (`/api/import/*`), and cloud engine fallback.
-- **Live Verification**:
-  - Live game played on production (`1. e4 e6 2. Nf3 d5 ...`).
-  - Engine responds in <100ms with zero network requests to `/api/move`.
-  - Full screenshot archived at `production-wasm-live-match.png`.
+- **Initial Baseline Backend (Render)**: `https://apex-chess-api.onrender.com` (decommissioned in Phase 9 below).
+
+---
+
+## 9. Complete Render Decommissioning: 100% Serverless Architecture (WASM + Vercel) 🚀
+
+### 1. Why Render Was Eliminated
+- **Container Spin-Downs**: Free cloud containers on Render sleep after 15 minutes of inactivity, producing 15–30 second cold starts and intermittent `502 Bad Gateway` errors.
+- **Unnecessary Server Footprint**: The backend server existed primarily to run `stockfish.exe`. Once Stockfish was compiled to WebAssembly (`stockfish.wasm`), running full game reviews and move calculations in the browser became vastly superior (0ms latency, zero server compute costs, offline capable).
+- **Free Forever Guarantee**: Moving the remaining lightweight APIs (`/api/coach/chat`, `/api/import/*`, `/api/updates/check`) to native Vercel Serverless Functions eliminated all container hosting, making the entire platform run at **$0.00 capital cost forever** with **zero server maintenance**.
+
+### 2. Implementation Architecture
+1. **Client-Side Stockfish WASM Multi-Ply Game Review (`client/src/services/analyzer.js`)**:
+   - Replaced backend `/api/analyze` route with pure client-side `analyzeGame()` running sequentially via `wasmEngine.getBestMove()`.
+   - Integrated live `onProgress(current, total)` callback powering a real-time animated percentage HUD bar in the UI.
+   - Calculates CAPS accuracy, Lichess sigmoid win probability, centipawn loss, and tactical motif classifications locally in browser memory.
+2. **Client-Side Tactical Explainer & Opening Encyclopedia**:
+   - `client/src/services/openingBook.js`: Embedded ECO classification and Grandmaster concept encyclopedia.
+   - `client/src/services/explainer.js`: Pure JS tactical motif detector (hanging pieces, forks, pins, exposed king).
+3. **Native Vercel Serverless Functions (`client/api/`)**:
+   - `client/api/coach/chat.js`: Handles AI Coach chat via direct REST call to Google Gemini 2.5 Flash using `process.env.GEMINI_API_KEY` or user custom key.
+   - `client/api/coach/opening.js`: Opening lookup endpoint.
+   - `client/api/coach/config.js`: Coach configuration endpoint.
+   - `client/api/import/chesscom.js`: Proxies Chess.com archives with proper `User-Agent` to bypass browser CORS.
+   - `client/api/import/lichess.js`: Lichess games proxy.
+   - `client/api/updates/check.js`: Stockfish releases and Gemini models health check.
+4. **Vercel Routing & Configuration (`client/vercel.json`)**:
+   - Updated SPA rewrite negative lookahead `"/((?!api/|assets/|.*\\..*).*)"` to prevent Vite from intercepting `/api/*` endpoints.
+   - Relative `/api` paths in production eliminate hardcoded origins and CORS issues.
+
+### 3. Production Verification & Test Results
+- **API Health Check**: `GET https://apex-chess-trainer.vercel.app/api/updates/check` -> `HTTP 200 OK` (Stockfish 19 & Gemini 2.5 Flash confirmed).
+- **Chess.com Import Proxy**: `GET https://apex-chess-trainer.vercel.app/api/import/chesscom?username=hikaru` -> `HTTP 200 OK` (15 games returned).
+- **Lichess Import Proxy**: `GET https://apex-chess-trainer.vercel.app/api/import/lichess?username=penguingm1` -> `HTTP 200 OK` (15 games returned).
+- **Gemini Grandmaster Coach**: `POST https://apex-chess-trainer.vercel.app/api/coach/chat` -> `HTTP 200 OK` (Grandmaster conversational reply generated in 1.4s).
+- **Stockfish WASM**: Move calculation in <100ms, multi-ply match review with live progress HUD, 0ms network delay, 100% offline capable.
+- **Git & Deploy**: Committed (`1e17d32`), pushed to `origin/commercial`, deployed and live on Vercel Production.
+
