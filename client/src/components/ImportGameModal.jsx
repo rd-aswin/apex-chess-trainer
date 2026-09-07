@@ -15,6 +15,7 @@ import {
   User
 } from 'lucide-react';
 import { Chess } from 'chess.js';
+import { API_BASE } from '../config';
 
 export default function ImportGameModal({ isOpen, onClose, onImportGame }) {
   const [activeTab, setActiveTab] = useState('chesscom'); // 'chesscom' | 'lichess' | 'pgn'
@@ -101,7 +102,7 @@ export default function ImportGameModal({ isOpen, onClose, onImportGame }) {
     setGames([]);
 
     try {
-      const res = await fetch(`http://localhost:5000/api/import/chesscom?username=${encodeURIComponent(userToFetch.trim())}`);
+      const res = await fetch(`${API_BASE}/import/chesscom?username=${encodeURIComponent(userToFetch.trim())}`);
       const data = await res.json();
 
       if (!res.ok) {
@@ -127,7 +128,7 @@ export default function ImportGameModal({ isOpen, onClose, onImportGame }) {
     setGames([]);
 
     try {
-      const res = await fetch(`http://localhost:5000/api/import/lichess?username=${encodeURIComponent(userToFetch.trim())}`);
+      const res = await fetch(`${API_BASE}/import/lichess?username=${encodeURIComponent(userToFetch.trim())}`);
       const data = await res.json();
 
       if (!res.ok) {

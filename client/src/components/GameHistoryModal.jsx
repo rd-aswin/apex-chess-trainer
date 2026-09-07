@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { X, Calendar, Award, ChevronRight, History } from 'lucide-react';
+import { API_BASE } from '../config';
 
 /**
  * Modal dialog for browsing and loading past matches saved in data/history.json.
@@ -19,7 +20,7 @@ export function GameHistoryModal({ isOpen, onClose, onLoadGame }) {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch('http://localhost:5000/api/history');
+      const res = await fetch(`${API_BASE}/history`);
       const data = await res.json();
       if (data.success) {
         setGames(data.history || []);
@@ -35,7 +36,7 @@ export function GameHistoryModal({ isOpen, onClose, onLoadGame }) {
 
   const handleSelectGame = async (gameId) => {
     try {
-      const res = await fetch(`http://localhost:5000/api/history/${gameId}`);
+      const res = await fetch(`${API_BASE}/history/${gameId}`);
       const data = await res.json();
       if (data.success && data.game) {
         onLoadGame(data.game);

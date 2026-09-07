@@ -1,5 +1,6 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { X, Download, CheckCircle2, Monitor, Sparkles, ExternalLink } from 'lucide-react';
+import { API_BASE } from '../config';
 
 export function DesktopAppModal({ isOpen, onClose }) {
   const [isCreating, setIsCreating] = useState(false);
@@ -11,7 +12,7 @@ export function DesktopAppModal({ isOpen, onClose }) {
     setIsCreating(true);
     setStatusMessage(null);
     try {
-      const res = await fetch('http://localhost:5000/api/create-shortcut', {
+      const res = await fetch(`${API_BASE}/create-shortcut`, {
         method: 'POST'
       });
       const data = await res.json();
@@ -29,7 +30,7 @@ export function DesktopAppModal({ isOpen, onClose }) {
     } catch (err) {
       setStatusMessage({
         type: 'error',
-        text: 'Could not connect to backend server on port 5000.'
+        text: 'Could not connect to backend server.'
       });
     } finally {
       setIsCreating(false);
@@ -37,7 +38,7 @@ export function DesktopAppModal({ isOpen, onClose }) {
   };
 
   const handleDownloadLauncher = () => {
-    window.location.href = 'http://localhost:5000/api/download-launcher';
+    window.location.href = `${API_BASE}/download-launcher`;
   };
 
   return (

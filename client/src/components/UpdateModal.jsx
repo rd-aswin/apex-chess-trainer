@@ -1,4 +1,5 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import { API_BASE } from '../config';
 import {
   RefreshCw,
   CheckCircle2,
@@ -29,7 +30,7 @@ export function UpdateModal({ isOpen, onClose }) {
   const fetchUpdates = async (force = false) => {
     setIsScanning(true);
     try {
-      const res = await fetch(`http://localhost:5000/api/updates/check${force ? '?force=true' : ''}`);
+      const res = await fetch(`${API_BASE}/updates/check${force ? '?force=true' : ''}`);
       const data = await res.json();
       if (data.success) {
         setReport(data);

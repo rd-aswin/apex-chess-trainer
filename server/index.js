@@ -20,6 +20,16 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
+// 0. Platform Health-Check & Root Landing
+app.get('/', (req, res) => {
+  res.json({
+    service: 'Apex Chess Trainer API',
+    status: 'online',
+    engine: stockfishEngine.ready ? 'ready' : 'initializing',
+    level: 'Stockfish 19 NNUE (Level 20 Locked)'
+  });
+});
+
 // 1. System & Engine Status
 app.get('/api/status', (req, res) => {
   res.json({
@@ -345,9 +355,9 @@ app.get('/api/download-launcher', (req, res) => {
 async function startServer() {
   try {
     await stockfishEngine.init();
-    app.listen(PORT, () => {
+    app.listen(PORT, '0.0.0.0', () => {
       console.log(`=================================================`);
-      console.log(` CHESS TRAINER BACKEND RUNNING ON PORT ${PORT}`);
+      console.log(` CHESS TRAINER BACKEND RUNNING ON 0.0.0.0:${PORT}`);
       console.log(` ENGINE: STOCKFISH 19 (LEVEL: MAXIMUM LOCKED)`);
       console.log(`=================================================`);
     });

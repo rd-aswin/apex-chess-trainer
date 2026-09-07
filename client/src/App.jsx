@@ -14,8 +14,7 @@ import ImportGameModal from './components/ImportGameModal';
 import { LandingView } from './components/landing/LandingView';
 import { useSoundEffects } from './hooks/useSoundEffects';
 import { Swords, RotateCcw, Flag, Sparkles, Award, History, Volume2, VolumeX, Monitor, Bot, RefreshCw, UploadCloud, Loader2 } from 'lucide-react';
-
-const API_BASE = 'http://localhost:5000/api';
+import { API_BASE } from './config';
 
 export function App() {
   // Game & Board State
@@ -82,7 +81,7 @@ export function App() {
 
   // Background check for updates on app mount
   useEffect(() => {
-    fetch('http://localhost:5000/api/updates/check')
+    fetch(`${API_BASE}/updates/check`)
       .then((r) => r.json())
       .then((data) => {
         if (data.success && data.isUpdateAvailable) {

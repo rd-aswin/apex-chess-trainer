@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { marked } from 'marked';
+import { API_BASE } from '../config';
 import {
   Send,
   Sparkles,
@@ -73,7 +74,7 @@ export function AiCoachChat({
   // Fetch current opening whenever moves or currentPly changes
   useEffect(() => {
     const activeMoves = moves.slice(0, currentPly).map((m) => (typeof m === 'string' ? m : m.san || m.uci));
-    fetch('http://localhost:5000/api/coach/opening', {
+    fetch(`${API_BASE}/coach/opening`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ moves: activeMoves })
@@ -89,7 +90,7 @@ export function AiCoachChat({
 
   // Load saved coach config
   useEffect(() => {
-    fetch('http://localhost:5000/api/coach/config')
+    fetch(`${API_BASE}/coach/config`)
       .then((res) => res.json())
       .then((data) => {
         if (data.success) {
@@ -120,7 +121,7 @@ export function AiCoachChat({
     const activeSanMoves = moves.slice(0, currentPly).map((m) => (typeof m === 'string' ? m : m.san || m.uci));
 
     try {
-      const res = await fetch('http://localhost:5000/api/coach/chat', {
+      const res = await fetch(`${API_BASE}/coach/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -174,7 +175,7 @@ export function AiCoachChat({
   const handleSaveConfig = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch('http://localhost:5000/api/coach/config', {
+      const res = await fetch(`${API_BASE}/coach/config`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

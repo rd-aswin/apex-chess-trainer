@@ -5,7 +5,11 @@ import os from 'os';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const STOCKFISH_PATH = path.resolve(__dirname, '..', 'bin', 'stockfish.exe');
+const STOCKFISH_PATH = process.env.STOCKFISH_PATH || (
+  process.platform === 'win32'
+    ? path.resolve(__dirname, '..', 'bin', 'stockfish.exe')
+    : '/usr/bin/stockfish'
+);
 
 export class StockfishEngine {
   constructor() {
@@ -14,7 +18,7 @@ export class StockfishEngine {
     this.queue = [];
     this.currentTask = null;
     this.outputBuffer = '';
-    this.threads = Math.min(8, Math.max(2, os.cpus().length || 4));
+    this.threads = Math.min(8, Math.max(1, os.cpus().length || 2));
     this.hash = 256;
     this.skillLevel = 20; // MAXIMUM LEVEL LOCKED
   }
