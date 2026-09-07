@@ -15,6 +15,7 @@ import { LandingView } from './components/landing/LandingView';
 import { useSoundEffects } from './hooks/useSoundEffects';
 import { Swords, RotateCcw, Flag, Sparkles, Award, History, Volume2, VolumeX, Monitor, Bot, RefreshCw, UploadCloud, Loader2 } from 'lucide-react';
 import { API_BASE } from './config';
+import { wasmEngine } from './services/wasmEngine';
 
 export function App() {
   // Game & Board State
@@ -77,6 +78,11 @@ export function App() {
     };
     window.addEventListener('hashchange', handleHash);
     return () => window.removeEventListener('hashchange', handleHash);
+  }, []);
+
+  // Pre-warm client-side Stockfish WASM engine on mount
+  useEffect(() => {
+    wasmEngine.init().catch((e) => console.debug('[App] WASM Engine init warning:', e));
   }, []);
 
   // Background check for updates on app mount
@@ -146,20 +152,27 @@ export function App() {
     return { white: whiteCaptures, black: blackCaptures };
   };
 
-  // Stockfish move requester
+  // Stockfish move requester (Client WASM with Cloud API Fallback)
   const requestEngineMove = useCallback(
     async (currentMoves, currentGame) => {
       setIsEngineThinking(true);
       try {
-        const uciMoves = currentMoves.map((m) => m.uci);
-        const res = await fetch(`${API_BASE}/move`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ moves: uciMoves, depth: 22, movetime: 1800 })
-        });
+        let data = null;
+        try {
+          // 1. Instant client-side Stockfish WASM (0ms network latency!)
+          data = await wasmEngine.getBestMove({ fen: currentGame.fen(), depth: 12, movetime: 1200 });
+        } catch (wasmErr) {
+          console.warn('[App] Local WASM engine unavailable, falling back to Cloud API:', wasmErr);
+          const uciMoves = currentMoves.map((m) => m.uci);
+          const res = await fetch(`${API_BASE}/move`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ moves: uciMoves, depth: 20, movetime: 1800 })
+          });
+          data = await res.json();
+        }
 
-        const data = await res.json();
-        if (!data.success || !data.bestMove) return;
+        if (!data || !data.success || !data.bestMove) return;
 
         const bestMove = data.bestMove;
         const from = bestMove.slice(0, 2);
@@ -365,14 +378,21 @@ export function App() {
       }
 
       setIsEngineThinking(true);
-      const res = await fetch(`${API_BASE}/move`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fen: sGame.fen(), depth: 18, movetime: 1500 })
-      });
+      let data = null;
+      try {
+        // 1. Instant client-side Stockfish WASM reply
+        data = await wasmEngine.getBestMove({ fen: sGame.fen(), depth: 12, movetime: 1200 });
+      } catch (wasmErr) {
+        console.warn('[App] Local WASM engine unavailable in sandbox, falling back to API:', wasmErr);
+        const res = await fetch(`${API_BASE}/move`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ fen: sGame.fen(), depth: 18, movetime: 1500 })
+        });
+        data = await res.json();
+      }
 
-      const data = await res.json();
-      if (data.success && data.bestMove) {
+      if (data && data.success && data.bestMove) {
         const sfFrom = data.bestMove.slice(0, 2);
         const sfTo = data.bestMove.slice(2, 4);
         const sfProm = data.bestMove.length > 4 ? data.bestMove[4] : undefined;
