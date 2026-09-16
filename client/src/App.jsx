@@ -97,6 +97,7 @@ export function App() {
   const [currentUser, setCurrentUser] = useState(() => getStoredUser());
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authPromptMessage, setAuthPromptMessage] = useState('');
+  const [pendingReviewMoves, setPendingReviewMoves] = useState(null);
 
   // Fetch current user and sync auth state
   useEffect(() => {
@@ -315,7 +316,7 @@ export function App() {
       }
 
       setGameOverMessage(reason);
-      triggerMatchAnalysis(currentMoves, reason);
+      // Keep board visible and let user initiate Review Match via prominent action
     }
   };
 
@@ -342,6 +343,7 @@ export function App() {
     // Check daily free review quota (bypass for reviewing existing archived games)
     if (!bypassQuota) {
       if (!currentUser) {
+        setPendingReviewMoves({ moves: gameMoves, result: resultStr, options });
         setAuthPromptMessage('Please sign in or create a free account to unlock your 3 free match reviews today.');
         setIsAuthModalOpen(true);
         return;
@@ -1372,15 +1374,48 @@ export function App() {
         <div className="flex items-center justify-center gap-2.5 h-full shrink-0">
           <EvalBar score={currentScore} isFlipped={userColor === 'b'} />
 
-          <ChessBoard
-            game={game}
-            isFlipped={userColor === 'b'}
-            onMove={handleUserMove}
-            lastMove={lastMove}
-            arrows={arrows}
-            isEngineThinking={isEngineThinking}
-            disabled={isGameOver && mode !== 'sandbox'}
-          />
+          <div className="relative">
+            <ChessBoard
+              game={game}
+              isFlipped={userColor === 'b'}
+              onMove={handleUserMove}
+              lastMove={lastMove}
+              arrows={arrows}
+              isEngineThinking={isEngineThinking}
+              disabled={isGameOver && mode !== 'sandbox'}
+            />
+
+            {/* Victory / Checkmate / Draw Banner directly on board */}
+            {isGameOver && mode === 'play' && (
+              <div className="absolute inset-x-4 bottom-6 bg-slate-950/95 border border-emerald-500/40 rounded-2xl p-4 shadow-2xl backdrop-blur-md flex items-center justify-between gap-4 z-20 animate-in fade-in slide-in-from-bottom-3 duration-300">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-bold text-lg">
+                    ♔
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-bold text-white tracking-tight">{gameOverMessage}</h4>
+                    <p className="text-[11px] text-slate-400">Match finished • Confronted Stockfish 19</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => triggerMatchAnalysis(moves, gameOverMessage)}
+                    disabled={isAnalyzing}
+                    className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl transition-all shadow-lg flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <Sparkles size={14} />
+                    <span>{isAnalyzing ? 'Analyzing...' : 'Review Match'}</span>
+                  </button>
+                  <button
+                    onClick={() => setIsNewGameModalOpen(true)}
+                    className="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-xl border border-slate-700 transition-colors cursor-pointer"
+                  >
+                    New Game
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Right Section: Fixed-Height Sidebar (Matches Board Height Exactly) */}
@@ -1655,10 +1690,18 @@ export function App() {
       {/* User Authentication & Verification Modal */}
       <AuthModal
         isOpen={isAuthModalOpen}
-        onClose={() => setIsAuthModalOpen(false)}
+        onClose={() => {
+          setIsAuthModalOpen(false);
+          setPendingReviewMoves(null);
+        }}
         onAuthSuccess={(user) => {
           setCurrentUser(user);
           setQuotaState(getDailyQuota());
+          if (pendingReviewMoves) {
+            const { moves: pMoves, result: pResult, options: pOpts } = pendingReviewMoves;
+            setPendingReviewMoves(null);
+            triggerMatchAnalysis(pMoves, pResult, pOpts);
+          }
         }}
         promptMessage={authPromptMessage}
       />

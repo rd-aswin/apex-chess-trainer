@@ -86,7 +86,12 @@ export async function registerAccount({ email, name, password }) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, name, password })
   });
-  return res.json();
+  const data = await res.json();
+  if (data.success && data.token) {
+    setAuthToken(data.token);
+    setStoredUser(data.user);
+  }
+  return data;
 }
 
 /**

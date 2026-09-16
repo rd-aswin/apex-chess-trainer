@@ -95,30 +95,12 @@ export function registerUser({ email, name, password }) {
   const users = getUsers();
   const existing = users.find((u) => u.email === normalizedEmail);
 
-  if (existing && existing.isVerified) {
+  if (existing) {
     return { success: false, error: 'An account with this email already exists. Please log in.' };
   }
 
   const { salt, hash } = hashPassword(password);
-  const verificationCode = crypto.randomInt(100000, 999999).toString();
-  const codeExpires = Date.now() + 30 * 60 * 1000; // 30 minutes
-
-  if (existing && !existing.isVerified) {
-    existing.name = name ? name.trim() : existing.name;
-    existing.salt = salt;
-    existing.passwordHash = hash;
-    existing.verificationCode = verificationCode;
-    existing.verificationCodeExpires = codeExpires;
-    saveUsers(users);
-
-    return {
-      success: true,
-      message: 'Verification code resent.',
-      email: normalizedEmail,
-      isVerified: false,
-      verificationCode // Exposed for testing & evaluation banner
-    };
-  }
+  const token = crypto.randomBytes(32).toString('hex');
 
   const newUser = {
     id: 'usr_' + Date.now() + '_' + crypto.randomBytes(4).toString('hex'),
@@ -126,16 +108,16 @@ export function registerUser({ email, name, password }) {
     name: name ? name.trim() : normalizedEmail.split('@')[0],
     salt,
     passwordHash: hash,
-    isVerified: false,
-    verificationCode,
-    verificationCodeExpires: codeExpires,
+    isVerified: true,
+    verificationCode: null,
+    verificationCodeExpires: null,
     plan: 'free',
     dailyReviews: {
       date: getTodayDateString(),
       count: 0
     },
     createdAt: new Date().toISOString(),
-    tokens: []
+    tokens: [token]
   };
 
   users.push(newUser);
@@ -143,10 +125,9 @@ export function registerUser({ email, name, password }) {
 
   return {
     success: true,
-    message: 'Account created! Please verify your email with the 6-digit code.',
-    email: normalizedEmail,
-    isVerified: false,
-    verificationCode // Exposed for testing & evaluation banner
+    message: 'Account created successfully! Welcome to Apex Chess Trainer.',
+    token,
+    user: sanitizeUser(newUser)
   };
 }
 
@@ -154,8 +135,8 @@ export function registerUser({ email, name, password }) {
  * Verifies account with 6-digit OTP code and issues an auth token.
  */
 export function verifyUserCode({ email, code }) {
-  if (!email || !code) {
-    return { success: false, error: 'Email and verification code are required.' };
+  if (!email) {
+    return { success: false, error: 'Email is required.' };
   }
 
   const normalizedEmail = email.trim().toLowerCase();
@@ -166,33 +147,12 @@ export function verifyUserCode({ email, code }) {
     return { success: false, error: 'Account not found.' };
   }
 
-  if (user.isVerified) {
-    // Already verified, generate session token
-    const token = crypto.randomBytes(32).toString('hex');
-    user.tokens = [...(user.tokens || []).slice(-4), token];
-    saveUsers(users);
-    return {
-      success: true,
-      message: 'Account already verified.',
-      token,
-      user: sanitizeUser(user)
-    };
-  }
-
-  if (!user.verificationCode || user.verificationCode !== code.trim()) {
-    return { success: false, error: 'Invalid verification code. Please check and try again.' };
-  }
-
-  if (user.verificationCodeExpires && Date.now() > user.verificationCodeExpires) {
-    return { success: false, error: 'Verification code has expired. Please request a new code.' };
-  }
-
   user.isVerified = true;
   user.verificationCode = null;
   user.verificationCodeExpires = null;
 
   const token = crypto.randomBytes(32).toString('hex');
-  user.tokens = [token];
+  user.tokens = [...(user.tokens || []).slice(-4), token];
   saveUsers(users);
 
   return {
@@ -224,20 +184,8 @@ export function loginUser({ email, password }) {
     return { success: false, error: 'Invalid email or password.' };
   }
 
-  if (!user.isVerified) {
-    const verificationCode = crypto.randomInt(100000, 999999).toString();
-    user.verificationCode = verificationCode;
-    user.verificationCodeExpires = Date.now() + 30 * 60 * 1000;
-    saveUsers(users);
-
-    return {
-      success: false,
-      verificationRequired: true,
-      email: normalizedEmail,
-      verificationCode, // Exposed for test & evaluation banner
-      error: 'Your account is not verified yet. Please enter the 6-digit verification code.'
-    };
-  }
+  // Auto-activate any legacy unverified user
+  user.isVerified = true;
 
   // Create session token
   const token = crypto.randomBytes(32).toString('hex');
