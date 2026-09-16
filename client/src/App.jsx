@@ -289,27 +289,37 @@ export function App() {
   };
 
   // Run Match Analysis (with SSE real-time streaming, client WASM fallback & caching)
-  const triggerMatchAnalysis = async (gameMoves, resultStr = '') => {
+  const triggerMatchAnalysis = async (gameMoves, resultStr = '', options = {}) => {
+    const {
+      bypassQuota = false,
+      preserveHistoryId = null,
+      userColorOverride = null,
+      preserveDate = null
+    } = options;
+
     const uciMoves = gameMoves.map((m) => m.uci);
     const currentKey = uciMoves.join(',');
+    const targetColor = userColorOverride || userColor;
 
     // If already analyzed in current session, switch immediately to review without recalculating
-    if (analysis && analyzedKey === currentKey) {
+    if (analysis && analyzedKey === currentKey && analysis.steps && analysis.steps.length > 0) {
       setMode('review');
       setReviewTab('coach');
       return;
     }
 
-    // Check daily free review quota
-    const currentQuota = getDailyQuota();
-    if (!currentQuota.canReview) {
-      setIsDailyQuotaModalOpen(true);
-      return;
-    }
+    // Check daily free review quota (bypass for reviewing existing archived games)
+    if (!bypassQuota) {
+      const currentQuota = getDailyQuota();
+      if (!currentQuota.canReview) {
+        setIsDailyQuotaModalOpen(true);
+        return;
+      }
 
-    // Consume 1 review from daily quota
-    const updatedQuota = consumeDailyReview();
-    setQuotaState(updatedQuota);
+      // Consume 1 review from daily quota
+      const updatedQuota = consumeDailyReview();
+      setQuotaState(updatedQuota);
+    }
 
     // Immediately transition to review mode so the user sees the active analysis workspace & HUD
     setMode('review');
@@ -333,8 +343,8 @@ export function App() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             moves: uciMoves,
-            userColor,
-            result: resultStr || (userColor === 'w' ? '0-1' : '1-0')
+            userColor: targetColor,
+            result: resultStr || (targetColor === 'w' ? '0-1' : '1-0')
           })
         });
 
@@ -410,8 +420,8 @@ export function App() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             moves: uciMoves,
-            userColor,
-            result: resultStr || (userColor === 'w' ? '0-1' : '1-0')
+            userColor: targetColor,
+            result: resultStr || (targetColor === 'w' ? '0-1' : '1-0')
           })
         });
         const data = await res.json();
@@ -426,22 +436,44 @@ export function App() {
         setAnalyzedKey(currentKey);
         setMode('review');
         setReviewTab('coach');
-        handleSelectPly(gameMoves.length, freshData);
+        handleSelectPly(gameMoves.length, freshData, gameMoves);
 
-        // Save match locally to browser history
+        // Save match locally to browser history with COMPLETE analysis
         try {
           const pastHistory = JSON.parse(localStorage.getItem('apex_chess_history') || '[]');
+          const targetId = preserveHistoryId || freshData.gameId || ('game_' + Date.now().toString());
           const newEntry = {
-            id: freshData.gameId || Date.now().toString(),
-            date: new Date().toLocaleDateString(),
+            id: targetId,
+            date: preserveDate || new Date().toISOString(),
             moves: uciMoves,
-            result: resultStr || (userColor === 'w' ? '0-1' : '1-0'),
-            userColor,
+            result: resultStr || (targetColor === 'w' ? '0-1' : '1-0'),
+            userColor: targetColor,
             accuracy: freshData.accuracy,
+            counts: freshData.counts,
+            steps: freshData.steps,
             stepsCount: freshData.steps ? freshData.steps.length : 0
           };
-          localStorage.setItem('apex_chess_history', JSON.stringify([newEntry, ...pastHistory.slice(0, 49)]));
-        } catch (storageErr) {}
+
+          const existingIdx = pastHistory.findIndex(
+            (g) => g.id === targetId || (Array.isArray(g.moves) && g.moves.join(',') === currentKey)
+          );
+
+          let updatedHistory;
+          if (existingIdx !== -1) {
+            updatedHistory = [...pastHistory];
+            updatedHistory[existingIdx] = {
+              ...updatedHistory[existingIdx],
+              ...newEntry,
+              date: pastHistory[existingIdx].date || newEntry.date
+            };
+          } else {
+            updatedHistory = [newEntry, ...pastHistory.slice(0, 49)];
+          }
+
+          localStorage.setItem('apex_chess_history', JSON.stringify(updatedHistory));
+        } catch (storageErr) {
+          console.warn('[App] Failed to save full game history to localStorage:', storageErr);
+        }
       }
     } catch (err) {
       console.error('Analysis error:', err);
@@ -672,7 +704,7 @@ export function App() {
   };
 
   // Select Ply in Review
-  const handleSelectPly = (ply, overrideAnalysis = null) => {
+  const handleSelectPly = (ply, overrideAnalysis = null, overrideMoves = null) => {
     setCurrentPly(ply);
 
     if (ply === 0) {
@@ -683,7 +715,8 @@ export function App() {
       return;
     }
 
-    const targetMove = moves[ply - 1];
+    const moveList = overrideMoves || moves;
+    const targetMove = moveList[ply - 1];
     if (targetMove) {
       setGame(new Chess(targetMove.fen));
       setLastMove({ from: targetMove.from, to: targetMove.to });
@@ -763,7 +796,12 @@ export function App() {
     triggerMatchAnalysis(moves, reason);
   };
 
-  const handleLoadGameFromHistory = (historicalGame) => {
+  const handleLoadGameFromHistory = async (historicalGame) => {
+    if (!historicalGame || !Array.isArray(historicalGame.moves) || historicalGame.moves.length === 0) {
+      console.warn('Archived game contains no moves.');
+      return;
+    }
+
     const replayChess = new Chess();
     const loadedMoves = [];
 
@@ -783,19 +821,46 @@ export function App() {
       }
     }
 
+    if (loadedMoves.length === 0) {
+      console.warn('Could not parse moves from historical game.');
+      return;
+    }
+
+    const assignedColor = historicalGame.userColor || 'w';
     setMoves(loadedMoves);
-    setUserColor(historicalGame.userColor || 'w');
-    setAnalysis({
-      accuracy: historicalGame.accuracy,
-      counts: historicalGame.counts,
-      steps: historicalGame.steps
-    });
-    setAnalyzedKey((historicalGame.moves || []).join(','));
-    setMode('review');
-    setReviewTab('coach');
+    setUserColor(assignedColor);
     setIsGameOver(true);
-    setGameOverMessage(`Archived match (${historicalGame.result})`);
-    handleSelectPly(loadedMoves.length);
+    const resultTitle = historicalGame.result || 'Archived Match';
+    setGameOverMessage(`Archived match (${resultTitle})`);
+
+    const hasStoredSteps = historicalGame.steps && Array.isArray(historicalGame.steps) && historicalGame.steps.length > 0;
+    const hasStoredCounts = historicalGame.counts && typeof historicalGame.counts === 'object';
+
+    if (hasStoredSteps && hasStoredCounts) {
+      // 1. Instant load from existing stored analysis
+      const storedAnalysis = {
+        success: true,
+        gameId: historicalGame.id,
+        accuracy: historicalGame.accuracy || { white: 0, black: 0 },
+        counts: historicalGame.counts,
+        steps: historicalGame.steps
+      };
+
+      setAnalysis(storedAnalysis);
+      setAnalyzedKey(historicalGame.moves.join(','));
+      setMode('review');
+      setReviewTab('coach');
+      handleSelectPly(loadedMoves.length, storedAnalysis, loadedMoves);
+    } else {
+      // 2. Stored analysis is missing or incomplete -> Do the analysis again automatically!
+      console.log('[App] Historical game lacks complete stored steps. Starting fresh analysis...');
+      await triggerMatchAnalysis(loadedMoves, resultTitle, {
+        bypassQuota: true, // Past archived games do not consume daily review quota
+        preserveHistoryId: historicalGame.id,
+        userColorOverride: assignedColor,
+        preserveDate: historicalGame.date
+      });
+    }
   };
 
   const handleImportGame = async (importedGame) => {
@@ -970,7 +1035,42 @@ export function App() {
         if (freshData && freshData.success) {
           setAnalysis(freshData);
           setAnalyzedKey(currentKey);
-          handleSelectPly(loadedMoves.length, freshData);
+          handleSelectPly(loadedMoves.length, freshData, loadedMoves);
+
+          // Archive imported match locally to browser history with COMPLETE analysis
+          try {
+            const pastHistory = JSON.parse(localStorage.getItem('apex_chess_history') || '[]');
+            const newEntry = {
+              id: freshData.gameId || ('import_' + Date.now().toString()),
+              date: new Date().toISOString(),
+              moves: uciMoves,
+              result: outcomeResult,
+              userColor: assignedColor,
+              accuracy: freshData.accuracy,
+              counts: freshData.counts,
+              steps: freshData.steps,
+              stepsCount: freshData.steps ? freshData.steps.length : 0
+            };
+
+            const existingIdx = pastHistory.findIndex(
+              (g) => Array.isArray(g.moves) && g.moves.join(',') === currentKey
+            );
+
+            let updatedHistory;
+            if (existingIdx !== -1) {
+              updatedHistory = [...pastHistory];
+              updatedHistory[existingIdx] = {
+                ...updatedHistory[existingIdx],
+                ...newEntry
+              };
+            } else {
+              updatedHistory = [newEntry, ...pastHistory.slice(0, 49)];
+            }
+
+            localStorage.setItem('apex_chess_history', JSON.stringify(updatedHistory));
+          } catch (storageErr) {
+            console.warn('[App] Failed to save imported game to localStorage:', storageErr);
+          }
         }
       } catch (err) {
         console.error('Failed to import and analyze game:', err);

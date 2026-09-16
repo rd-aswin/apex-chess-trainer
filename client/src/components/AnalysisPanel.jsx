@@ -58,7 +58,7 @@ export function AnalysisPanel({
         </div>
 
         <p className="text-[11px] text-slate-300 leading-normal">
-          Make any move you want on the board. Stockfish 19 will immediately respond at Level 20. All moves are recorded below.
+          Make any move you want on the board. Stockfish will immediately respond at Grandmaster strength (~3650 Elo). All moves are recorded below.
         </p>
 
         {sandboxFeedback && (

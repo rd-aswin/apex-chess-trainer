@@ -21,19 +21,45 @@ export function GameHistoryModal({ isOpen, onClose, onLoadGame }) {
     setError(null);
     try {
       const localHistory = JSON.parse(localStorage.getItem('apex_chess_history') || '[]');
-      if (localHistory.length > 0) {
-        setGames(localHistory);
-        setLoading(false);
-        return;
+      let serverHistory = [];
+      try {
+        const res = await fetch(`${API_BASE}/history`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && Array.isArray(data.history)) {
+            serverHistory = data.history;
+          }
+        }
+      } catch (e) {
+        // Backend optional / offline safe
       }
-      const res = await fetch(`${API_BASE}/history`);
-      const data = await res.json();
-      if (data.success) {
-        setGames(data.history || []);
+
+      // Merge history entries intelligently: server history + local history
+      const map = new Map();
+      for (const g of serverHistory) {
+        const key = g.id || (Array.isArray(g.moves) ? g.moves.join(',') : '');
+        if (key) map.set(key, g);
       }
+      for (const g of localHistory) {
+        const key = g.id || (Array.isArray(g.moves) ? g.moves.join(',') : '');
+        if (key) {
+          if (map.has(key)) {
+            map.set(key, { ...map.get(key), ...g });
+          } else {
+            map.set(key, g);
+          }
+        }
+      }
+
+      const combined = Array.from(map.values()).sort((a, b) => {
+        return new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime();
+      });
+
+      setGames(combined);
     } catch (err) {
-      const localHistory = JSON.parse(localStorage.getItem('apex_chess_history') || '[]');
-      setGames(localHistory);
+      console.error('Failed to fetch history:', err);
+      const fallback = JSON.parse(localStorage.getItem('apex_chess_history') || '[]');
+      setGames(fallback);
     } finally {
       setLoading(false);
     }
@@ -42,16 +68,48 @@ export function GameHistoryModal({ isOpen, onClose, onLoadGame }) {
   const handleSelectGame = async (gameId) => {
     try {
       const localHistory = JSON.parse(localStorage.getItem('apex_chess_history') || '[]');
-      const found = localHistory.find((g) => g.id === gameId);
-      if (found) {
-        onLoadGame(found);
-        onClose();
-        return;
+      let selectedGame = localHistory.find((g) => g.id === gameId);
+
+      const hasStoredFullAnalysis =
+        selectedGame &&
+        Array.isArray(selectedGame.steps) &&
+        selectedGame.steps.length > 0 &&
+        selectedGame.counts;
+
+      // If full analysis is not already in local storage, attempt to fetch from backend
+      if (!hasStoredFullAnalysis) {
+        try {
+          const movesParam = selectedGame && Array.isArray(selectedGame.moves) ? `?moves=${selectedGame.moves.join(',')}` : '';
+          const res = await fetch(`${API_BASE}/history/${gameId}${movesParam}`);
+          if (res.ok) {
+            const data = await res.json();
+            if (data.success && data.game && Array.isArray(data.game.steps) && data.game.steps.length > 0) {
+              selectedGame = { ...(selectedGame || {}), ...data.game };
+              // Cache full game back into local history
+              const idx = localHistory.findIndex(
+                (g) => g.id === gameId || (Array.isArray(g.moves) && g.moves.join(',') === data.game.moves?.join(','))
+              );
+              let updatedLocal;
+              if (idx !== -1) {
+                updatedLocal = [...localHistory];
+                updatedLocal[idx] = { ...updatedLocal[idx], ...selectedGame };
+              } else {
+                updatedLocal = [selectedGame, ...localHistory.slice(0, 49)];
+              }
+              localStorage.setItem('apex_chess_history', JSON.stringify(updatedLocal));
+            }
+          }
+        } catch (apiErr) {
+          console.warn('[GameHistoryModal] Backend history detail fetch failed, continuing with available data:', apiErr);
+        }
       }
-      const res = await fetch(`${API_BASE}/history/${gameId}`);
-      const data = await res.json();
-      if (data.success && data.game) {
-        onLoadGame(data.game);
+
+      if (!selectedGame) {
+        selectedGame = games.find((g) => g.id === gameId);
+      }
+
+      if (selectedGame) {
+        onLoadGame(selectedGame);
         onClose();
       }
     } catch (err) {
@@ -100,14 +158,19 @@ export function GameHistoryModal({ isOpen, onClose, onLoadGame }) {
 
           {!loading &&
             games.map((g) => {
-              const dateStr = new Date(g.date).toLocaleString([], {
-                month: 'short',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-              });
+              const parsedDate = new Date(g.date);
+              const dateStr = !isNaN(parsedDate.getTime())
+                ? parsedDate.toLocaleString([], {
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })
+                : (g.date || 'Recent Match');
+              const totalMoves = g.moveCount || (Array.isArray(g.moves) ? g.moves.length : 0);
               const userAcc = g.userColor === 'w' ? g.accuracy?.white : g.accuracy?.black;
               const sfAcc = g.userColor === 'w' ? g.accuracy?.black : g.accuracy?.white;
+              const userCounts = g.counts ? (g.userColor === 'w' ? g.counts.white : g.counts.black) : null;
 
               return (
                 <div
@@ -124,8 +187,13 @@ export function GameHistoryModal({ isOpen, onClose, onLoadGame }) {
                         {g.result}
                       </span>
                       <span className="text-[11px] text-slate-400 font-mono">
-                        {g.moveCount} moves
+                        {totalMoves} moves
                       </span>
+                      {userCounts && userCounts.blunder > 0 && (
+                        <span className="text-[10px] font-mono text-rose-400 bg-rose-950/60 border border-rose-900/60 px-1.5 py-0.5 rounded">
+                          {userCounts.blunder} {userCounts.blunder === 1 ? 'blunder' : 'blunders'}
+                        </span>
+                      )}
                     </div>
 
                     <div className="flex items-center gap-3 text-xs text-slate-400">
@@ -134,7 +202,7 @@ export function GameHistoryModal({ isOpen, onClose, onLoadGame }) {
                       </span>
                       {userAcc !== undefined && (
                         <span className="text-emerald-400 font-mono text-[11px]">
-                          Accuracy: {userAcc}% vs SF {sfAcc}%
+                          Accuracy: {userAcc}% vs Engine {sfAcc}%
                         </span>
                       )}
                     </div>

@@ -261,7 +261,11 @@ app.get('/api/history', (req, res) => {
 });
 
 app.get('/api/history/:id', (req, res) => {
-  const game = getGameById(req.params.id);
+  let game = getGameById(req.params.id);
+  if (!game && req.query.moves) {
+    const moveArr = req.query.moves.split(',');
+    game = findGameByMoves(moveArr);
+  }
   if (!game) {
     return res.status(404).json({ error: 'Game not found' });
   }
