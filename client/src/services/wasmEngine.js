@@ -165,12 +165,46 @@ class WasmEngineService {
       let currentDepth = 0;
       let pv = [];
 
+      let hardTimeout = null;
+      let isCompleted = false;
+
+      const finishWith = (result) => {
+        if (isCompleted) return;
+        isCompleted = true;
+        clearTimeout(timeout);
+        if (hardTimeout) clearTimeout(hardTimeout);
+        done(result);
+      };
+
       const timeout = setTimeout(() => {
         if (this.worker) {
           try {
             this.worker.postMessage('stop');
           } catch (e) {}
         }
+        // Fail-safe: if the worker does not respond with bestmove within 1.5s after stop, force resolve
+        hardTimeout = setTimeout(() => {
+          if (isCompleted) return;
+          console.warn('[WasmEngine] Engine response timed out after stop command. Force-resolving with fallback.');
+          const turn = fen && fen !== 'startpos' ? (fen.split(' ')[1] || 'w') : 'w';
+          let normalizedScore = currentScore || { type: 'cp', value: 0 };
+          if (turn === 'b' && normalizedScore) {
+            normalizedScore = {
+              type: normalizedScore.type,
+              value: -normalizedScore.value
+            };
+          }
+          finishWith({
+            success: true,
+            bestMove: bestMove || '(none)',
+            ponder: null,
+            score: normalizedScore,
+            rawScore: currentScore || { type: 'cp', value: 0 },
+            depth: currentDepth,
+            pv: pv || [],
+            engine: 'Stockfish WASM (Local Client - Fallback)'
+          });
+        }, 1500);
       }, movetime + 2000);
 
       const onLine = (line) => {
@@ -193,7 +227,6 @@ class WasmEngineService {
         }
 
         if (line.startsWith('bestmove ')) {
-          clearTimeout(timeout);
           const parts = line.split(/\s+/);
           bestMove = parts[1];
           const ponder = parts[3] || null;
@@ -208,7 +241,7 @@ class WasmEngineService {
             };
           }
 
-          done({
+          finishWith({
             success: true,
             bestMove,
             ponder,
@@ -226,6 +259,7 @@ class WasmEngineService {
         this.worker.postMessage(`go depth ${depth} movetime ${movetime}`);
       } catch (err) {
         clearTimeout(timeout);
+        if (hardTimeout) clearTimeout(hardTimeout);
         fail(err);
       }
 

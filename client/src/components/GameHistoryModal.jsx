@@ -22,16 +22,18 @@ export function GameHistoryModal({ isOpen, onClose, onLoadGame }) {
     try {
       const localHistory = JSON.parse(localStorage.getItem('apex_chess_history') || '[]');
       let serverHistory = [];
-      try {
-        const res = await fetch(`${API_BASE}/history`);
-        if (res.ok) {
-          const data = await res.json();
-          if (data.success && Array.isArray(data.history)) {
-            serverHistory = data.history;
+      if (API_BASE.startsWith('http')) {
+        try {
+          const res = await fetch(`${API_BASE}/history`);
+          if (res.ok) {
+            const data = await res.json();
+            if (data.success && Array.isArray(data.history)) {
+              serverHistory = data.history;
+            }
           }
+        } catch (e) {
+          // Backend optional / offline safe
         }
-      } catch (e) {
-        // Backend optional / offline safe
       }
 
       // Merge history entries intelligently: server history + local history
@@ -77,7 +79,7 @@ export function GameHistoryModal({ isOpen, onClose, onLoadGame }) {
         selectedGame.counts;
 
       // If full analysis is not already in local storage, attempt to fetch from backend
-      if (!hasStoredFullAnalysis) {
+      if (!hasStoredFullAnalysis && API_BASE.startsWith('http')) {
         try {
           const movesParam = selectedGame && Array.isArray(selectedGame.moves) ? `?moves=${selectedGame.moves.join(',')}` : '';
           const res = await fetch(`${API_BASE}/history/${gameId}${movesParam}`);

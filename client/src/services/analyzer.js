@@ -2,12 +2,23 @@ import { Chess } from 'chess.js';
 import { wasmEngine } from './wasmEngine.js';
 import { explainMistake } from './explainer.js';
 
+export function scoreToCp(score) {
+  if (!score) return 0;
+  if (score.type === 'mate') {
+    if (score.value > 0) return 10000;
+    if (score.value < 0) return -10000;
+    return 10000;
+  }
+  const val = Number(score.value);
+  return isNaN(val) ? 0 : val;
+}
+
 export function winProbability(score) {
   if (!score) return 0.5;
   if (score.type === 'mate') {
     return score.value > 0 ? 1.0 : 0.0;
   }
-  const cp = score.value;
+  const cp = Number(score.value) || 0;
   return 1 / (1 + Math.pow(10, -cp / 400));
 }
 
@@ -20,15 +31,15 @@ export function calculateMoveAccuracy(winProbBefore, winProbAfter) {
 
 export function classifyMove({ scoreBefore, scoreAfter, bestMoveUci, playedMoveUci, playerColor }) {
   const mult = playerColor === 'w' ? 1 : -1;
-  const cpBefore = scoreBefore.type === 'mate' ? (scoreBefore.value > 0 ? 10000 : -10000) : scoreBefore.value * mult;
-  const cpAfter = scoreAfter.type === 'mate' ? (scoreAfter.value < 0 ? 10000 : -10000) : -scoreAfter.value * mult;
+  const cpBefore = scoreToCp(scoreBefore) * mult;
+  const cpAfter = scoreToCp(scoreAfter) * mult;
 
   const wpBefore = winProbability({ type: 'cp', value: cpBefore });
   const wpAfter = winProbability({ type: 'cp', value: cpAfter });
   const winLoss = Math.max(0, wpBefore - wpAfter);
   const cpLoss = Math.max(0, cpBefore - cpAfter);
 
-  if (playedMoveUci === bestMoveUci || cpLoss < 15) {
+  if (playedMoveUci && bestMoveUci && (playedMoveUci === bestMoveUci || cpLoss < 15)) {
     return { classification: 'Best', label: 'Best Move', glyph: '★', color: 'emerald' };
   }
 
@@ -113,6 +124,36 @@ export async function analyzeGame({ moves = [], initialFen = null, onProgress = 
       });
     }
 
+    // Check if terminal position (checkmate / draw)
+    let isTerminal = false;
+    try {
+      const posChess = new Chess(s.fen);
+      if (posChess.isGameOver()) {
+        isTerminal = true;
+        if (posChess.isCheckmate()) {
+          // Side to move has been checkmated
+          // If turn is 'b', White delivered checkmate -> +1 mate from White's perspective
+          // If turn is 'w', Black delivered checkmate -> -1 mate from White's perspective
+          const mateVal = posChess.turn() === 'b' ? 1 : -1;
+          evals.push({
+            bestMove: '(none)',
+            score: { type: 'mate', value: mateVal },
+            pv: []
+          });
+        } else {
+          evals.push({
+            bestMove: '(none)',
+            score: { type: 'cp', value: 0 },
+            pv: []
+          });
+        }
+      }
+    } catch (fenErr) {
+      console.warn('[WasmAnalyzer] Error validating position:', fenErr);
+    }
+
+    if (isTerminal) continue;
+
     const evalResult = await wasmEngine.getBestMove({
       fen: s.fen,
       depth: 12,
@@ -120,9 +161,9 @@ export async function analyzeGame({ moves = [], initialFen = null, onProgress = 
     });
 
     evals.push({
-      bestMove: evalResult.bestMove,
-      primaryScore: evalResult.rawScore || evalResult.score,
-      primaryPv: evalResult.pv || []
+      bestMove: evalResult.bestMove || '(none)',
+      score: evalResult.score || { type: 'cp', value: 0 },
+      pv: evalResult.pv || []
     });
   }
 
@@ -140,27 +181,31 @@ export async function analyzeGame({ moves = [], initialFen = null, onProgress = 
   for (let i = 1; i < states.length; i++) {
     const stateBefore = states[i - 1];
     const stateAfter = states[i];
-    const evalBefore = evals[i - 1];
-    const evalAfter = evals[i];
+    const evalBefore = evals[i - 1] || { bestMove: '(none)', score: { type: 'cp', value: 0 }, pv: [] };
+    const evalAfter = evals[i] || { bestMove: '(none)', score: { type: 'cp', value: 0 }, pv: [] };
 
-    const playerColor = stateAfter.playerColor;
+    const playerColor = stateAfter.playerColor || (i % 2 === 1 ? 'w' : 'b');
     const sideKey = playerColor === 'w' ? 'white' : 'black';
 
-    const bestMoveUci = evalBefore.bestMove;
+    const bestMoveUci = evalBefore.bestMove || '(none)';
     let bestMoveSan = bestMoveUci;
-    try {
-      const cTemp = new Chess(stateBefore.fen);
-      const bRes = cTemp.move({
-        from: bestMoveUci.slice(0, 2),
-        to: bestMoveUci.slice(2, 4),
-        promotion: bestMoveUci.length > 4 ? bestMoveUci[4] : undefined
-      });
-      if (bRes) bestMoveSan = bRes.san;
-    } catch (err) {}
+    if (bestMoveUci && bestMoveUci !== '(none)' && bestMoveUci.length >= 4) {
+      try {
+        const cTemp = new Chess(stateBefore.fen);
+        const bRes = cTemp.move({
+          from: bestMoveUci.slice(0, 2),
+          to: bestMoveUci.slice(2, 4),
+          promotion: bestMoveUci.length > 4 ? bestMoveUci[4] : undefined
+        });
+        if (bRes) bestMoveSan = bRes.san;
+      } catch (err) {}
+    } else {
+      bestMoveSan = '-';
+    }
 
     const classificationData = classifyMove({
-      scoreBefore: evalBefore.primaryScore,
-      scoreAfter: evalAfter.primaryScore,
+      scoreBefore: evalBefore.score,
+      scoreAfter: evalAfter.score,
       bestMoveUci,
       playedMoveUci: stateAfter.moveUci,
       playerColor
@@ -175,12 +220,8 @@ export async function analyzeGame({ moves = [], initialFen = null, onProgress = 
     else if (classification === 'Missed Win') counts[sideKey].missedWin++;
 
     const mult = playerColor === 'w' ? 1 : -1;
-    const cpBefore = evalBefore.primaryScore.type === 'mate'
-      ? (evalBefore.primaryScore.value > 0 ? 10000 : -10000)
-      : evalBefore.primaryScore.value * mult;
-    const cpAfter = evalAfter.primaryScore.type === 'mate'
-      ? (evalAfter.primaryScore.value < 0 ? 10000 : -10000)
-      : -evalAfter.primaryScore.value * mult;
+    const cpBefore = scoreToCp(evalBefore.score) * mult;
+    const cpAfter = scoreToCp(evalAfter.score) * mult;
 
     const wpBefore = winProbability({ type: 'cp', value: cpBefore });
     const wpAfter = winProbability({ type: 'cp', value: cpAfter });
@@ -196,35 +237,29 @@ export async function analyzeGame({ moves = [], initialFen = null, onProgress = 
 
     let explanation = null;
     if (['Inaccuracy', 'Mistake', 'Blunder', 'Missed Win'].includes(classification)) {
-      explanation = explainMistake({
-        fenBefore: stateBefore.fen,
-        fenAfter: stateAfter.fen,
-        playedMoveUci: stateAfter.moveUci,
-        playedMoveSan: stateAfter.moveSan,
-        bestMoveUci,
-        bestMoveSan,
-        scoreBefore: evalBefore.primaryScore,
-        scoreAfter: evalAfter.primaryScore,
-        classification,
-        refutationPv: evalAfter.primaryPv,
-        turn: playerColor
-      });
+      try {
+        explanation = explainMistake({
+          fenBefore: stateBefore.fen,
+          fenAfter: stateAfter.fen,
+          playedMoveUci: stateAfter.moveUci,
+          playedMoveSan: stateAfter.moveSan,
+          bestMoveUci,
+          bestMoveSan,
+          scoreBefore: evalBefore.score,
+          scoreAfter: evalAfter.score,
+          classification,
+          refutationPv: evalAfter.pv || [],
+          turn: playerColor
+        });
+      } catch (expErr) {
+        console.warn('[WasmAnalyzer] explainMistake fallback:', expErr);
+      }
     }
 
-    const whiteEvalCp = evalAfter.primaryScore.type === 'mate'
-      ? (evalAfter.primaryScore.value > 0 ? (stateAfter.turn === 'w' ? 1000 : -1000) : (stateAfter.turn === 'w' ? -1000 : 1000))
-      : (stateAfter.turn === 'w' ? evalAfter.primaryScore.value : -evalAfter.primaryScore.value);
-
-    // Normalize score to White's perspective (+ = White advantage, - = Black advantage)
-    const normalizedScore = evalAfter.primaryScore.type === 'mate'
-      ? {
-          type: 'mate',
-          value: stateAfter.turn === 'w' ? evalAfter.primaryScore.value : -evalAfter.primaryScore.value
-        }
-      : {
-          type: 'cp',
-          value: whiteEvalCp
-        };
+    const normalizedScore = evalAfter.score || { type: 'cp', value: 0 };
+    const whiteEvalCp = normalizedScore.type === 'mate'
+      ? (normalizedScore.value > 0 ? 1000 : -1000)
+      : (Number(normalizedScore.value) || 0);
 
     analysisSteps.push({
       ply: i,
@@ -238,7 +273,7 @@ export async function analyzeGame({ moves = [], initialFen = null, onProgress = 
       whiteEvalCp,
       bestMoveUci,
       bestMoveSan,
-      refutationPv: evalAfter.primaryPv,
+      refutationPv: evalAfter.pv || [],
       classification: classificationData,
       accuracy,
       explanation

@@ -101,10 +101,14 @@ export function explainMistake({
   let refutationExplanation = '';
 
   // 1. Check for Forced Checkmate
-  if (scoreAfter && scoreAfter.type === 'mate' && scoreAfter.value > 0) {
-    const mateIn = scoreAfter.value;
+  const isMateAgainstPlayer = scoreAfter && scoreAfter.type === 'mate' && (
+    (playerColor === 'w' && scoreAfter.value < 0) ||
+    (playerColor === 'b' && scoreAfter.value > 0)
+  );
+  if (isMateAgainstPlayer) {
+    const mateIn = Math.abs(scoreAfter.value);
     motifs.push('Allowed Forced Checkmate');
-    if (mateIn === 1) {
+    if (mateIn <= 1) {
       whySummary = `${playedMoveSan} blunders immediate checkmate! Stockfish can deliver checkmate on the next move.`;
     } else {
       whySummary = `${playedMoveSan} leaves your king without shelter, permitting Stockfish to force checkmate in ${mateIn} moves.`;

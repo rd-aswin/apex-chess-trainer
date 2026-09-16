@@ -389,60 +389,62 @@ export function App() {
     let freshData = null;
 
     try {
-      // 1. Primary: Stream real-time progress from Stockfish 19 backend via SSE
-      try {
-        const streamResponse = await fetch(`${API_BASE}/analyze-stream`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            moves: uciMoves,
-            userColor: targetColor,
-            result: resultStr || (targetColor === 'w' ? '0-1' : '1-0')
-          })
-        });
+      // 1. Primary for Dedicated Remote Backend: Stream real-time progress via SSE (if remote server configured)
+      if (API_BASE.startsWith('http')) {
+        try {
+          const streamResponse = await fetch(`${API_BASE}/analyze-stream`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              moves: uciMoves,
+              userColor: targetColor,
+              result: resultStr || (targetColor === 'w' ? '0-1' : '1-0')
+            })
+          });
 
-        if (streamResponse.ok && streamResponse.body) {
-          const reader = streamResponse.body.getReader();
-          const decoder = new TextDecoder();
-          let buffer = '';
+          if (streamResponse.ok && streamResponse.body) {
+            const reader = streamResponse.body.getReader();
+            const decoder = new TextDecoder();
+            let buffer = '';
 
-          while (true) {
-            const { value, done } = await reader.read();
-            if (done) break;
+            while (true) {
+              const { value, done } = await reader.read();
+              if (done) break;
 
-            buffer += decoder.decode(value, { stream: true });
-            const parts = buffer.split('\n\n');
-            buffer = parts.pop() || '';
+              buffer += decoder.decode(value, { stream: true });
+              const parts = buffer.split('\n\n');
+              buffer = parts.pop() || '';
 
-            for (const part of parts) {
-              const line = part.trim();
-              if (line.startsWith('data: ')) {
-                try {
-                  const event = JSON.parse(line.slice(6));
-                  if (event.type === 'progress') {
-                    const remaining = Math.max(0, (event.total || uciMoves.length) - (event.current || 0));
-                    setAnalysisProgress({
-                      current: event.current,
-                      total: event.total,
-                      percent: event.percent,
-                      moveSan: event.moveSan,
-                      estimatedSecondsRemaining: Math.max(1, Math.ceil(remaining * 0.25))
-                    });
-                  } else if (event.type === 'complete' && event.data) {
-                    freshData = event.data;
+              for (const part of parts) {
+                const line = part.trim();
+                if (line.startsWith('data: ')) {
+                  try {
+                    const event = JSON.parse(line.slice(6));
+                    if (event.type === 'progress') {
+                      const remaining = Math.max(0, (event.total || uciMoves.length) - (event.current || 0));
+                      setAnalysisProgress({
+                        current: event.current,
+                        total: event.total,
+                        percent: event.percent,
+                        moveSan: event.moveSan,
+                        estimatedSecondsRemaining: Math.max(1, Math.ceil(remaining * 0.25))
+                      });
+                    } else if (event.type === 'complete' && event.data) {
+                      freshData = event.data;
+                    }
+                  } catch (e) {
+                    // Non-fatal JSON parse error for keep-alives
                   }
-                } catch (e) {
-                  // Non-fatal JSON parse error for keep-alives
                 }
               }
             }
           }
+        } catch (streamErr) {
+          console.warn('[App] SSE analyze-stream unavailable, attempting fallback:', streamErr);
         }
-      } catch (streamErr) {
-        console.warn('[App] SSE analyze-stream unavailable, attempting fallback:', streamErr);
       }
 
-      // 2. Fallback: Client-side Stockfish WASM Web Worker
+      // 2. High-Performance Client-Side Stockfish WASM Web Worker (0ms network latency, offline-ready)
       if (!freshData) {
         try {
           const localResult = await analyzeGame({
@@ -466,20 +468,26 @@ export function App() {
         }
       }
 
-      // 3. Fallback: Standard synchronous /api/analyze endpoint
-      if (!freshData) {
-        const res = await fetch(`${API_BASE}/analyze`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            moves: uciMoves,
-            userColor: targetColor,
-            result: resultStr || (targetColor === 'w' ? '0-1' : '1-0')
-          })
-        });
-        const data = await res.json();
-        if (data.success) {
-          freshData = data;
+      // 3. Fallback: Standard synchronous /api/analyze endpoint (if dedicated backend is running)
+      if (!freshData && API_BASE.startsWith('http')) {
+        try {
+          const res = await fetch(`${API_BASE}/analyze`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              moves: uciMoves,
+              userColor: targetColor,
+              result: resultStr || (targetColor === 'w' ? '0-1' : '1-0')
+            })
+          });
+          if (res.ok) {
+            const data = await res.json();
+            if (data.success) {
+              freshData = data;
+            }
+          }
+        } catch (apiErr) {
+          console.warn('[App] Remote /api/analyze failed:', apiErr);
         }
       }
 
@@ -527,6 +535,10 @@ export function App() {
         } catch (storageErr) {
           console.warn('[App] Failed to save full game history to localStorage:', storageErr);
         }
+      } else {
+        console.error('[App] Failed to generate match analysis payload.');
+        setGameOverMessage('Match review could not be generated. Please try again.');
+        setMode('play');
       }
     } catch (err) {
       console.error('Analysis error:', err);
