@@ -1,11 +1,90 @@
 import React, { useState } from 'react';
 import { 
   Check, Sparkles, HelpCircle, ShieldCheck, Zap, 
-  ArrowRight, Key, Flame, DollarSign, Lock
+  ArrowRight, Key, Flame, DollarSign, Lock, CreditCard, Shield, AlertCircle
 } from 'lucide-react';
+import { initiateRazorpayCheckout } from '../../../services/razorpay';
+import { PaymentReceiptModal } from '../../PaymentReceiptModal';
 
 export function PricingPage({ onNavigate, onLaunchApp }) {
   const [billingCycle, setBillingCycle] = useState('yearly'); // 'monthly' | 'yearly'
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [receiptModal, setReceiptModal] = useState({
+    isOpen: false,
+    status: 'loading',
+    details: null
+  });
+
+  const handleCheckout = (planType) => {
+    let amount = 39900; // in paise
+    let planName = 'Apex Pro Monthly';
+    let description = 'Apex Pro 1-Month Membership';
+
+    if (planType === 'pro') {
+      if (billingCycle === 'monthly') {
+        amount = 39900; // ₹399.00
+        planName = 'Apex Pro Monthly';
+        description = 'Apex Pro 1-Month Membership';
+      } else {
+        amount = 319900; // ₹3,199.00
+        planName = 'Apex Pro Annual';
+        description = 'Apex Pro 1-Year Membership (Save 35%)';
+      }
+    } else if (planType === 'lifetime') {
+      amount = 489900; // ₹4,899.00 ($59)
+      planName = 'Apex Lifetime Founder';
+      description = 'Lifetime Access to All Pro Features Forever';
+    } else if (planType === 'test') {
+      amount = 100; // 100 paise = ₹1.00
+      planName = 'Razorpay Test Checkout';
+      description = 'Test Verification Transaction (₹1.00)';
+    }
+
+    setIsProcessing(true);
+    setReceiptModal({
+      isOpen: true,
+      status: 'loading',
+      details: { planName, amount, currency: 'INR' }
+    });
+
+    initiateRazorpayCheckout({
+      amount,
+      currency: 'INR',
+      planName,
+      description,
+      onSuccess: (verifyData) => {
+        setIsProcessing(false);
+        setReceiptModal({
+          isOpen: true,
+          status: 'success',
+          details: {
+            planName,
+            amount,
+            currency: 'INR',
+            order_id: verifyData.order_id,
+            payment_id: verifyData.payment_id
+          }
+        });
+      },
+      onFailure: (err) => {
+        setIsProcessing(false);
+        setReceiptModal({
+          isOpen: true,
+          status: 'failed',
+          details: {
+            planName,
+            amount,
+            currency: 'INR',
+            error: err.message || 'Payment transaction could not be completed.'
+          }
+        });
+      },
+      onDismiss: () => {
+        setIsProcessing(false);
+        setReceiptModal((prev) => ({ ...prev, isOpen: false }));
+      }
+    });
+  };
 
   return (
     <div className="min-h-screen text-slate-100 pt-28 pb-20 selection:bg-emerald-500/30 selection:text-emerald-200">
@@ -161,10 +240,12 @@ export function PricingPage({ onNavigate, onLaunchApp }) {
             </div>
 
             <button
-              onClick={onLaunchApp}
-              className="w-full py-3 rounded-xl text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-500 transition-colors shadow-md shadow-indigo-500/20"
+              onClick={() => handleCheckout('pro')}
+              disabled={isProcessing}
+              className="w-full py-3.5 rounded-xl text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-500 transition-colors shadow-md shadow-indigo-500/20 flex items-center justify-center gap-2 disabled:opacity-50"
             >
-              Start Apex Pro
+              <CreditCard size={14} />
+              <span>Start Apex Pro ({billingCycle === 'monthly' ? '₹399/mo' : '₹3,199/yr'})</span>
             </button>
           </div>
 
@@ -175,7 +256,7 @@ export function PricingPage({ onNavigate, onLaunchApp }) {
             </div>
             <div>
               <div className="text-xs font-bold uppercase tracking-wider text-emerald-400">4. Lifetime Founder</div>
-              <div className="text-3xl font-black text-white mt-2">$59 <span className="text-xs font-normal text-emerald-300">one-time</span></div>
+              <div className="text-3xl font-black text-white mt-2">₹4,899 <span className="text-xs font-normal text-emerald-300">($59 one-time)</span></div>
               <div className="text-xs text-emerald-400 font-semibold mt-1">Pay once, own forever</div>
               <p className="text-xs text-slate-400 mt-3 leading-relaxed">
                 For players who hate recurring bills. Own all features forever with zero monthly charges.
@@ -202,13 +283,39 @@ export function PricingPage({ onNavigate, onLaunchApp }) {
             </div>
 
             <button
-              onClick={onLaunchApp}
-              className="w-full py-3 rounded-xl text-xs font-black uppercase tracking-wider text-slate-950 bg-emerald-400 hover:bg-emerald-300 transition-colors shadow-lg shadow-emerald-500/30"
+              onClick={() => handleCheckout('lifetime')}
+              disabled={isProcessing}
+              className="w-full py-3.5 rounded-xl text-xs font-black uppercase tracking-wider text-slate-950 bg-emerald-400 hover:bg-emerald-300 transition-colors shadow-lg shadow-emerald-500/30 flex items-center justify-center gap-2 disabled:opacity-50"
             >
-              Get Lifetime Pass ($59)
+              <Sparkles size={14} />
+              <span>Get Lifetime Pass (₹4,899)</span>
             </button>
           </div>
 
+        </div>
+
+        {/* Razorpay Integration Trust Banner & Test Checkout */}
+        <div className="mt-8 p-4 rounded-2xl bg-slate-950/80 border border-emerald-500/30 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-emerald-500/15 border border-emerald-500/40 flex items-center justify-center text-emerald-400 shrink-0">
+              <ShieldCheck size={20} />
+            </div>
+            <div>
+              <div className="font-bold text-white flex items-center gap-2">
+                <span>Razorpay Standard Web Checkout Active</span>
+                <span className="px-2 py-0.5 rounded-full text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-mono">Test Gateway</span>
+              </div>
+              <div className="text-slate-400 text-[11px]">HMAC-SHA256 server verification • Instant Pro activation</div>
+            </div>
+          </div>
+          <button
+            onClick={() => handleCheckout('test')}
+            disabled={isProcessing}
+            className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-emerald-300 border border-emerald-500/40 font-bold text-xs transition-colors flex items-center gap-1.5 shrink-0 shadow-sm"
+          >
+            <CreditCard size={13} />
+            <span>⚡ Test ₹1.00 Checkout</span>
+          </button>
         </div>
       </div>
 
@@ -272,6 +379,15 @@ export function PricingPage({ onNavigate, onLaunchApp }) {
           </div>
         </div>
       </div>
+
+      {/* Payment Receipt & Confirmation Modal */}
+      <PaymentReceiptModal
+        isOpen={receiptModal.isOpen}
+        status={receiptModal.status}
+        details={receiptModal.details}
+        onClose={() => setReceiptModal({ isOpen: false, status: 'loading', details: null })}
+        onLaunchApp={onLaunchApp}
+      />
 
     </div>
   );
