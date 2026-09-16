@@ -292,4 +292,38 @@ The technical documentation suite has been established in the project directory:
 4. **Manual Clear / Reset Control (`client/src/components/AiCoachChat.jsx`)**:
    - Added a `RotateCcw` "Reset Chat History" action button to the coach header bar, allowing users to start a fresh dialogue on demand.
 
+---
+
+## 12. Razorpay Standard Web Checkout Integration 💳
+
+### 1. Architecture & Security Standards
+- **Stack Detected**: Dual runtime environment — Express Node.js backend (`server/index.js` on port 5000) alongside Vercel Serverless Functions (`client/api/`) and React 19 / Vite client.
+- **Zero Secret Exposure**:
+  - `RAZORPAY_KEY_SECRET` is strictly held on the server/backend and never bundled into client assets.
+  - Frontend only accesses `VITE_RAZORPAY_KEY_ID`.
+  - All `.env` files are ignored via `.gitignore`.
+
+### 2. Endpoints Implemented
+1. **Order Creation (`POST /api/create-order`)**:
+   - Accepts `{ amount, currency, receipt }`.
+   - Enforces a minimum of 100 paise (₹1.00).
+   - Generates server-side order using Razorpay SDK and returns `{ success: true, order_id, amount, currency }`.
+   - Implemented in both `server/index.js` and `client/api/create-order.js`.
+2. **Payment Verification (`POST /api/verify-payment`)**:
+   - Accepts `{ razorpay_order_id, razorpay_payment_id, razorpay_signature }`.
+   - Computes `HMAC-SHA256(order_id + "|" + payment_id, KEY_SECRET)`.
+   - Returns 200 on exact match, or 400 on signature mismatch or missing fields.
+   - Implemented in both `server/index.js` and `client/api/verify-payment.js`.
+
+### 3. Frontend Checkout Experience
+- Loaded official Razorpay SDK: `<script src="https://checkout.razorpay.com/v1/checkout.js"></script>`.
+- Client service (`client/src/services/razorpay.js`) handles order dispatch, modal triggers, error events (`payment.failed`), and signature verification requests.
+- Integrated into `PricingPage.jsx`:
+  - **Apex Pro Monthly** (₹399.00 / 39,900 paise).
+  - **Apex Pro Annual** (₹3,199.00 / 319,900 paise).
+  - **Lifetime Founder Pass** (₹4,899.00 / 489,900 paise).
+  - **⚡ Quick Test Checkout** (₹1.00 / 100 paise) for instant developer test verification.
+- `PaymentReceiptModal.jsx`: Visual feedback displaying real-time loading, detailed purchase receipt with Copy ID buttons, and payment failure diagnostic explanations.
+
+
 
