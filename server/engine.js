@@ -180,11 +180,16 @@ export class StockfishEngine {
     });
   }
 
-  evaluate({ fen, depth = 16, multiPv = 1 }) {
+  evaluate({ fen, depth = 14, multiPv = 1, movetime = 250 }) {
     return this.enqueue((done, fail) => {
+      const timeout = setTimeout(() => {
+        this.sendCommand('stop');
+      }, (movetime || 2500) + 1500);
+
       this.sendCommand(`setoption name MultiPV value ${multiPv}`);
       this.sendCommand(`position fen ${fen}`);
-      this.sendCommand(`go depth ${depth}`);
+      const goCmd = movetime ? `go depth ${depth} movetime ${movetime}` : `go depth ${depth}`;
+      this.sendCommand(goCmd);
 
       const variations = [];
       let finalBestMove = null;
@@ -217,6 +222,7 @@ export class StockfishEngine {
           }
 
           if (line.startsWith('bestmove ')) {
+            clearTimeout(timeout);
             finalBestMove = line.split(' ')[1];
             this.sendCommand('setoption name MultiPV value 1');
 

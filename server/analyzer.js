@@ -51,7 +51,7 @@ export function classifyMove({ scoreBefore, scoreAfter, bestMoveUci, playedMoveU
   return { classification: 'Good', label: 'Good', glyph: '✔', color: 'blue' };
 }
 
-export async function analyzeGame({ moves = [], initialFen = null }) {
+export async function analyzeGame({ moves = [], initialFen = null, onProgress = null }) {
   const chess = initialFen ? new Chess(initialFen) : new Chess();
   const states = [];
   states.push({
@@ -89,13 +89,28 @@ export async function analyzeGame({ moves = [], initialFen = null }) {
     }
   }
 
-  console.log(`[Analyzer] Evaluating ${states.length} positions with Stockfish 19...`);
+  console.log(`[Analyzer] Evaluating ${states.length} positions with Stockfish 19 (depth 14, 250ms cap)...`);
 
   const evals = [];
   for (let i = 0; i < states.length; i++) {
     const s = states[i];
-    const evalResult = await stockfishEngine.evaluate({ fen: s.fen, depth: 16 });
+    const evalResult = await stockfishEngine.evaluate({
+      fen: s.fen,
+      depth: 14,
+      movetime: 250
+    });
     evals.push(evalResult);
+
+    if (onProgress) {
+      onProgress({
+        current: i + 1,
+        total: states.length,
+        percent: Math.round(((i + 1) / states.length) * 100),
+        moveSan: s.moveSan,
+        fen: s.fen,
+        score: evalResult.primaryScore
+      });
+    }
   }
 
   let whiteAccuracySum = 0;

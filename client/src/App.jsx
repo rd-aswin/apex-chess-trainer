@@ -12,6 +12,7 @@ import { AiCoachChat } from './components/AiCoachChat';
 import { UpdateModal } from './components/UpdateModal';
 import ImportGameModal from './components/ImportGameModal';
 import { LandingView } from './components/landing/LandingView';
+import { AnalysisLoadingHUD } from './components/AnalysisLoadingHUD';
 import { useSoundEffects } from './hooks/useSoundEffects';
 import { Swords, RotateCcw, Flag, Sparkles, Award, History, Volume2, VolumeX, Monitor, Bot, RefreshCw, UploadCloud, Loader2 } from 'lucide-react';
 import { API_BASE } from './config';
@@ -245,7 +246,7 @@ export function App() {
     }
   };
 
-  // Run Match Analysis (with client-side WASM engine & caching)
+  // Run Match Analysis (with SSE real-time streaming, client WASM fallback & caching)
   const triggerMatchAnalysis = async (gameMoves, resultStr = '') => {
     const uciMoves = gameMoves.map((m) => m.uci);
     const currentKey = uciMoves.join(',');
@@ -257,46 +258,24 @@ export function App() {
       return;
     }
 
+    // Immediately transition to review mode so the user sees the active analysis workspace & HUD
+    setMode('review');
+    setReviewTab('coach');
     setIsAnalyzing(true);
-    setAnalysisProgress({ current: 0, total: uciMoves.length, percent: 5 });
+    const initialEta = Math.max(2, Math.ceil(uciMoves.length * 0.25));
+    setAnalysisProgress({
+      current: 0,
+      total: uciMoves.length,
+      percent: 5,
+      estimatedSecondsRemaining: initialEta
+    });
+
+    let freshData = null;
 
     try {
-      // 1. Primary: Run 100% locally in Stockfish WASM Web Worker
-      const localResult = await analyzeGame({
-        moves: uciMoves,
-        onProgress: ({ current, total, percent }) => {
-          setAnalysisProgress({ current, total, percent });
-        }
-      });
-
-      if (localResult && localResult.steps && localResult.steps.length > 0) {
-        const fullData = { success: true, ...localResult };
-        setAnalysis(fullData);
-        setAnalyzedKey(currentKey);
-        setMode('review');
-        setReviewTab('coach');
-        handleSelectPly(gameMoves.length, fullData);
-
-        // Save match locally to browser history
-        try {
-          const pastHistory = JSON.parse(localStorage.getItem('apex_chess_history') || '[]');
-          const newEntry = {
-            id: Date.now().toString(),
-            date: new Date().toLocaleDateString(),
-            moves: uciMoves,
-            result: resultStr || (userColor === 'w' ? '0-1' : '1-0'),
-            userColor,
-            accuracy: localResult.accuracy,
-            stepsCount: localResult.steps.length
-          };
-          localStorage.setItem('apex_chess_history', JSON.stringify([newEntry, ...pastHistory.slice(0, 49)]));
-        } catch (storageErr) {}
-        return;
-      }
-    } catch (wasmErr) {
-      console.warn('[App] Local WASM analysis failed, attempting API fallback:', wasmErr);
+      // 1. Primary: Stream real-time progress from Stockfish 19 backend via SSE
       try {
-        const res = await fetch(`${API_BASE}/analyze`, {
+        const streamResponse = await fetch(`${API_BASE}/analyze-stream`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -306,17 +285,113 @@ export function App() {
           })
         });
 
+        if (streamResponse.ok && streamResponse.body) {
+          const reader = streamResponse.body.getReader();
+          const decoder = new TextDecoder();
+          let buffer = '';
+
+          while (true) {
+            const { value, done } = await reader.read();
+            if (done) break;
+
+            buffer += decoder.decode(value, { stream: true });
+            const parts = buffer.split('\n\n');
+            buffer = parts.pop() || '';
+
+            for (const part of parts) {
+              const line = part.trim();
+              if (line.startsWith('data: ')) {
+                try {
+                  const event = JSON.parse(line.slice(6));
+                  if (event.type === 'progress') {
+                    const remaining = Math.max(0, (event.total || uciMoves.length) - (event.current || 0));
+                    setAnalysisProgress({
+                      current: event.current,
+                      total: event.total,
+                      percent: event.percent,
+                      moveSan: event.moveSan,
+                      estimatedSecondsRemaining: Math.max(1, Math.ceil(remaining * 0.25))
+                    });
+                  } else if (event.type === 'complete' && event.data) {
+                    freshData = event.data;
+                  }
+                } catch (e) {
+                  // Non-fatal JSON parse error for keep-alives
+                }
+              }
+            }
+          }
+        }
+      } catch (streamErr) {
+        console.warn('[App] SSE analyze-stream unavailable, attempting fallback:', streamErr);
+      }
+
+      // 2. Fallback: Client-side Stockfish WASM Web Worker
+      if (!freshData) {
+        try {
+          const localResult = await analyzeGame({
+            moves: uciMoves,
+            onProgress: ({ current, total, percent }) => {
+              const remaining = Math.max(0, total - current);
+              setAnalysisProgress({
+                current,
+                total,
+                percent,
+                estimatedSecondsRemaining: Math.max(1, Math.ceil(remaining * 0.35))
+              });
+            }
+          });
+
+          if (localResult && localResult.steps && localResult.steps.length > 0) {
+            freshData = { success: true, ...localResult };
+          }
+        } catch (wasmErr) {
+          console.warn('[App] Local WASM analysis failed, attempting standard API:', wasmErr);
+        }
+      }
+
+      // 3. Fallback: Standard synchronous /api/analyze endpoint
+      if (!freshData) {
+        const res = await fetch(`${API_BASE}/analyze`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            moves: uciMoves,
+            userColor,
+            result: resultStr || (userColor === 'w' ? '0-1' : '1-0')
+          })
+        });
         const data = await res.json();
         if (data.success) {
-          setAnalysis(data);
-          setAnalyzedKey(currentKey);
-          setMode('review');
-          setReviewTab('coach');
-          handleSelectPly(gameMoves.length, data);
+          freshData = data;
         }
-      } catch (err) {
-        console.error('Analysis error:', err);
       }
+
+      // Apply fresh analysis payload directly to handlers (Rule 5 compliance)
+      if (freshData && freshData.success) {
+        setAnalysis(freshData);
+        setAnalyzedKey(currentKey);
+        setMode('review');
+        setReviewTab('coach');
+        handleSelectPly(gameMoves.length, freshData);
+
+        // Save match locally to browser history
+        try {
+          const pastHistory = JSON.parse(localStorage.getItem('apex_chess_history') || '[]');
+          const newEntry = {
+            id: freshData.gameId || Date.now().toString(),
+            date: new Date().toLocaleDateString(),
+            moves: uciMoves,
+            result: resultStr || (userColor === 'w' ? '0-1' : '1-0'),
+            userColor,
+            accuracy: freshData.accuracy,
+            stepsCount: freshData.steps ? freshData.steps.length : 0
+          };
+          localStorage.setItem('apex_chess_history', JSON.stringify([newEntry, ...pastHistory.slice(0, 49)]));
+        } catch (storageErr) {}
+      }
+    } catch (err) {
+      console.error('Analysis error:', err);
     } finally {
       setIsAnalyzing(false);
       setAnalysisProgress(null);
@@ -714,54 +789,130 @@ export function App() {
       setMode('review');
       setReviewTab('coach');
       setIsAnalyzing(true);
-      setAnalysisProgress({ current: 0, total: uciMoves.length, percent: 5 });
+      const initialEta = Math.max(2, Math.ceil(uciMoves.length * 0.25));
+      setAnalysisProgress({
+        current: 0,
+        total: uciMoves.length,
+        percent: 5,
+        estimatedSecondsRemaining: initialEta
+      });
 
+      const outcomeResult = importedGame.userOutcome === 'win' 
+        ? (assignedColor === 'w' ? '1-0' : '0-1')
+        : (assignedColor === 'w' ? '0-1' : '1-0');
+
+      let freshData = null;
+
+      // 1. Primary: Stream real-time progress from Stockfish 19 backend via SSE
       try {
-        // 1. Primary: Run client-side Stockfish WASM analysis
-        const localResult = await analyzeGame({
-          moves: uciMoves,
-          onProgress: ({ current, total, percent }) => {
-            setAnalysisProgress({ current, total, percent });
+          const streamResponse = await fetch(`${API_BASE}/analyze-stream`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              moves: uciMoves,
+              userColor: assignedColor,
+              result: outcomeResult
+            })
+          });
+
+          if (streamResponse.ok && streamResponse.body) {
+            const reader = streamResponse.body.getReader();
+            const decoder = new TextDecoder();
+            let buffer = '';
+
+            while (true) {
+              const { value, done } = await reader.read();
+              if (done) break;
+
+              buffer += decoder.decode(value, { stream: true });
+              const parts = buffer.split('\n\n');
+              buffer = parts.pop() || '';
+
+              for (const part of parts) {
+                const line = part.trim();
+                if (line.startsWith('data: ')) {
+                  try {
+                    const event = JSON.parse(line.slice(6));
+                    if (event.type === 'progress') {
+                      const remaining = Math.max(0, (event.total || uciMoves.length) - (event.current || 0));
+                      setAnalysisProgress({
+                        current: event.current,
+                        total: event.total,
+                        percent: event.percent,
+                        moveSan: event.moveSan,
+                        estimatedSecondsRemaining: Math.max(1, Math.ceil(remaining * 0.25))
+                      });
+                    } else if (event.type === 'complete' && event.data) {
+                      freshData = event.data;
+                    }
+                  } catch (e) {
+                    // Non-fatal parse warning
+                  }
+                }
+              }
+            }
           }
-        });
-
-        if (localResult && localResult.steps && localResult.steps.length > 0) {
-          const fullData = { success: true, ...localResult };
-          setAnalysis(fullData);
-          setAnalyzedKey(currentKey);
-          handleSelectPly(loadedMoves.length, fullData);
-          return;
+        } catch (streamErr) {
+          console.warn('[App] SSE analyze-stream for imported game failed, attempting fallback:', streamErr);
         }
-      } catch (wasmErr) {
-        console.warn('[App] Local WASM analysis for imported game failed, falling back to API:', wasmErr);
-        const res = await fetch(`${API_BASE}/analyze`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            moves: uciMoves,
-            userColor: assignedColor,
-            result: importedGame.userOutcome === 'win' 
-              ? (assignedColor === 'w' ? '1-0' : '0-1')
-              : (assignedColor === 'w' ? '0-1' : '1-0')
-          })
-        });
 
-        const data = await res.json();
-        if (data.success) {
-          setAnalysis(data);
-          setAnalyzedKey(currentKey);
-          handleSelectPly(loadedMoves.length, data);
-        } else {
-          console.warn('Backend analysis returned unsuccessful:', data.error);
+        // 2. Fallback: Client-side Stockfish WASM analysis
+        if (!freshData) {
+          try {
+            const localResult = await analyzeGame({
+              moves: uciMoves,
+              onProgress: ({ current, total, percent }) => {
+                const remaining = Math.max(0, total - current);
+                setAnalysisProgress({
+                  current,
+                  total,
+                  percent,
+                  estimatedSecondsRemaining: Math.max(1, Math.ceil(remaining * 0.35))
+                });
+              }
+            });
+
+            if (localResult && localResult.steps && localResult.steps.length > 0) {
+              freshData = { success: true, ...localResult };
+            }
+          } catch (wasmErr) {
+            console.warn('[App] Local WASM analysis for imported game failed:', wasmErr);
+          }
         }
+
+        // 3. Fallback: Standard synchronous /api/analyze endpoint
+        if (!freshData) {
+          const res = await fetch(`${API_BASE}/analyze`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              moves: uciMoves,
+              userColor: assignedColor,
+              result: outcomeResult
+            })
+          });
+
+          const data = await res.json();
+          if (data.success) {
+            freshData = data;
+          } else {
+            console.warn('Backend analysis returned unsuccessful:', data.error);
+          }
+        }
+
+        // Apply fresh analysis payload directly to handlers (Rule 5 compliance)
+        if (freshData && freshData.success) {
+          setAnalysis(freshData);
+          setAnalyzedKey(currentKey);
+          handleSelectPly(loadedMoves.length, freshData);
+        }
+      } catch (err) {
+        console.error('Failed to import and analyze game:', err);
+      } finally {
+        setIsAnalyzing(false);
+        setAnalysisProgress(null);
       }
-    } catch (err) {
-      console.error('Failed to import and analyze game:', err);
-    } finally {
-      setIsAnalyzing(false);
-      setAnalysisProgress(null);
-    }
-  };
+    };
 
   const currentStep = useMemo(() => {
     if (!analysis || !analysis.steps || currentPly === 0) return null;
@@ -859,9 +1010,9 @@ export function App() {
           </button>
 
           {isAnalyzing && (
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 text-xs font-semibold animate-pulse">
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 text-xs font-semibold">
               <Loader2 size={13} className="animate-spin text-emerald-400" />
-              <span className="hidden sm:inline">Stockfish Analyzing...</span>
+              <span className="font-mono">{analysisProgress?.percent ? `Analyzing ${analysisProgress.percent}%` : 'Stockfish Analyzing...'}</span>
             </div>
           )}
 
@@ -944,39 +1095,12 @@ export function App() {
             </div>
           )}
 
-          {/* Review Mode - Stockfish Analysis In-Progress HUD */}
-          {mode === 'review' && isAnalyzing && (
-            <div className="p-3.5 bg-gradient-to-b from-emerald-950/40 via-slate-900 to-slate-900 border-b border-emerald-500/30 flex flex-col gap-2.5 shrink-0 animate-in fade-in duration-200">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-xs font-bold text-emerald-400">
-                  <Loader2 size={15} className="animate-spin text-emerald-400 shrink-0" />
-                  <span>Stockfish WASM Evaluating Match...</span>
-                </div>
-                <span className="text-[10px] font-mono uppercase tracking-wider font-semibold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                  {analysisProgress ? `${analysisProgress.percent}%` : 'Client-Side'}
-                </span>
-              </div>
-              
-              <p className="text-[11px] text-slate-300 leading-relaxed">
-                {analysisProgress && analysisProgress.total > 0
-                  ? `Analyzing move ${analysisProgress.current} of ${analysisProgress.total} directly on your device (${analysisProgress.percent}%).`
-                  : `Calculating move qualities, blunders, and refutations for all ${moves.length} moves directly on your device.`}
-              </p>
-
-              <div className="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
-                <div
-                  className="h-full bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-400 rounded-full transition-all duration-300"
-                  style={{ width: `${analysisProgress?.percent || 15}%` }}
-                />
-              </div>
-
-              <div className="flex items-center justify-between text-[10px] text-slate-400 pt-0.5">
-                <span>⚡ 0ms Network Delay (WASM Web Worker)</span>
-                <span className="text-emerald-400 font-medium">
-                  ♟️ Move navigation active below
-                </span>
-              </div>
-            </div>
+          {/* Analysis In-Progress HUD (Glowing Progress, ETA, & Anti-Boredom Grandmaster Wisdom Carousel) */}
+          {isAnalyzing && (
+            <AnalysisLoadingHUD
+              progress={analysisProgress}
+              moveCount={moves.length}
+            />
           )}
 
           {/* Review Mode Tabs */}

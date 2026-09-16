@@ -1,0 +1,217 @@
+import React, { useState, useEffect } from 'react';
+import { 
+  Loader2, Sparkles, ChevronLeft, ChevronRight, Lightbulb, 
+  Clock, CheckCircle2, ShieldCheck, Swords, Bot, Target, Brain, Flame
+} from 'lucide-react';
+
+const CHESS_TIPS = [
+  {
+    category: 'Calculation',
+    title: 'The C-C-T Calculation Priority',
+    tip: 'In any complex position, calculate in this strict order: 1. Checks, 2. Captures, 3. Threats. Forcing moves narrow down candidate branches.'
+  },
+  {
+    category: 'Tactics',
+    title: 'The "Removed Guard" Danger',
+    tip: 'Over 38% of club blunders occur when a piece moves away, unintentionally abandoning the defense of another friendly piece or key square.'
+  },
+  {
+    category: 'Prophylaxis',
+    title: 'Ask the Grandmaster Question',
+    tip: 'Before deciding on your attack, always ask: "If my opponent had two moves in a row, what would they play?" Prevent their threats first.'
+  },
+  {
+    category: 'King Safety',
+    title: 'Respect the f-Pawn Shield',
+    tip: 'Never push your f-pawn (f4 or f5) if your king is still in the center or if the e1-h4 / e8-h5 diagonal is vulnerable to enemy queen checks.'
+  },
+  {
+    category: 'Middlegame',
+    title: 'Knight Outpost Domination',
+    tip: 'A knight anchored on the 5th or 6th rank that cannot be driven away by enemy pawns is often worth as much as a rook.'
+  },
+  {
+    category: 'Pawn Structure',
+    title: 'Pawn Moves Are Irreversible',
+    tip: 'Every pawn push permanently surrenders control of adjacent squares. Be certain you want the open space before lunging forward.'
+  },
+  {
+    category: 'Endgame',
+    title: 'The King Is an Attacking Piece',
+    tip: 'Once queens leave the board, your king transforms from a liability into a fighting weapon. March your king actively toward the center!'
+  },
+  {
+    category: 'Rook Strategy',
+    title: 'Rooks Belong on the 7th Rank',
+    tip: 'A rook on the 7th (or 2nd) rank paralyzes the enemy king, gobbles unadvanced pawns, and sets up decisive mating nets.'
+  },
+  {
+    category: 'Psychology',
+    title: 'Sit on Your Hands for 3 Seconds',
+    tip: 'When you spot a winning move, stop! Take 3 seconds to look for an even better move, or verify that you are not walking into an in-between check.'
+  },
+  {
+    category: 'Endgame',
+    title: 'Active Defense in Rook Endings',
+    tip: 'Passive defense loses rook endgames. Place your rook behind passed pawns (yours or your opponent’s) to maximize your scope.'
+  },
+  {
+    category: 'Engine Fact',
+    title: 'Stockfish 19 Dual-NNUE Brain',
+    tip: 'Stockfish 19 uses deep neural evaluation networks trained on billions of positions, calculating millions of nodes every second on your CPU.'
+  },
+  {
+    category: 'Opening',
+    title: 'Develop With Threats',
+    tip: 'The fastest way to build an opening initiative is to develop minor pieces while simultaneously attacking unprotected enemy targets.'
+  },
+  {
+    category: 'Tactics',
+    title: 'The Overloaded Defender',
+    tip: 'When an enemy piece is tasked with guarding two different squares at once, look for a strike that forces it to abandon one of them.'
+  },
+  {
+    category: 'Mindset',
+    title: 'Accepting Defeat as Data',
+    tip: 'Superhuman engines punish every inaccuracy with ruthless math. Every loss analyzed in Apex is a permanent upgrade to your subconscious radar.'
+  }
+];
+
+export function AnalysisLoadingHUD({ progress, moveCount = 0 }) {
+  const [tipIndex, setTipIndex] = useState(() => Math.floor(Math.random() * CHESS_TIPS.length));
+  const [isFading, setIsFading] = useState(false);
+
+  // Auto-rotate tips every 4.5 seconds
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setIsFading(true);
+      setTimeout(() => {
+        setTipIndex((prev) => (prev + 1) % CHESS_TIPS.length);
+        setIsFading(false);
+      }, 200);
+    }, 4500);
+
+    return () => clearInterval(timer);
+  }, []);
+
+  const handleNextTip = () => {
+    setIsFading(true);
+    setTimeout(() => {
+      setTipIndex((prev) => (prev + 1) % CHESS_TIPS.length);
+      setIsFading(false);
+    }, 150);
+  };
+
+  const handlePrevTip = () => {
+    setIsFading(true);
+    setTimeout(() => {
+      setTipIndex((prev) => (prev - 1 + CHESS_TIPS.length) % CHESS_TIPS.length);
+      setIsFading(false);
+    }, 150);
+  };
+
+  const currentTip = CHESS_TIPS[tipIndex];
+  const percent = Math.min(100, Math.max(0, progress?.percent || 5));
+  const isComplete = percent >= 100;
+
+  return (
+    <div className="p-4 bg-gradient-to-b from-slate-900 via-slate-950 to-slate-900 border-b border-slate-800 flex flex-col gap-3.5 shrink-0 select-none shadow-lg animate-in fade-in duration-200">
+      
+      {/* Header Status Bar */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          {isComplete ? (
+            <CheckCircle2 size={16} className="text-emerald-400 shrink-0" />
+          ) : (
+            <Loader2 size={16} className="animate-spin text-emerald-400 shrink-0" />
+          )}
+          <span className="text-xs font-bold text-white tracking-wide">
+            {isComplete ? 'Analysis Complete!' : 'Stockfish 19 Analyzing Match'}
+          </span>
+        </div>
+
+        <div className="flex items-center gap-1.5">
+          <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+            {percent}%
+          </span>
+          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700 hidden sm:inline">
+            Skill 20 Locked
+          </span>
+        </div>
+      </div>
+
+      {/* Progress Bar with Glow */}
+      <div className="space-y-1.5">
+        <div className="w-full bg-slate-950 rounded-full h-2.5 p-0.5 border border-slate-800 overflow-hidden shadow-inner">
+          <div
+            className="h-full bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-300 rounded-full transition-all duration-300 shadow-sm shadow-emerald-500/50"
+            style={{ width: `${Math.max(5, percent)}%` }}
+          />
+        </div>
+
+        <div className="flex items-center justify-between text-[11px] text-slate-400">
+          <span className="font-mono">
+            {progress?.current && progress?.total
+              ? `Position ${progress.current} of ${progress.total}`
+              : `Evaluating match moves (${moveCount} plies)...`}
+            {progress?.moveSan ? ` • ${progress.moveSan}` : ''}
+          </span>
+          <span className="text-slate-400 font-mono text-[10px] flex items-center gap-1">
+            <Clock size={11} className="text-emerald-400" />
+            {progress?.estimatedSecondsRemaining !== undefined
+              ? `~${progress.estimatedSecondsRemaining}s remaining`
+              : 'Fast NNUE scan'}
+          </span>
+        </div>
+      </div>
+
+      {/* Anti-Boredom Chess Wisdom Carousel */}
+      <div className="bg-slate-900/90 border border-slate-800/90 rounded-xl p-3 relative overflow-hidden shadow-md">
+        <div className="flex items-center justify-between mb-1.5">
+          <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-amber-400">
+            <Lightbulb size={13} className="text-amber-400" />
+            <span>Grandmaster Tip • {currentTip.category}</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={handlePrevTip}
+              className="p-1 rounded hover:bg-slate-800 text-slate-400 hover:text-white transition-colors"
+              title="Previous Tip"
+            >
+              <ChevronLeft size={13} />
+            </button>
+            <span className="text-[9px] font-mono text-slate-400">
+              {tipIndex + 1}/{CHESS_TIPS.length}
+            </span>
+            <button
+              onClick={handleNextTip}
+              className="p-1 rounded hover:bg-slate-800 text-slate-400 hover:text-white transition-colors"
+              title="Next Tip"
+            >
+              <ChevronRight size={13} />
+            </button>
+          </div>
+        </div>
+
+        <div className={`transition-opacity duration-200 ${isFading ? 'opacity-0' : 'opacity-100'}`}>
+          <div className="text-xs font-bold text-slate-200 mb-1">
+            {currentTip.title}
+          </div>
+          <p className="text-[11px] text-slate-400 leading-relaxed">
+            {currentTip.tip}
+          </p>
+        </div>
+      </div>
+
+      {/* Interactivity Notice (Rule 5 Compliance) */}
+      <div className="flex items-center justify-between text-[10px] text-slate-400 pt-0.5 px-0.5">
+        <span className="flex items-center gap-1 text-emerald-400 font-medium">
+          <Sparkles size={11} />
+          <span>You can click moves below to inspect the board</span>
+        </span>
+        <span className="text-slate-400">0ms Network Lag</span>
+      </div>
+
+    </div>
+  );
+}

@@ -105,7 +105,15 @@ app.post('/api/analyze', async (req, res) => {
     }
 
     console.log(`[API /analyze] Starting fresh match analysis for ${moves.length} moves...`);
-    const analysis = await analyzeGame({ moves, initialFen });
+    const analysis = await analyzeGame({
+      moves,
+      initialFen,
+      onProgress: (p) => {
+        if (p.current % 5 === 0 || p.current === p.total) {
+          console.log(`[Analyzer] Position ${p.current}/${p.total} (${p.percent}%) evaluated - ${p.moveSan || 'start'}`);
+        }
+      }
+    });
 
     const saved = saveGameToHistory({
       moves,
@@ -125,6 +133,72 @@ app.post('/api/analyze', async (req, res) => {
   } catch (err) {
     console.error('[API /analyze Error]:', err);
     res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// 3b. Real-Time Streaming Game Analysis (SSE)
+app.post('/api/analyze-stream', async (req, res) => {
+  try {
+    const { moves = [], initialFen, userColor = 'w', result = '1-0' } = req.body;
+    console.log(`[API /analyze-stream] Stream request for ${moves.length} moves...`);
+
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.flushHeaders?.();
+
+    // Check cached game
+    const cachedGame = findGameByMoves(moves);
+    if (cachedGame && cachedGame.steps && cachedGame.steps.length > 0) {
+      console.log(`[API /analyze-stream] Serving cached analysis for game ${cachedGame.id}`);
+      res.write(`data: ${JSON.stringify({
+        type: 'complete',
+        data: {
+          success: true,
+          gameId: cachedGame.id,
+          accuracy: cachedGame.accuracy,
+          counts: cachedGame.counts,
+          steps: cachedGame.steps,
+          fromCache: true
+        }
+      })}\n\n`);
+      return res.end();
+    }
+
+    const analysis = await analyzeGame({
+      moves,
+      initialFen,
+      onProgress: (progress) => {
+        if (progress.current % 5 === 0 || progress.current === progress.total) {
+          console.log(`[Analyzer Stream] Position ${progress.current}/${progress.total} (${progress.percent}%) - ${progress.moveSan || 'start'}`);
+        }
+        res.write(`data: ${JSON.stringify({ type: 'progress', ...progress })}\n\n`);
+      }
+    });
+
+    const saved = saveGameToHistory({
+      moves,
+      initialFen,
+      userColor,
+      result,
+      accuracy: analysis.accuracy,
+      counts: analysis.counts,
+      steps: analysis.steps
+    });
+
+    res.write(`data: ${JSON.stringify({
+      type: 'complete',
+      data: {
+        success: true,
+        gameId: saved ? saved.id : null,
+        ...analysis
+      }
+    })}\n\n`);
+    res.end();
+  } catch (err) {
+    console.error('[API /analyze-stream Error]:', err);
+    res.write(`data: ${JSON.stringify({ type: 'error', error: err.message })}\n\n`);
+    res.end();
   }
 });
 
