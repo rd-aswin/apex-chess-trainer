@@ -1,6 +1,6 @@
-const CACHE_NAME = 'apex-chess-v3';
+const CACHE_NAME = 'apex-chess-v4';
 
-self.addEventListener('install', (event) => {
+self.addEventListener('install', () => {
   self.skipWaiting();
 });
 
@@ -15,9 +15,12 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  if (event.request.url.includes('/api/')) {
-    return;
-  }
+  // Only intercept HTTP/HTTPS GET requests (safely ignores chrome-extension:// and other schemes)
+  if (event.request.method !== 'GET') return;
+  if (!event.request.url.startsWith('http://') && !event.request.url.startsWith('https://')) return;
+
+  // Never cache API calls
+  if (event.request.url.includes('/api/')) return;
 
   // Always fetch latest HTML from network
   if (event.request.mode === 'navigate' || event.request.destination === 'document') {
@@ -26,7 +29,7 @@ self.addEventListener('fetch', (event) => {
         .then((response) => {
           if (response.ok) {
             const clone = response.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone)).catch(() => {});
           }
           return response;
         })
@@ -41,7 +44,7 @@ self.addEventListener('fetch', (event) => {
         .then((response) => {
           if (response.ok) {
             const clone = response.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone)).catch(() => {});
           }
           return response;
         })

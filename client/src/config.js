@@ -1,6 +1,13 @@
 /**
  * Centralized Application Configuration
- * Dynamically resolves API_BASE from VITE_API_BASE environment variable in production (e.g. Hugging Face Spaces),
- * falling back to local Express server on port 5000 during development.
+ * Dynamically resolves API_BASE.
+ * In production on Vercel, defaults to '/api' (using native Vercel serverless functions),
+ * unless a valid external backend override (e.g. Hugging Face Spaces) is explicitly provided.
+ * Discards decommissioned Render URLs.
  */
-export const API_BASE = import.meta.env.VITE_API_BASE || (import.meta.env.PROD ? '/api' : 'http://localhost:5000/api');
+const configuredBase = import.meta.env.VITE_API_BASE;
+const isObsoleteRender = configuredBase && configuredBase.includes('onrender.com');
+
+export const API_BASE = (configuredBase && !isObsoleteRender)
+  ? configuredBase
+  : (import.meta.env.PROD ? '/api' : 'http://localhost:5000/api');
