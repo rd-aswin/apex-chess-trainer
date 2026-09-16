@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Loader2, Sparkles, ChevronLeft, ChevronRight, Lightbulb, 
-  Clock, CheckCircle2, ShieldCheck, Swords, Bot, Target, Brain, Flame
+  Clock, CheckCircle2, ShieldCheck, Swords, Bot, Target, Brain, Flame,
+  Cpu, Zap
 } from 'lucide-react';
 
 const CHESS_TIPS = [
