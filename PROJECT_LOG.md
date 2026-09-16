@@ -272,3 +272,24 @@ The technical documentation suite has been established in the project directory:
    - Uses `fetch` with `ReadableStream` reader to parse SSE progress events in real time.
    - Passes fresh analysis payload directly as an argument to `handleSelectPly(gameMoves.length, freshData)` upon completion.
 
+---
+
+## 11. AI Coach Chat Persistence Across Tabs & Play Modes 💬
+
+### 1. The Issue
+- Previously, `AiCoachChat` held its messages inside local React component state (`const [messages, setMessages] = useState(...)`).
+- Whenever a user switched tabs in Review Mode (e.g. from "Ask Coach" to "Coach Review" or "Accuracy"), `AiCoachChat` was unmounted from the DOM, permanently wiping the conversation history and resetting to the initial greeting.
+- Similarly, opening the coach during live play, closing the modal to make a move, and re-opening it reset the discussion.
+
+### 2. Solutions Implemented
+1. **Lifted State & Session Storage Sync (`client/src/App.jsx`)**:
+   - Lifted `coachMessages` into top-level `App` state, initialized from and synced to `sessionStorage` (`apex_coach_messages`).
+   - The conversation seamlessly survives tab switches, play/review modal transitions, and page reloads.
+2. **DOM-Mounted Preservation**:
+   - In Review Mode, `AiCoachChat` remains mounted in the DOM using responsive visibility (`hidden` vs `flex flex-col`), ensuring scroll positions, draft input text, and settings remain untouched when switching between tabs.
+3. **Shared Play & Review Conversation**:
+   - The Play Mode Coach modal and the Review Mode Coach tab now share the exact same `coachMessages` stream, enabling users to continue discussing the match post-game.
+4. **Manual Clear / Reset Control (`client/src/components/AiCoachChat.jsx`)**:
+   - Added a `RotateCcw` "Reset Chat History" action button to the coach header bar, allowing users to start a fresh dialogue on demand.
+
+
