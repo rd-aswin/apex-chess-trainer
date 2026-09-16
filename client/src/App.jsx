@@ -11,6 +11,7 @@ import { DesktopAppModal } from './components/DesktopAppModal';
 import { AiCoachChat, DEFAULT_COACH_MESSAGE } from './components/AiCoachChat';
 import { UpdateModal } from './components/UpdateModal';
 import ImportGameModal from './components/ImportGameModal';
+import { DailyQuotaLimitModal } from './components/DailyQuotaLimitModal';
 import { LandingView } from './components/landing/LandingView';
 import { AnalysisLoadingHUD } from './components/AnalysisLoadingHUD';
 import { useSoundEffects } from './hooks/useSoundEffects';
@@ -18,6 +19,7 @@ import { Swords, RotateCcw, Flag, Sparkles, Award, History, Volume2, VolumeX, Mo
 import { API_BASE } from './config';
 import { wasmEngine } from './services/wasmEngine';
 import { analyzeGame } from './services/analyzer';
+import { getDailyQuota, consumeDailyReview } from './utils/dailyQuota';
 
 export function App() {
   // Game & Board State
@@ -86,6 +88,8 @@ export function App() {
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [updateAvailableBadge, setUpdateAvailableBadge] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
+  const [isDailyQuotaModalOpen, setIsDailyQuotaModalOpen] = useState(false);
+  const [quotaState, setQuotaState] = useState(() => getDailyQuota());
 
   // View state: 'landing' (19-page marketing website) vs 'app' (chess trainer board)
   const [view, setView] = useState(() => {
@@ -108,6 +112,17 @@ export function App() {
     };
     window.addEventListener('hashchange', handleHash);
     return () => window.removeEventListener('hashchange', handleHash);
+  }, []);
+
+  // Sync daily quota state across tabs and settings changes
+  useEffect(() => {
+    const handleSync = () => setQuotaState(getDailyQuota());
+    window.addEventListener('storage', handleSync);
+    window.addEventListener('focus', handleSync);
+    return () => {
+      window.removeEventListener('storage', handleSync);
+      window.removeEventListener('focus', handleSync);
+    };
   }, []);
 
   // Pre-warm client-side Stockfish WASM engine on mount
@@ -284,6 +299,17 @@ export function App() {
       setReviewTab('coach');
       return;
     }
+
+    // Check daily free review quota
+    const currentQuota = getDailyQuota();
+    if (!currentQuota.canReview) {
+      setIsDailyQuotaModalOpen(true);
+      return;
+    }
+
+    // Consume 1 review from daily quota
+    const updatedQuota = consumeDailyReview();
+    setQuotaState(updatedQuota);
 
     // Immediately transition to review mode so the user sees the active analysis workspace & HUD
     setMode('review');
@@ -809,6 +835,19 @@ export function App() {
       setGameOverMessage(matchLabel);
       setCapturedPieces(computeCapturedPieces(stepChess));
 
+      // Check daily free review quota
+      const currentQuota = getDailyQuota();
+      if (!currentQuota.canReview) {
+        setIsDailyQuotaModalOpen(true);
+        setMode('review');
+        setReviewTab('coach');
+        return;
+      }
+
+      // Consume 1 review from daily quota
+      const updatedQuota = consumeDailyReview();
+      setQuotaState(updatedQuota);
+
       // Switch to review mode and trigger Stockfish 19 & AI Coach analysis
       const uciMoves = loadedMoves.map((m) => m.uci);
       const currentKey = uciMoves.join(',');
@@ -1036,6 +1075,26 @@ export function App() {
             <span className="hidden sm:inline">Pricing & Site</span>
           </button>
 
+          {/* Daily Review Quota Pill */}
+          {!quotaState.isUnlimited ? (
+            <button
+              onClick={() => setIsDailyQuotaModalOpen(true)}
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-800/90 hover:bg-slate-700/90 text-slate-300 hover:text-white transition-colors border border-slate-700 text-xs font-mono"
+              title="Daily Quota: 3 Free Reviews / Day • Resets Midnight"
+            >
+              <span className={`w-2 h-2 rounded-full ${quotaState.canReview ? 'bg-emerald-400' : 'bg-amber-400'}`} />
+              <span>{quotaState.usedCount}/3 Free</span>
+            </button>
+          ) : (
+            <div 
+              className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-950/60 border border-emerald-500/30 text-emerald-400 text-xs font-mono"
+              title="Unlimited Match Reviews Active"
+            >
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span>Unlimited</span>
+            </div>
+          )}
+
           {isAnalyzing && (
             <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 text-xs font-semibold">
               <Loader2 size={13} className="animate-spin text-emerald-400" />
@@ -1127,6 +1186,7 @@ export function App() {
             <AnalysisLoadingHUD
               progress={analysisProgress}
               moveCount={moves.length}
+              quota={quotaState}
             />
           )}
 
@@ -1353,6 +1413,25 @@ export function App() {
         isOpen={isImportModalOpen}
         onClose={() => setIsImportModalOpen(false)}
         onImportGame={handleImportGame}
+      />
+
+      {/* 3 Free Reviews / Day Limit & Upgrade Modal */}
+      <DailyQuotaLimitModal
+        isOpen={isDailyQuotaModalOpen}
+        onClose={() => setIsDailyQuotaModalOpen(false)}
+        onOpenKeySettings={() => {
+          setIsDailyQuotaModalOpen(false);
+          if (mode === 'play') {
+            setIsPlayCoachOpen(true);
+          } else {
+            setReviewTab('chat');
+          }
+        }}
+        onOpenPricing={() => {
+          setIsDailyQuotaModalOpen(false);
+          setView('landing');
+          window.location.hash = '#pricing';
+        }}
       />
 
       {/* Play Mode - AI Coach Chat Modal */}

@@ -44,8 +44,8 @@ export function UseCaseAdultPage({ onNavigate, onLaunchApp }) {
 
             <div className="p-5 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-2">
               <div className="text-xs font-mono text-cyan-400 font-bold">Minutes 12–15</div>
-              <h4 className="text-sm font-bold text-white">Solve 3 Custom Error Drills</h4>
-              <p className="text-xs text-slate-400">Spar the refutation lines against Stockfish 19 to condition correct tactical instincts.</p>
+              <h4 className="text-sm font-bold text-white">Test Candidate Moves in Sandbox</h4>
+              <p className="text-xs text-slate-400">Spar your alternative ideas against Stockfish 19 to discover why other moves fail or succeed.</p>
             </div>
           </div>
         </div>

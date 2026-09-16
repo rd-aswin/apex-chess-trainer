@@ -99,23 +99,13 @@ export function LandingFooter({ onNavigate, onLaunchApp }) {
                 </button>
               </li>
               <li>
-                <button onClick={() => handleNav('features/socratic-sparring')} className="hover:text-emerald-400 transition-colors">
-                  Interactive Move Sparring
-                </button>
-              </li>
-              <li>
-                <button onClick={() => handleNav('features/leak-detection')} className="hover:text-emerald-400 transition-colors">
-                  Find Your Bad Habits
-                </button>
-              </li>
-              <li>
                 <button onClick={() => handleNav('features/engine')} className="hover:text-emerald-400 transition-colors">
                   World Champion Engine
                 </button>
               </li>
               <li>
-                <button onClick={() => handleNav('features/drills')} className="hover:text-emerald-400 transition-colors">
-                  Custom Blunder Drills
+                <button onClick={() => handleNav('demo')} className="hover:text-emerald-400 transition-colors">
+                  Interactive Move Sandbox
                 </button>
               </li>
               <li>

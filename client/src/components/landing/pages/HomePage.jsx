@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { 
   Sparkles, Swords, ArrowRight, ShieldCheck, Zap, 
   DollarSign, Check, X, AlertTriangle, Users, TrendingUp,
-  Flame, Award, Lock, ExternalLink, RefreshCw
+  Flame, Award, Lock, ExternalLink, RefreshCw, Clock, BookOpen
 } from 'lucide-react';
 
 export function HomePage({ onNavigate, onLaunchApp }) {
@@ -369,35 +369,35 @@ export function HomePage({ onNavigate, onLaunchApp }) {
 
             {/* Feature 2 */}
             <div 
-              onClick={() => onNavigate('features/socratic-sparring')}
+              onClick={() => onNavigate('demo')}
               className="p-6 rounded-2xl bg-slate-900/50 border border-slate-800 hover:border-amber-500/40 hover:bg-slate-900 transition-all cursor-pointer group"
             >
               <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                 <Zap className="w-5 h-5" />
               </div>
               <h3 className="text-base font-bold text-white mb-2 flex items-center justify-between">
-                <span>Interactive Move Sparring</span>
+                <span>Interactive Move Sandbox</span>
                 <ArrowRight className="w-4 h-4 text-slate-500 group-hover:text-amber-400 group-hover:translate-x-1 transition-all" />
               </h3>
               <p className="text-xs text-slate-400 leading-relaxed">
-                Try your candidate ideas on the board! When you blunder, test what you were thinking and let the coach show you why it fails.
+                Test your candidate ideas directly on the board! When reviewing turning points, play alternative moves and see live Stockfish 19 refutations.
               </p>
             </div>
 
             {/* Feature 3 */}
             <div 
-              onClick={() => onNavigate('features/leak-detection')}
-              className="p-6 rounded-2xl bg-slate-900/50 border border-slate-800 hover:border-rose-500/40 hover:bg-slate-900 transition-all cursor-pointer group"
+              onClick={onLaunchApp}
+              className="p-6 rounded-2xl bg-slate-900/50 border border-slate-800 hover:border-emerald-500/40 hover:bg-slate-900 transition-all cursor-pointer group"
             >
-              <div className="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                <Flame className="w-5 h-5" />
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                <Clock className="w-5 h-5" />
               </div>
               <h3 className="text-base font-bold text-white mb-2 flex items-center justify-between">
-                <span>Find Your Bad Habits (Pro)</span>
-                <ArrowRight className="w-4 h-4 text-slate-500 group-hover:text-rose-400 group-hover:translate-x-1 transition-all" />
+                <span>3 Free Reviews / Day (Zero Setup)</span>
+                <ArrowRight className="w-4 h-4 text-slate-500 group-hover:text-emerald-400 group-hover:translate-x-1 transition-all" />
               </h3>
               <p className="text-xs text-slate-400 leading-relaxed">
-                Identifies recurring habits across your games: pieces left unguarded, king safety oversights, or giving away active bishops. Available with Apex Pro.
+                Enjoy 3 complete game reviews every day with zero setup. No account, no credit card, and no API keys required. Resets at midnight.
               </p>
             </div>
 
@@ -420,18 +420,18 @@ export function HomePage({ onNavigate, onLaunchApp }) {
 
             {/* Feature 5 */}
             <div 
-              onClick={() => onNavigate('features/drills')}
+              onClick={() => onNavigate('features/openings')}
               className="p-6 rounded-2xl bg-slate-900/50 border border-slate-800 hover:border-indigo-500/40 hover:bg-slate-900 transition-all cursor-pointer group"
             >
               <div className="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                <Award className="w-5 h-5" />
+                <BookOpen className="w-5 h-5" />
               </div>
               <h3 className="text-base font-bold text-white mb-2 flex items-center justify-between">
-                <span>Custom Practice Drills (Pro)</span>
+                <span>Opening Strategy Guides</span>
                 <ArrowRight className="w-4 h-4 text-slate-500 group-hover:text-indigo-400 group-hover:translate-x-1 transition-all" />
               </h3>
               <p className="text-xs text-slate-400 leading-relaxed">
-                Re-test your actual game mistakes against the engine and export positions for flashcard study so you never repeat the same error.
+                Master the central pawn structures, piece outposts, and tactical plans behind your repertoire with automatic ECO classification.
               </p>
             </div>
 

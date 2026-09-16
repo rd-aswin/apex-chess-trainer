@@ -9,10 +9,7 @@ import { ByokGuidePage } from './pages/ByokGuidePage';
 import { VsChesscomPage } from './pages/VsChesscomPage';
 import { VsLichessPage } from './pages/VsLichessPage';
 import { FeatureAiReviewPage } from './pages/FeatureAiReviewPage';
-import { FeatureSocraticPage } from './pages/FeatureSocraticPage';
-import { FeatureLeakDetectionPage } from './pages/FeatureLeakDetectionPage';
 import { FeatureEnginePage } from './pages/FeatureEnginePage';
-import { FeatureDrillsPage } from './pages/FeatureDrillsPage';
 import { FeatureOpeningsPage } from './pages/FeatureOpeningsPage';
 import { UseCaseBeginnerPage } from './pages/UseCaseBeginnerPage';
 import { UseCaseClubPage } from './pages/UseCaseClubPage';
@@ -63,14 +60,8 @@ export function LandingView({ onLaunchApp, initialPage = 'home' }) {
         return <VsLichessPage onNavigate={navigateTo} onLaunchApp={onLaunchApp} />;
       case 'features/ai-review':
         return <FeatureAiReviewPage onNavigate={navigateTo} onLaunchApp={onLaunchApp} />;
-      case 'features/socratic-sparring':
-        return <FeatureSocraticPage onNavigate={navigateTo} onLaunchApp={onLaunchApp} />;
-      case 'features/leak-detection':
-        return <FeatureLeakDetectionPage onNavigate={navigateTo} onLaunchApp={onLaunchApp} />;
       case 'features/engine':
         return <FeatureEnginePage onNavigate={navigateTo} onLaunchApp={onLaunchApp} />;
-      case 'features/drills':
-        return <FeatureDrillsPage onNavigate={navigateTo} onLaunchApp={onLaunchApp} />;
       case 'features/openings':
         return <FeatureOpeningsPage onNavigate={navigateTo} onLaunchApp={onLaunchApp} />;
       case 'use-cases/1200-1500':

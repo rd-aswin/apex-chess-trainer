@@ -230,11 +230,11 @@ export function PricingPage({ onNavigate, onLaunchApp }) {
                 </div>
                 <div className="flex items-start gap-2">
                   <Check className="w-4 h-4 text-indigo-400 shrink-0 mt-0.5" />
-                  <span>50-game bad habit detector</span>
+                  <span>World Champion Stockfish 19 NNUE engine</span>
                 </div>
                 <div className="flex items-start gap-2">
                   <Check className="w-4 h-4 text-indigo-400 shrink-0 mt-0.5" />
-                  <span>Custom blunder puzzles & Anki export</span>
+                  <span>Interactive sandbox move refutations</span>
                 </div>
               </div>
             </div>

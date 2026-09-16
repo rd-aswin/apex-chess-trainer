@@ -29,7 +29,7 @@ export function RoiCalculatorPage({ onNavigate, onLaunchApp }) {
       name: 'Aimchess Premium',
       annualCost: 119.00,
       monthlyEquivalent: '9.92',
-      description: 'Post-game statistics & custom drills'
+      description: 'Post-game blunder charts & basic stats'
     },
     gold: {
       name: 'Chess.com Gold',
@@ -344,7 +344,7 @@ export function RoiCalculatorPage({ onNavigate, onLaunchApp }) {
                   </li>
                   <li className="flex items-start gap-2">
                     <Check className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                    <span>Personalized blunder pattern detection and custom drills included</span>
+                    <span>Interactive Move Sandbox and Opening Strategy Guides included</span>
                   </li>
                 </ul>
               </div>

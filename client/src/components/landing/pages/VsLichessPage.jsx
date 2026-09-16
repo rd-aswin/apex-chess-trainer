@@ -52,7 +52,7 @@ export function VsLichessPage({ onNavigate, onLaunchApp }) {
           {/* Apex Role */}
           <div className="bg-slate-950 border border-emerald-500/40 rounded-3xl p-8 space-y-4 shadow-xl shadow-emerald-500/5">
             <div className="text-xs font-bold uppercase tracking-wider text-emerald-400">Where Apex Steps In</div>
-            <h3 className="text-xl font-bold text-white">The Socratic Pedagogy Layer</h3>
+            <h3 className="text-xl font-bold text-white">The Explainable AI Pedagogy Layer</h3>
             <p className="text-xs text-slate-400 leading-relaxed">
               Humans do not calculate 25-ply brute-force trees. We need concepts: <em>"You removed the defender of your f7 square"</em>, <em>"You created a dark-square outpost"</em>. Apex translates raw engine math into human wisdom.
             </p>
@@ -63,11 +63,11 @@ export function VsLichessPage({ onNavigate, onLaunchApp }) {
               </div>
               <div className="flex items-center gap-2">
                 <Check className="w-4 h-4 text-emerald-400 shrink-0" />
-                <span>Conversational Socratic coach sparring</span>
+                <span>Conversational Grandmaster AI coach dialogue</span>
               </div>
               <div className="flex items-center gap-2">
                 <Check className="w-4 h-4 text-emerald-400 shrink-0" />
-                <span>Multi-game subconscious blunder profiling</span>
+                <span>Interactive sandbox move refutation testing</span>
               </div>
             </div>
           </div>

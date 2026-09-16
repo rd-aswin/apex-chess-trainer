@@ -85,43 +85,23 @@ export function LandingNavbar({ currentPage, onNavigate, onLaunchApp }) {
                   </div>
                 </button>
                 <button 
-                  onClick={() => handleNav('features/socratic-sparring')}
-                  className="w-full text-left p-2.5 rounded-xl hover:bg-slate-800/80 transition-colors flex items-start gap-3"
-                >
-                  <Zap className="w-4 h-4 text-amber-400 mt-0.5 shrink-0" />
-                  <div>
-                    <div className="text-xs font-bold text-white">Interactive Move Sparring</div>
-                    <div className="text-[11px] text-slate-400">Try your candidate ideas after mistakes</div>
-                  </div>
-                </button>
-                <button 
-                  onClick={() => handleNav('features/leak-detection')}
-                  className="w-full text-left p-2.5 rounded-xl hover:bg-slate-800/80 transition-colors flex items-start gap-3"
-                >
-                  <Flame className="w-4 h-4 text-rose-400 mt-0.5 shrink-0" />
-                  <div>
-                    <div className="text-xs font-bold text-white">Find Your Bad Habits</div>
-                    <div className="text-[11px] text-slate-400">Audit recurring blunders across 50 games</div>
-                  </div>
-                </button>
-                <button 
                   onClick={() => handleNav('features/engine')}
                   className="w-full text-left p-2.5 rounded-xl hover:bg-slate-800/80 transition-colors flex items-start gap-3"
                 >
                   <Swords className="w-4 h-4 text-cyan-400 mt-0.5 shrink-0" />
                   <div>
                     <div className="text-xs font-bold text-white">World Champion Engine</div>
-                    <div className="text-[11px] text-slate-400">Instant offline analysis right on your laptop</div>
+                    <div className="text-[11px] text-slate-400">Stockfish 19 Level 20 dual-NNUE analysis on your laptop</div>
                   </div>
                 </button>
                 <button 
-                  onClick={() => handleNav('features/drills')}
+                  onClick={() => handleNav('demo')}
                   className="w-full text-left p-2.5 rounded-xl hover:bg-slate-800/80 transition-colors flex items-start gap-3"
                 >
-                  <BookOpen className="w-4 h-4 text-indigo-400 mt-0.5 shrink-0" />
+                  <Zap className="w-4 h-4 text-amber-400 mt-0.5 shrink-0" />
                   <div>
-                    <div className="text-xs font-bold text-white">Custom Blunder Drills</div>
-                    <div className="text-[11px] text-slate-400">Practice puzzles made from your actual games</div>
+                    <div className="text-xs font-bold text-white">Interactive Move Sandbox</div>
+                    <div className="text-[11px] text-slate-400">Try your candidate ideas against live engine refutations</div>
                   </div>
                 </button>
                 <button 
@@ -396,10 +376,8 @@ export function LandingNavbar({ currentPage, onNavigate, onLaunchApp }) {
             <p className="text-xs font-semibold text-slate-500 uppercase px-3 mb-1">Features</p>
             <div className="grid grid-cols-2 gap-1">
               <button onClick={() => handleNav('features/ai-review')} className="text-left text-xs p-2 rounded text-slate-400 hover:text-white">Plain-English Review</button>
-              <button onClick={() => handleNav('features/socratic-sparring')} className="text-left text-xs p-2 rounded text-slate-400 hover:text-white">Move Sparring</button>
-              <button onClick={() => handleNav('features/leak-detection')} className="text-left text-xs p-2 rounded text-slate-400 hover:text-white">Find Bad Habits</button>
               <button onClick={() => handleNav('features/engine')} className="text-left text-xs p-2 rounded text-slate-400 hover:text-white">World Champion Engine</button>
-              <button onClick={() => handleNav('features/drills')} className="text-left text-xs p-2 rounded text-slate-400 hover:text-white">Custom Drills</button>
+              <button onClick={() => handleNav('demo')} className="text-left text-xs p-2 rounded text-slate-400 hover:text-white">Move Sandbox</button>
               <button onClick={() => handleNav('features/openings')} className="text-left text-xs p-2 rounded text-slate-400 hover:text-white">Opening Guides</button>
             </div>
           </div>

@@ -77,8 +77,8 @@ const CHESS_TIPS = [
   }
 ];
 
-export function AnalysisLoadingHUD({ progress, moveCount = 0 }) {
-  const [tipIndex, setTipIndex] = useState(() => Math.floor(Math.random() * CHESS_TIPS.length));
+export function AnalysisLoadingHUD({ progress, moveCount = 0, quota = null }) {
+  const [tipIndex, setTipIndex] = useState(0);
   const [isFading, setIsFading] = useState(false);
 
   // Auto-rotate tips every 4.5 seconds
@@ -115,23 +115,33 @@ export function AnalysisLoadingHUD({ progress, moveCount = 0 }) {
   const isComplete = percent >= 100;
 
   return (
-    <div className="p-4 bg-gradient-to-b from-slate-900 via-slate-950 to-slate-900 border-b border-slate-800 flex flex-col gap-3.5 shrink-0 select-none shadow-lg animate-in fade-in duration-200">
+    <div className="bg-slate-900 border border-slate-700/80 rounded-2xl p-4 sm:p-5 shadow-2xl text-slate-100 space-y-4 animate-in fade-in duration-200">
       
-      {/* Header Status Bar */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          {isComplete ? (
-            <CheckCircle2 size={16} className="text-emerald-400 shrink-0" />
-          ) : (
-            <Loader2 size={16} className="animate-spin text-emerald-400 shrink-0" />
-          )}
-          <span className="text-xs font-bold text-white tracking-wide">
-            {isComplete ? 'Analysis Complete!' : 'Stockfish 19 Analyzing Match'}
-          </span>
+      {/* Top Status Header */}
+      <div className="flex items-center justify-between gap-3 border-b border-slate-800 pb-3">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0">
+            <Cpu size={16} className="animate-pulse" />
+          </div>
+          <div>
+            <div className="text-xs font-bold text-white flex items-center gap-1.5">
+              <span>Stockfish 19 Engine</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+            </div>
+            <div className="text-[10px] text-slate-400 flex items-center gap-1">
+              <Zap size={10} className="text-amber-400" />
+              <span>Full-Match Tactical Analysis</span>
+            </div>
+          </div>
         </div>
 
-        <div className="flex items-center gap-1.5">
-          <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+        <div className="flex items-center gap-2">
+          {quota && !quota.isUnlimited && (
+            <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-950/80 text-emerald-300 border border-emerald-500/30">
+              Free Review {quota.usedCount}/{quota.maxAllowed}
+            </span>
+          )}
+          <span className="text-xs font-mono font-black text-emerald-400 px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20">
             {percent}%
           </span>
           <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700 hidden sm:inline">
