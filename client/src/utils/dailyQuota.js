@@ -1,31 +1,35 @@
 /**
- * dailyQuota.js - Manages the 3-free-reviews-per-day zero-setup quota.
+ * dailyQuota.js - Manages the 3-free-reviews-per-day quota for verified user accounts.
  * 
- * Free / zero-setup users get 3 full match reviews per day.
- * Users with a Pro license ('apex_pro_license') or a personal Gemini key ('apex_gemini_key')
- * have unlimited reviews.
- * 
- * Quota resets automatically at midnight local time.
+ * In accordance with commercial requirements:
+ * - Free users with verified accounts receive strictly 3 full match reviews per day.
+ * - Only verified Pro accounts (activated via live Razorpay payment) have unlimited reviews.
+ * - Unauthenticated visitors must sign in/verify to access match reviews.
+ * - Quota resets automatically at midnight local time.
  */
 
 export const DAILY_LIMIT = 3;
 export const QUOTA_STORAGE_KEY = 'apex_daily_free_reviews';
+const AUTH_USER_KEY = 'apex_auth_user';
 
 /**
- * Checks if the current user has unlimited reviews (Pro license or BYOK Gemini key).
+ * Checks if the current authenticated user has an active Pro license.
  */
 export function isUserUnlimited() {
   try {
-    // 1. Pro License check
+    // 1. Authenticated User Pro Plan check
+    const rawUser = localStorage.getItem(AUTH_USER_KEY);
+    if (rawUser) {
+      const user = JSON.parse(rawUser);
+      if (user && (user.plan === 'pro' || user.isPro)) return true;
+    }
+
+    // 2. Verified Pro License storage check
     const proRaw = localStorage.getItem('apex_pro_license');
     if (proRaw) {
       const parsed = JSON.parse(proRaw);
       if (parsed && parsed.isPro) return true;
     }
-
-    // 2. Personal Gemini API Key check (BYOK)
-    const geminiKey = localStorage.getItem('apex_gemini_key');
-    if (geminiKey && geminiKey.trim().length > 0) return true;
   } catch (e) {
     console.warn('[dailyQuota] Error inspecting unlimited status:', e);
   }
@@ -44,17 +48,21 @@ export function getTodayDateString() {
 }
 
 /**
- * Gets current daily quota status:
+ * Gets current daily quota status for the active user:
  * {
  *   isUnlimited: boolean,
  *   usedCount: number,
  *   remainingCount: number,
  *   maxAllowed: number,
  *   canReview: boolean,
+ *   requiresLogin: boolean,
  *   date: string
  * }
  */
 export function getDailyQuota() {
+  const today = getTodayDateString();
+
+  // Pro users have unlimited reviews
   if (isUserUnlimited()) {
     return {
       isUnlimited: true,
@@ -62,24 +70,46 @@ export function getDailyQuota() {
       remainingCount: Infinity,
       maxAllowed: DAILY_LIMIT,
       canReview: true,
-      date: getTodayDateString()
+      requiresLogin: false,
+      date: today
     };
   }
 
-  const today = getTodayDateString();
-  let usedCount = 0;
-
+  // Check if user is logged in
+  let currentUser = null;
   try {
-    const raw = localStorage.getItem(QUOTA_STORAGE_KEY);
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      // Automatic midnight reset: if date !== today, count is fresh 0
-      if (parsed && parsed.date === today && typeof parsed.count === 'number') {
-        usedCount = parsed.count;
-      }
+    const rawUser = localStorage.getItem(AUTH_USER_KEY);
+    if (rawUser) {
+      currentUser = JSON.parse(rawUser);
     }
-  } catch (e) {
-    console.warn('[dailyQuota] Error reading quota storage:', e);
+  } catch (e) {}
+
+  if (!currentUser) {
+    return {
+      isUnlimited: false,
+      usedCount: 0,
+      remainingCount: DAILY_LIMIT,
+      maxAllowed: DAILY_LIMIT,
+      canReview: false,
+      requiresLogin: true,
+      date: today
+    };
+  }
+
+  // Read used count from user profile or local quota cache
+  let usedCount = 0;
+  if (currentUser.dailyReviews && currentUser.dailyReviews.date === today) {
+    usedCount = currentUser.dailyReviews.count || 0;
+  } else {
+    try {
+      const raw = localStorage.getItem(QUOTA_STORAGE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed && parsed.date === today && typeof parsed.count === 'number') {
+          usedCount = parsed.count;
+        }
+      }
+    } catch (e) {}
   }
 
   const remainingCount = Math.max(0, DAILY_LIMIT - usedCount);
@@ -91,12 +121,13 @@ export function getDailyQuota() {
     remainingCount,
     maxAllowed: DAILY_LIMIT,
     canReview,
+    requiresLogin: false,
     date: today
   };
 }
 
 /**
- * Consumes 1 review from today's quota.
+ * Consumes 1 review from today's quota locally.
  * Returns the fresh quota state after consumption.
  */
 export function consumeDailyReview() {
@@ -124,6 +155,19 @@ export function consumeDailyReview() {
       date: today,
       count: newCount
     }));
+
+    // Update currentUser in local storage as well
+    const rawUser = localStorage.getItem(AUTH_USER_KEY);
+    if (rawUser) {
+      const user = JSON.parse(rawUser);
+      user.dailyReviews = {
+        date: today,
+        count: newCount,
+        remaining: Math.max(0, DAILY_LIMIT - newCount),
+        max: DAILY_LIMIT
+      };
+      localStorage.setItem(AUTH_USER_KEY, JSON.stringify(user));
+    }
   } catch (e) {
     console.warn('[dailyQuota] Error saving consumed quota:', e);
   }

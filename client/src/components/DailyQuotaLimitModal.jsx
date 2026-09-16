@@ -42,7 +42,7 @@ export function DailyQuotaLimitModal({ isOpen, onClose, onOpenKeySettings, onOpe
         </div>
 
         <p className="text-xs sm:text-sm text-slate-300 leading-relaxed mb-6">
-          You've used all <strong>3 free game reviews</strong> for today. Apex provides 3 full game reviews daily with zero setup, no credit card, and no account required. Your daily free reviews reset automatically at <strong>midnight local time</strong>.
+          You've used all <strong>3 free game reviews</strong> for today on your verified account. Your 3 daily free reviews reset automatically at <strong>midnight local time</strong>, or you can upgrade to Apex Pro for unlimited reviews.
         </p>
 
         {/* 2 Clear Options */}

@@ -12,14 +12,16 @@ import { AiCoachChat, DEFAULT_COACH_MESSAGE } from './components/AiCoachChat';
 import { UpdateModal } from './components/UpdateModal';
 import ImportGameModal from './components/ImportGameModal';
 import { DailyQuotaLimitModal } from './components/DailyQuotaLimitModal';
+import { AuthModal } from './components/AuthModal';
 import { LandingView } from './components/landing/LandingView';
 import { AnalysisLoadingHUD } from './components/AnalysisLoadingHUD';
 import { useSoundEffects } from './hooks/useSoundEffects';
-import { Swords, RotateCcw, Flag, Sparkles, Award, History, Volume2, VolumeX, Monitor, Bot, RefreshCw, UploadCloud, Loader2 } from 'lucide-react';
+import { Swords, RotateCcw, Flag, Sparkles, Award, History, Volume2, VolumeX, Monitor, Bot, RefreshCw, UploadCloud, Loader2, LogIn, LogOut, User as UserIcon } from 'lucide-react';
 import { API_BASE } from './config';
 import { wasmEngine } from './services/wasmEngine';
 import { analyzeGame } from './services/analyzer';
 import { getDailyQuota, consumeDailyReview } from './utils/dailyQuota';
+import { fetchCurrentUser, logoutAccount, getStoredUser, consumeServerReview } from './services/auth';
 
 export function App() {
   // Game & Board State
@@ -90,6 +92,35 @@ export function App() {
   const [isMuted, setIsMuted] = useState(false);
   const [isDailyQuotaModalOpen, setIsDailyQuotaModalOpen] = useState(false);
   const [quotaState, setQuotaState] = useState(() => getDailyQuota());
+
+  // User Authentication & Session State
+  const [currentUser, setCurrentUser] = useState(() => getStoredUser());
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authPromptMessage, setAuthPromptMessage] = useState('');
+
+  // Fetch current user and sync auth state
+  useEffect(() => {
+    fetchCurrentUser().then((u) => {
+      if (u) {
+        setCurrentUser(u);
+        setQuotaState(getDailyQuota());
+      }
+    });
+
+    const handleAuth = (e) => {
+      setCurrentUser(e.detail);
+      setQuotaState(getDailyQuota());
+    };
+
+    window.addEventListener('apex_auth_changed', handleAuth);
+    return () => window.removeEventListener('apex_auth_changed', handleAuth);
+  }, []);
+
+  const handleLogout = async () => {
+    await logoutAccount();
+    setCurrentUser(null);
+    setQuotaState(getDailyQuota());
+  };
 
   // View state: 'landing' (19-page marketing website) vs 'app' (chess trainer board)
   const [view, setView] = useState(() => {
@@ -310,15 +341,35 @@ export function App() {
 
     // Check daily free review quota (bypass for reviewing existing archived games)
     if (!bypassQuota) {
-      const currentQuota = getDailyQuota();
-      if (!currentQuota.canReview) {
-        setIsDailyQuotaModalOpen(true);
+      if (!currentUser) {
+        setAuthPromptMessage('Please sign in or create a free account to unlock your 3 free match reviews today.');
+        setIsAuthModalOpen(true);
         return;
       }
 
-      // Consume 1 review from daily quota
-      const updatedQuota = consumeDailyReview();
-      setQuotaState(updatedQuota);
+      try {
+        const quotaRes = await consumeServerReview();
+        if (!quotaRes.success) {
+          if (quotaRes.authRequired) {
+            setAuthPromptMessage('Please sign in to access match reviews.');
+            setIsAuthModalOpen(true);
+            return;
+          }
+          if (quotaRes.limitReached) {
+            setIsDailyQuotaModalOpen(true);
+            return;
+          }
+        }
+      } catch (e) {
+        // Fallback to local quota check
+        const currentQuota = getDailyQuota();
+        if (!currentQuota.canReview) {
+          setIsDailyQuotaModalOpen(true);
+          return;
+        }
+        consumeDailyReview();
+      }
+      setQuotaState(getDailyQuota());
     }
 
     // Immediately transition to review mode so the user sees the active analysis workspace & HUD
@@ -901,17 +952,40 @@ export function App() {
       setCapturedPieces(computeCapturedPieces(stepChess));
 
       // Check daily free review quota
-      const currentQuota = getDailyQuota();
-      if (!currentQuota.canReview) {
-        setIsDailyQuotaModalOpen(true);
+      if (!currentUser) {
+        setAuthPromptMessage('Please sign in or create a free account to import and review matches.');
+        setIsAuthModalOpen(true);
         setMode('review');
         setReviewTab('coach');
         return;
       }
 
-      // Consume 1 review from daily quota
-      const updatedQuota = consumeDailyReview();
-      setQuotaState(updatedQuota);
+      try {
+        const quotaRes = await consumeServerReview();
+        if (!quotaRes.success) {
+          if (quotaRes.authRequired) {
+            setAuthPromptMessage('Please sign in to import and review matches.');
+            setIsAuthModalOpen(true);
+            return;
+          }
+          if (quotaRes.limitReached) {
+            setIsDailyQuotaModalOpen(true);
+            setMode('review');
+            setReviewTab('coach');
+            return;
+          }
+        }
+      } catch (e) {
+        const currentQuota = getDailyQuota();
+        if (!currentQuota.canReview) {
+          setIsDailyQuotaModalOpen(true);
+          setMode('review');
+          setReviewTab('coach');
+          return;
+        }
+        consumeDailyReview();
+      }
+      setQuotaState(getDailyQuota());
 
       // Switch to review mode and trigger Stockfish 19 & AI Coach analysis
       const uciMoves = loadedMoves.map((m) => m.uci);
@@ -1093,6 +1167,12 @@ export function App() {
           setView('app');
           window.location.hash = '#app';
         }}
+        currentUser={currentUser}
+        onOpenAuth={() => {
+          setAuthPromptMessage('');
+          setIsAuthModalOpen(true);
+        }}
+        onLogout={handleLogout}
       />
     );
   }
@@ -1178,12 +1258,19 @@ export function App() {
           {/* Daily Review Quota Pill */}
           {!quotaState.isUnlimited ? (
             <button
-              onClick={() => setIsDailyQuotaModalOpen(true)}
+              onClick={() => {
+                if (!currentUser) {
+                  setAuthPromptMessage('Sign in or create a free account to unlock your 3 free match reviews today.');
+                  setIsAuthModalOpen(true);
+                } else {
+                  setIsDailyQuotaModalOpen(true);
+                }
+              }}
               className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-800/90 hover:bg-slate-700/90 text-slate-300 hover:text-white transition-colors border border-slate-700 text-xs font-mono"
-              title="Daily Quota: 3 Free Reviews / Day • Resets Midnight"
+              title={currentUser ? "Daily Quota: 3 Free Reviews / Day • Resets Midnight" : "Sign in to activate 3 free reviews/day"}
             >
               <span className={`w-2 h-2 rounded-full ${quotaState.canReview ? 'bg-emerald-400' : 'bg-amber-400'}`} />
-              <span>{quotaState.usedCount}/3 Free</span>
+              <span>{currentUser ? `${quotaState.usedCount}/3 Free` : '3/3 Free'}</span>
             </button>
           ) : (
             <div 
@@ -1191,8 +1278,39 @@ export function App() {
               title="Unlimited Match Reviews Active"
             >
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span>Unlimited</span>
+              <span>Unlimited Pro</span>
             </div>
+          )}
+
+          {/* User Account / Sign In */}
+          {currentUser ? (
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-800 border border-slate-700 text-xs">
+              <div className="w-4 h-4 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-[9px]">
+                {currentUser.name ? currentUser.name[0].toUpperCase() : 'U'}
+              </div>
+              <span className="font-semibold text-slate-200 max-w-[80px] truncate hidden md:inline">
+                {currentUser.name || currentUser.email.split('@')[0]}
+              </span>
+              <button
+                onClick={handleLogout}
+                title="Log Out"
+                className="text-slate-400 hover:text-rose-400 p-0.5 ml-0.5 transition-colors"
+              >
+                <LogOut size={12} />
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => {
+                setAuthPromptMessage('');
+                setIsAuthModalOpen(true);
+              }}
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition-colors"
+              title="Sign in or Create Free Account"
+            >
+              <LogIn size={12} className="text-emerald-400" />
+              <span>Sign In</span>
+            </button>
           )}
 
           {isAnalyzing && (
@@ -1532,6 +1650,17 @@ export function App() {
           setView('landing');
           window.location.hash = '#pricing';
         }}
+      />
+
+      {/* User Authentication & Verification Modal */}
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        onAuthSuccess={(user) => {
+          setCurrentUser(user);
+          setQuotaState(getDailyQuota());
+        }}
+        promptMessage={authPromptMessage}
       />
 
       {/* Play Mode - AI Coach Chat Modal */}

@@ -26,6 +26,7 @@ lerna-debug.log*
 .env.local
 .env.*.local
 data/coach-config.json
+data/users.json
 
 # Operating System Files
 .DS_Store

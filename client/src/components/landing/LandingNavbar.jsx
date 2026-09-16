@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { 
   Sparkles, Swords, ChevronDown, Menu, X, ArrowRight, 
   ShieldCheck, Calculator, Flame, BookOpen, Layers, Users, Zap,
-  Key, HelpCircle, Heart, Play
+  Key, HelpCircle, Heart, Play, User, LogIn, LogOut
 } from 'lucide-react';
 
-export function LandingNavbar({ currentPage, onNavigate, onLaunchApp }) {
+export function LandingNavbar({ currentPage, onNavigate, onLaunchApp, currentUser = null, onOpenAuth, onLogout }) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
@@ -302,6 +302,35 @@ export function LandingNavbar({ currentPage, onNavigate, onLaunchApp }) {
             Try Demo
           </button>
 
+          {currentUser ? (
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700/80 text-xs">
+              <div className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-[10px]">
+                {currentUser.name ? currentUser.name[0].toUpperCase() : 'U'}
+              </div>
+              <span className="font-semibold text-slate-200 max-w-[100px] truncate">
+                {currentUser.name || currentUser.email.split('@')[0]}
+              </span>
+              <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${currentUser.isPro ? 'bg-indigo-500/20 text-indigo-300' : 'bg-emerald-500/20 text-emerald-300'}`}>
+                {currentUser.isPro ? 'PRO' : '3/3 Free'}
+              </span>
+              <button
+                onClick={onLogout}
+                title="Log Out"
+                className="text-slate-400 hover:text-rose-400 p-0.5 ml-0.5 transition-colors"
+              >
+                <LogOut size={13} />
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={onOpenAuth}
+              className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition-colors border border-slate-700/60 flex items-center gap-1.5"
+            >
+              <LogIn size={13} />
+              <span>Sign In</span>
+            </button>
+          )}
+
           <button
             onClick={onLaunchApp}
             className="group relative inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-slate-950 bg-gradient-to-r from-emerald-400 via-emerald-300 to-teal-400 hover:from-emerald-300 hover:to-teal-300 shadow-md shadow-emerald-500/25 hover:shadow-emerald-500/40 transition-all duration-200 transform hover:-translate-y-0.5 focus:outline-none"
@@ -314,12 +343,22 @@ export function LandingNavbar({ currentPage, onNavigate, onLaunchApp }) {
 
         {/* Mobile Menu Toggle */}
         <div className="flex lg:hidden items-center gap-2">
-          <button
-            onClick={onLaunchApp}
-            className="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-950 bg-emerald-400 hover:bg-emerald-300"
-          >
-            Start Free
-          </button>
+          {!currentUser ? (
+            <button
+              onClick={onOpenAuth}
+              className="px-2.5 py-1 rounded-lg text-xs font-semibold text-slate-300 border border-slate-700"
+            >
+              Sign In
+            </button>
+          ) : (
+            <button
+              onClick={onLogout}
+              className="px-2 py-1 rounded-lg text-[11px] font-semibold text-slate-400 hover:text-rose-300"
+              title="Log Out"
+            >
+              <LogOut size={14} />
+            </button>
+          )}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 focus:outline-none"

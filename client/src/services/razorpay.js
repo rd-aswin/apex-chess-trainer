@@ -43,7 +43,7 @@ export async function initiateRazorpayCheckout({
       throw new Error('Razorpay Checkout SDK failed to load. Check your network connection.');
     }
 
-    const keyId = import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_Tcf0RzKHqmW2oy';
+    const keyId = import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_live_TchwtnFfnGv7OO';
 
     // Step 1: Create Order on Backend
     const orderRes = await fetch(`${API_BASE}/create-order`, {

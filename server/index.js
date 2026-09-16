@@ -13,6 +13,15 @@ import { identifyOpening } from './openingBook.js';
 import { chatWithCoach, getCoachConfig, saveCoachConfig } from './aiCoach.js';
 import { getUpdateReport } from './updater.js';
 import { fetchChessComGames, fetchLichessGames, sanitizePgn } from './importer.js';
+import {
+  registerUser,
+  verifyUserCode,
+  loginUser,
+  getUserByToken,
+  logoutUser,
+  consumeUserReview,
+  upgradeUserToPro
+} from './auth.js';
 
 dotenv.config();
 
@@ -525,11 +534,23 @@ app.post('/api/verify-payment', (req, res) => {
 
     if (expectedSignature === razorpay_signature) {
       console.log(`[Razorpay Payment Verified]: Payment ${razorpay_payment_id} for Order ${razorpay_order_id}`);
+
+      // Upgrade user to Pro if logged in or userId is supplied
+      let upgradedUser = null;
+      const user = getAuthUserFromRequest(req) || (req.body.userId ? { id: req.body.userId } : null);
+      if (user && user.id) {
+        upgradedUser = upgradeUserToPro(user.id, {
+          order_id: razorpay_order_id,
+          payment_id: razorpay_payment_id
+        });
+      }
+
       return res.status(200).json({
         success: true,
         message: 'Payment verified successfully',
         order_id: razorpay_order_id,
-        payment_id: razorpay_payment_id
+        payment_id: razorpay_payment_id,
+        user: upgradedUser
       });
     } else {
       console.warn(`[Razorpay Verification Mismatch]: Order ${razorpay_order_id}`);
@@ -545,6 +566,70 @@ app.post('/api/verify-payment', (req, res) => {
       error: err.message || 'Error verifying payment signature'
     });
   }
+});
+
+// ==========================================
+// Authentication & Quota Verification APIs
+// ==========================================
+
+const getAuthUserFromRequest = (req) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) return null;
+  const token = authHeader.slice(7).trim();
+  return getUserByToken(token);
+};
+
+// 1. Register User
+app.post('/api/auth/register', (req, res) => {
+  const result = registerUser(req.body || {});
+  const status = result.success ? 200 : 400;
+  res.status(status).json(result);
+});
+
+// 2. Verify 6-digit OTP Code
+app.post('/api/auth/verify', (req, res) => {
+  const result = verifyUserCode(req.body || {});
+  const status = result.success ? 200 : 400;
+  res.status(status).json(result);
+});
+
+// 3. Log In User
+app.post('/api/auth/login', (req, res) => {
+  const result = loginUser(req.body || {});
+  const status = result.success ? 200 : (result.verificationRequired ? 403 : 400);
+  res.status(status).json(result);
+});
+
+// 4. Get Current User & Live Quota
+app.get('/api/auth/me', (req, res) => {
+  const user = getAuthUserFromRequest(req);
+  if (!user) {
+    return res.status(401).json({ success: false, error: 'Unauthorized' });
+  }
+  res.json({ success: true, user });
+});
+
+// 5. Log Out
+app.post('/api/auth/logout', (req, res) => {
+  const authHeader = req.headers.authorization;
+  const token = authHeader && authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : null;
+  if (token) logoutUser(token);
+  res.json({ success: true, message: 'Logged out successfully' });
+});
+
+// 6. Consume 1 Daily Review for Authenticated User (Strict 3 free per day)
+app.post('/api/auth/consume-review', (req, res) => {
+  const user = getAuthUserFromRequest(req);
+  if (!user) {
+    return res.status(401).json({
+      success: false,
+      error: 'Please sign in or create a free account to access match reviews.'
+    });
+  }
+
+  const result = consumeUserReview(user.id);
+  const status = result.success ? 200 : (result.limitReached ? 403 : 400);
+  res.status(status).json(result);
 });
 
 // Start engine and server
