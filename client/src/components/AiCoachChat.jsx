@@ -18,7 +18,8 @@ import {
   Server,
   BookOpen,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  RotateCcw
 } from 'lucide-react';
 
 // Configure marked for clean chess notes, headings, and lists
@@ -35,6 +36,12 @@ function renderMarkdown(content) {
   }
 }
 
+export const DEFAULT_COACH_MESSAGE = {
+  role: 'assistant',
+  content:
+    '👋 Welcome! I am your **Apex Chess Coach**. Ask me anything about this position, why opening moves are played (like in the Ruy Lopez or Sicilian), or what strategic plan you should follow!'
+};
+
 /**
  * AI Coach Conversational Panel ("Apex Coach")
  * Provides real-time pedagogical Grandmaster chat grounded in board state,
@@ -46,15 +53,21 @@ export function AiCoachChat({
   currentPly = 0,
   userColor = 'w',
   currentStep = null,
-  currentScore = null
+  currentScore = null,
+  messages: externalMessages = null,
+  setMessages: externalSetMessages = null,
+  onClearChat = null
 }) {
-  const [messages, setMessages] = useState([
-    {
-      role: 'assistant',
-      content:
-        '👋 Welcome! I am your **Apex Chess Coach**. Ask me anything about this position, why opening moves are played (like in the Ruy Lopez or Sicilian), or what strategic plan you should follow!'
+  const [internalMessages, setInternalMessages] = useState([DEFAULT_COACH_MESSAGE]);
+  const messages = externalMessages || internalMessages;
+  const setMessages = externalSetMessages || setInternalMessages;
+
+  const handleClearChat = () => {
+    setMessages([DEFAULT_COACH_MESSAGE]);
+    if (onClearChat) {
+      onClearChat();
     }
-  ]);
+  };
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [openingInfo, setOpeningInfo] = useState(null);
@@ -238,6 +251,14 @@ export function AiCoachChat({
               {isPlansExpanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
             </button>
           )}
+
+          <button
+            onClick={handleClearChat}
+            className="p-1.5 text-slate-400 hover:text-rose-300 hover:bg-slate-800 rounded transition-colors"
+            title="Reset Chat History"
+          >
+            <RotateCcw size={13} />
+          </button>
 
           <button
             onClick={() => setIsSettingsOpen(true)}

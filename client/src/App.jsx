@@ -8,7 +8,7 @@ import { AnalysisPanel } from './components/AnalysisPanel';
 import { AccuracyBadge } from './components/AccuracyBadge';
 import { GameHistoryModal } from './components/GameHistoryModal';
 import { DesktopAppModal } from './components/DesktopAppModal';
-import { AiCoachChat } from './components/AiCoachChat';
+import { AiCoachChat, DEFAULT_COACH_MESSAGE } from './components/AiCoachChat';
 import { UpdateModal } from './components/UpdateModal';
 import ImportGameModal from './components/ImportGameModal';
 import { LandingView } from './components/landing/LandingView';
@@ -52,6 +52,33 @@ export function App() {
   // UI Modals & Drawer
   const [isCoachDrawerOpen, setIsCoachDrawerOpen] = useState(false);
   const [isPlayCoachOpen, setIsPlayCoachOpen] = useState(false);
+  const [coachMessages, setCoachMessages] = useState(() => {
+    try {
+      const saved = sessionStorage.getItem('apex_coach_messages');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed;
+        }
+      }
+    } catch (e) {}
+    return [DEFAULT_COACH_MESSAGE];
+  });
+
+  // Sync coach messages to sessionStorage to preserve across reloads & tab navigation
+  useEffect(() => {
+    try {
+      sessionStorage.setItem('apex_coach_messages', JSON.stringify(coachMessages));
+    } catch (e) {}
+  }, [coachMessages]);
+
+  const handleClearCoachChat = () => {
+    setCoachMessages([DEFAULT_COACH_MESSAGE]);
+    try {
+      sessionStorage.removeItem('apex_coach_messages');
+    } catch (e) {}
+  };
+
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [isNewGameModalOpen, setIsNewGameModalOpen] = useState(false);
   const [isDesktopModalOpen, setIsDesktopModalOpen] = useState(false);
@@ -1139,63 +1166,65 @@ export function App() {
             </div>
           )}
 
-          {/* AI Coach Conversational View */}
-          {mode === 'review' && reviewTab === 'chat' ? (
-            <div className="flex-1 min-h-0">
-              <AiCoachChat
-                currentFen={game.fen()}
-                moves={moves}
-                currentPly={currentPly}
-                userColor={userColor}
-                currentStep={currentStep}
-                currentScore={currentScore}
-              />
-            </div>
-          ) : (
-            <>
-              {/* Review Mode - Advantage Graph Ribbon */}
-              {mode === 'review' && analysis && reviewTab === 'coach' && (
-                <div className="p-2 shrink-0 border-b border-slate-800/80">
-                  <EvalGraph
-                    steps={analysis.steps}
-                    currentPly={currentPly}
-                    onSelectPly={(ply) => {
-                      handleSelectPly(ply);
-                    }}
-                  />
-                </div>
-              )}
+          {/* AI Coach Conversational View (Kept mounted to preserve scroll, draft input, and chat state) */}
+          <div className={`flex-1 min-h-0 ${mode === 'review' && reviewTab === 'chat' ? 'flex flex-col' : 'hidden'}`}>
+            <AiCoachChat
+              currentFen={game.fen()}
+              moves={moves}
+              currentPly={currentPly}
+              userColor={userColor}
+              currentStep={currentStep}
+              currentScore={currentScore}
+              messages={coachMessages}
+              setMessages={setCoachMessages}
+              onClearChat={handleClearCoachChat}
+            />
+          </div>
 
-              {/* Review Mode - Tab 2: Match Accuracy Matrix */}
-              {mode === 'review' && analysis && reviewTab === 'accuracy' && (
-                <div className="p-2.5 shrink-0 border-b border-slate-800/80 max-h-[300px] overflow-y-auto">
-                  <AccuracyBadge
-                    accuracy={analysis.accuracy}
-                    counts={analysis.counts}
-                    userColor={userColor}
-                  />
-                </div>
-              )}
-
-              {/* Move History: Has 100% full vertical space by default */}
-              <div className="flex-1 min-h-0 flex flex-col">
-                {mode === 'sandbox' && (
-                  <div className="px-2.5 py-1 bg-indigo-950/60 border-b border-indigo-900/40 text-[10px] font-bold text-indigo-300 uppercase tracking-wider shrink-0">
-                    Sandbox Moves ({sandboxMoves.length} played)
-                  </div>
-                )}
-                <div className="flex-1 min-h-0">
-                  <MoveHistory
-                    moves={mode === 'sandbox' ? sandboxMoves : moves}
-                    analysisSteps={mode === 'sandbox' ? [] : (analysis?.steps || [])}
-                    currentPly={mode === 'sandbox' ? sandboxMoves.length : currentPly}
-                    onSelectPly={mode === 'sandbox' ? null : handleSelectPly}
-                    capturedPieces={capturedPieces}
-                  />
-                </div>
+          {/* Analysis Review Panels & Move History */}
+          <div className={`flex-1 min-h-0 flex flex-col ${mode === 'review' && reviewTab === 'chat' ? 'hidden' : 'flex'}`}>
+            {/* Review Mode - Advantage Graph Ribbon */}
+            {mode === 'review' && analysis && reviewTab === 'coach' && (
+              <div className="p-2 shrink-0 border-b border-slate-800/80">
+                <EvalGraph
+                  steps={analysis.steps}
+                  currentPly={currentPly}
+                  onSelectPly={(ply) => {
+                    handleSelectPly(ply);
+                  }}
+                />
               </div>
-            </>
-          )}
+            )}
+
+            {/* Review Mode - Tab 2: Match Accuracy Matrix */}
+            {mode === 'review' && analysis && reviewTab === 'accuracy' && (
+              <div className="p-2.5 shrink-0 border-b border-slate-800/80 max-h-[300px] overflow-y-auto">
+                <AccuracyBadge
+                  accuracy={analysis.accuracy}
+                  counts={analysis.counts}
+                  userColor={userColor}
+                />
+              </div>
+            )}
+
+            {/* Move History: Has 100% full vertical space by default */}
+            <div className="flex-1 min-h-0 flex flex-col">
+              {mode === 'sandbox' && (
+                <div className="px-2.5 py-1 bg-indigo-950/60 border-b border-indigo-900/40 text-[10px] font-bold text-indigo-300 uppercase tracking-wider shrink-0">
+                  Sandbox Moves ({sandboxMoves.length} played)
+                </div>
+              )}
+              <div className="flex-1 min-h-0">
+                <MoveHistory
+                  moves={mode === 'sandbox' ? sandboxMoves : moves}
+                  analysisSteps={mode === 'sandbox' ? [] : (analysis?.steps || [])}
+                  currentPly={mode === 'sandbox' ? sandboxMoves.length : currentPly}
+                  onSelectPly={mode === 'sandbox' ? null : handleSelectPly}
+                  capturedPieces={capturedPieces}
+                />
+              </div>
+            </div>
+          </div>
 
           {/* Coach Explanation Drawer Trigger Bar (Sticky at bottom of sidebar) */}
           {mode === 'review' && analysis && currentStep && (
@@ -1350,6 +1379,9 @@ export function App() {
                 userColor={userColor}
                 currentStep={null}
                 currentScore={currentScore}
+                messages={coachMessages}
+                setMessages={setCoachMessages}
+                onClearChat={handleClearCoachChat}
               />
             </div>
           </div>
