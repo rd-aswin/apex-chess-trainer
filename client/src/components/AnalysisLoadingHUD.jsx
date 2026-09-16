@@ -57,8 +57,8 @@ const CHESS_TIPS = [
   },
   {
     category: 'Engine Fact',
-    title: 'Stockfish 19 Dual-NNUE Brain',
-    tip: 'Stockfish 19 uses deep neural evaluation networks trained on billions of positions, calculating millions of nodes every second on your CPU.'
+    title: 'World Champion Engine Brain',
+    tip: 'Stockfish calculates deep tactical evaluations trained on billions of positions, calculating millions of candidate variations to find the absolute best move.'
   },
   {
     category: 'Opening',
@@ -144,8 +144,8 @@ export function AnalysisLoadingHUD({ progress, moveCount = 0, quota = null }) {
           <span className="text-xs font-mono font-black text-emerald-400 px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20">
             {percent}%
           </span>
-          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700 hidden sm:inline">
-            Skill 20 Locked
+          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700 hidden sm:inline">
+            ~3650 Elo Locked
           </span>
         </div>
       </div>
@@ -163,14 +163,14 @@ export function AnalysisLoadingHUD({ progress, moveCount = 0, quota = null }) {
           <span className="font-mono">
             {progress?.current && progress?.total
               ? `Position ${progress.current} of ${progress.total}`
-              : `Evaluating match moves (${moveCount} plies)...`}
+              : `Evaluating match moves (${Math.max(1, Math.ceil(moveCount / 2))} moves)...`}
             {progress?.moveSan ? ` • ${progress.moveSan}` : ''}
           </span>
           <span className="text-slate-400 font-mono text-[10px] flex items-center gap-1">
             <Clock size={11} className="text-emerald-400" />
             {progress?.estimatedSecondsRemaining !== undefined
               ? `~${progress.estimatedSecondsRemaining}s remaining`
-              : 'Fast NNUE scan'}
+              : 'Grandmaster scan'}
           </span>
         </div>
       </div>

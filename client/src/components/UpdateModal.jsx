@@ -137,7 +137,7 @@ export function UpdateModal({ isOpen, onClose }) {
                   <p className="text-[11px] text-slate-300">
                     {report.isUpdateAvailable
                       ? 'Newer versions of chess packages are available online.'
-                      : 'You are running the latest official Stockfish 19 NNUE and Google Gemini 2.5 Flash.'}
+                      : 'You are running the latest Stockfish Grandmaster Engine and Google Gemini AI Coach.'}
                   </p>
                 </div>
               </div>
@@ -153,7 +153,7 @@ export function UpdateModal({ isOpen, onClose }) {
 
           {/* Subsystem Cards Grid */}
           <div className="space-y-3">
-            {/* Card 1: Stockfish 19 NNUE */}
+            {/* Card 1: Stockfish Engine */}
             <div className="bg-slate-950/60 border border-slate-800 rounded-xl p-3.5 space-y-2.5 shadow-sm">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -164,10 +164,10 @@ export function UpdateModal({ isOpen, onClose }) {
                     <h4 className="text-xs font-bold text-white flex items-center gap-1.5">
                       Stockfish Chess Engine
                       <span className="px-1.5 py-0.2 rounded text-[9px] font-mono bg-emerald-950 border border-emerald-700/50 text-emerald-300">
-                        AVX-512 NNUE
+                        ~3650+ Elo
                       </span>
                     </h4>
-                    <p className="text-[10px] text-slate-400">World's strongest open-source engine (~3650+ Elo)</p>
+                    <p className="text-[10px] text-slate-400">World's strongest open-source engine</p>
                   </div>
                 </div>
 
@@ -228,7 +228,7 @@ export function UpdateModal({ isOpen, onClose }) {
                         Gemini 2.5 Flash
                       </span>
                     </h4>
-                    <p className="text-[10px] text-slate-400">Google Gen AI SDK v2.21.0 • 1,500 RPD Free Quota</p>
+                    <p className="text-[10px] text-slate-400">Google Gemini 2.5 Flash • 1,500 Free Daily Reviews</p>
                   </div>
                 </div>
 
@@ -255,7 +255,7 @@ export function UpdateModal({ isOpen, onClose }) {
               </div>
             </div>
 
-            {/* Card 3: Core Libraries & Tools */}
+            {/* Card 3: Core Engines & System Health */}
             <div className="bg-slate-950/60 border border-slate-800 rounded-xl p-3.5 space-y-2.5 shadow-sm">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -263,8 +263,8 @@ export function UpdateModal({ isOpen, onClose }) {
                     <Package size={16} />
                   </div>
                   <div>
-                    <h4 className="text-xs font-bold text-white">Core Libraries & NPM Tools</h4>
-                    <p className="text-[10px] text-slate-400">Official package versions on npm registry</p>
+                    <h4 className="text-xs font-bold text-white">Core Engines & System Health</h4>
+                    <p className="text-[10px] text-slate-400">Official verified engines and chess software packages</p>
                   </div>
                 </div>
 

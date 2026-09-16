@@ -31,7 +31,7 @@ export function UseCaseBeginnerPage({ onNavigate, onLaunchApp }) {
             </div>
             <h3 className="text-base font-bold text-white">Undefended Piece Scanner</h3>
             <p className="text-xs text-slate-400 leading-relaxed">
-              90% of games under 1500 are decided by hung pieces. Apex conditions your subconscious to verify piece guards before every single ply.
+              90% of games under 1500 are decided by hung pieces. Apex conditions your instincts to verify piece guards before every single move.
             </p>
           </div>
 

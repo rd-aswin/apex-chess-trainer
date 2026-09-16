@@ -60,9 +60,9 @@ export function VsChesscomPage({ onNavigate, onLaunchApp }) {
                   <td className="p-4 sm:p-5 text-slate-200 bg-emerald-500/5">Test your alternative ideas on the board in real time</td>
                 </tr>
                 <tr>
-                  <td className="p-4 sm:p-5 font-bold text-white">Habit & Pattern Tracking</td>
+                  <td className="p-4 sm:p-5 font-bold text-white">Match History & Accuracy</td>
                   <td className="p-4 sm:p-5 text-slate-300">Basic rating breakdown and general accuracy score</td>
-                  <td className="p-4 sm:p-5 text-slate-200 bg-emerald-500/5">Audits repeating blunder patterns across your games (Apex Pro)</td>
+                  <td className="p-4 sm:p-5 text-slate-200 bg-emerald-500/5">1-Click past game reloader, interactive CAPS accuracy graph, and full match archive</td>
                 </tr>
                 <tr>
                   <td className="p-4 sm:p-5 font-bold text-white">Data Privacy & Storage</td>

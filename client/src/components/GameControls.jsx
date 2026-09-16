@@ -43,17 +43,17 @@ export function GameControls({
           <div>
             <div className="flex items-center gap-1.5">
               <span className="text-xs font-bold text-slate-200">
-                Stockfish WASM
+                Stockfish Engine
               </span>
               <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                <Zap size={10} /> Local 0ms
+                <Zap size={10} /> Instant
               </span>
               <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-rose-500/20 text-rose-300 border border-rose-500/30">
-                <Lock size={10} /> Level 20
+                <Lock size={10} /> ~3650 Elo
               </span>
             </div>
-            <div className="text-[10px] text-slate-400 font-mono">
-              Client WebAssembly • Hardware Accelerated • Instant
+            <div className="text-[10px] text-slate-400">
+              Runs Directly on Your Device • Zero Lag • Offline Ready
             </div>
           </div>
         </div>

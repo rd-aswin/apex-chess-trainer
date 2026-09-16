@@ -127,7 +127,7 @@ export function InteractiveDemoPage({ onNavigate, onLaunchApp }) {
 
           <div className="pt-6 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="text-xs text-slate-400">
-              Want to analyze your own custom PGNs or play live matches against Level 20 Stockfish?
+              Want to analyze your own games or play live matches against Grandmaster Stockfish (~3650 Elo)?
             </div>
             <button
               onClick={onLaunchApp}

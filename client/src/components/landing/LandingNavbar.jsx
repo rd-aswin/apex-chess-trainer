@@ -91,7 +91,7 @@ export function LandingNavbar({ currentPage, onNavigate, onLaunchApp }) {
                   <Swords className="w-4 h-4 text-cyan-400 mt-0.5 shrink-0" />
                   <div>
                     <div className="text-xs font-bold text-white">World Champion Engine</div>
-                    <div className="text-[11px] text-slate-400">Stockfish 19 Level 20 dual-NNUE analysis on your laptop</div>
+                    <div className="text-[11px] text-slate-400">Grandmaster analysis running lightning-fast on your device</div>
                   </div>
                 </button>
                 <button 

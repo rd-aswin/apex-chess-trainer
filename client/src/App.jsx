@@ -1098,7 +1098,7 @@ export function App() {
           {isAnalyzing && (
             <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 text-xs font-semibold">
               <Loader2 size={13} className="animate-spin text-emerald-400" />
-              <span className="font-mono">{analysisProgress?.percent ? `Analyzing ${analysisProgress.percent}%` : 'Stockfish Analyzing...'}</span>
+              <span className="font-mono">{analysisProgress?.percent ? `Analyzing ${analysisProgress.percent}%` : 'Analyzing Match...'}</span>
             </div>
           )}
 
@@ -1129,10 +1129,10 @@ export function App() {
           <button
             onClick={() => setIsUpdateModalOpen(true)}
             className="relative flex items-center gap-1 px-2.5 py-1 rounded hover:bg-slate-800 text-slate-300 hover:text-white transition-colors border border-slate-700/80 bg-slate-800/60"
-            title="Check for Updates & Tool Health"
+            title="System & Engine Health"
           >
             <RefreshCw size={13} className="text-emerald-400" />
-            <span className="text-[11px] font-semibold hidden md:inline">Updates</span>
+            <span className="text-[11px] font-semibold hidden md:inline">Health</span>
             {updateAvailableBadge && (
               <span className="w-2 h-2 rounded-full bg-amber-400 absolute -top-0.5 -right-0.5 ring-2 ring-slate-900 animate-pulse" />
             )}

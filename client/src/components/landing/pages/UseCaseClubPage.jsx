@@ -61,7 +61,7 @@ export function UseCaseClubPage({ onNavigate, onLaunchApp }) {
         <div className="bg-gradient-to-r from-cyan-500/10 via-slate-900 to-slate-950 border border-cyan-500/30 rounded-3xl p-8 flex flex-col sm:flex-row items-center justify-between gap-6">
           <div>
             <h3 className="text-xl font-bold text-white">Reach 2000+ Elo with Strategic Clarity</h3>
-            <p className="text-xs text-slate-400 mt-1">Confront locked Level 20 Stockfish and learn positional refutations.</p>
+            <p className="text-xs text-slate-400 mt-1">Confront Grandmaster Stockfish (~3650 Elo) and learn concrete positional refutations.</p>
           </div>
           <button
             onClick={onLaunchApp}

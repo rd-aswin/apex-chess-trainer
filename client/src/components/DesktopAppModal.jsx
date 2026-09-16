@@ -30,7 +30,7 @@ export function DesktopAppModal({ isOpen, onClose }) {
     } catch (err) {
       setStatusMessage({
         type: 'error',
-        text: 'Could not connect to backend server.'
+        text: 'Could not connect to service.'
       });
     } finally {
       setIsCreating(false);
@@ -76,7 +76,7 @@ export function DesktopAppModal({ isOpen, onClose }) {
               Apex Chess Trainer
             </h4>
             <p className="text-xs text-slate-400 max-w-xs leading-relaxed">
-              Play completely offline against official Stockfish 19 NNUE (~3650+ Elo) in a standalone PC window.
+              Play completely offline against the official Stockfish Grandmaster engine (~3650+ Elo) in a standalone window.
             </p>
           </div>
 
@@ -120,7 +120,7 @@ export function DesktopAppModal({ isOpen, onClose }) {
               How it works:
             </div>
             <p className="leading-relaxed">
-              Double-clicking the shortcut automatically boots the backend Stockfish 19 engine and opens the standalone app with no terminal required.
+              Double-clicking the shortcut automatically launches Apex Chess Trainer as a dedicated desktop application with zero configuration needed.
             </p>
           </div>
         </div>

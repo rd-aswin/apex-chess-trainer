@@ -230,7 +230,7 @@ export function PricingPage({ onNavigate, onLaunchApp }) {
                 </div>
                 <div className="flex items-start gap-2">
                   <Check className="w-4 h-4 text-indigo-400 shrink-0 mt-0.5" />
-                  <span>World Champion Stockfish 19 NNUE engine</span>
+                  <span>World Champion Stockfish Grandmaster engine</span>
                 </div>
                 <div className="flex items-start gap-2">
                   <Check className="w-4 h-4 text-indigo-400 shrink-0 mt-0.5" />
@@ -294,7 +294,7 @@ export function PricingPage({ onNavigate, onLaunchApp }) {
 
         </div>
 
-        {/* Razorpay Integration Trust Banner & Test Checkout */}
+        {/* Payment Security & Trust Banner */}
         <div className="mt-8 p-4 rounded-2xl bg-slate-950/80 border border-emerald-500/30 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-emerald-500/15 border border-emerald-500/40 flex items-center justify-center text-emerald-400 shrink-0">
@@ -302,19 +302,20 @@ export function PricingPage({ onNavigate, onLaunchApp }) {
             </div>
             <div>
               <div className="font-bold text-white flex items-center gap-2">
-                <span>Razorpay Standard Web Checkout Active</span>
-                <span className="px-2 py-0.5 rounded-full text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-mono">Test Gateway</span>
+                <span>Bank-Grade 256-Bit Secure Checkout</span>
+                <span className="px-2 py-0.5 rounded-full text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-semibold">Verified Merchant</span>
               </div>
-              <div className="text-slate-400 text-[11px]">HMAC-SHA256 server verification • Instant Pro activation</div>
+              <div className="text-slate-400 text-[11px]">Powered by Razorpay • UPI, Cards & Net Banking • Instant Pro Activation</div>
             </div>
           </div>
           <button
             onClick={() => handleCheckout('test')}
             disabled={isProcessing}
             className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-emerald-300 border border-emerald-500/40 font-bold text-xs transition-colors flex items-center gap-1.5 shrink-0 shadow-sm"
+            title="Try a live test payment of ₹1.00 to preview the Razorpay modal"
           >
             <CreditCard size={13} />
-            <span>⚡ Test ₹1.00 Checkout</span>
+            <span>⚡ Try Demo Payment (₹1.00)</span>
           </button>
         </div>
       </div>
