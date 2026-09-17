@@ -3,13 +3,90 @@ import path from 'path';
 import os from 'os';
 import crypto from 'crypto';
 
-const USERS_FILE = path.join(os.tmpdir(), 'apex_users.json');
 export const DAILY_FREE_LIMIT = 3;
+const USERS_FILE = path.join(os.tmpdir(), 'apex_users.json');
 
-// In-memory cache for warm serverless instances
+// In-memory cache for warm serverless instances / offline fallback
 let memoryUsers = null;
 
-function ensureStore() {
+// Support .env if process.env values are not preloaded by runtime
+if (!process.env.KV_REST_API_URL || !process.env.KV_REST_API_TOKEN) {
+  try {
+    const envPaths = [
+      path.resolve(process.cwd(), '.env'),
+      path.resolve(process.cwd(), '../.env'),
+      path.resolve(process.cwd(), 'client/.env')
+    ];
+    for (const envPath of envPaths) {
+      if (fs.existsSync(envPath)) {
+        const content = fs.readFileSync(envPath, 'utf8');
+        for (const line of content.split('\n')) {
+          const match = line.match(/^\s*([\w_]+)\s*=\s*(.*)?\s*$/);
+          if (match) {
+            const key = match[1];
+            let val = (match[2] || '').trim();
+            if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
+              val = val.slice(1, -1);
+            }
+            if (!process.env[key]) {
+              process.env[key] = val;
+            }
+          }
+        }
+      }
+    }
+  } catch (e) {}
+}
+
+function getKvConfig() {
+  const url = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
+  return { url, token };
+}
+
+/**
+ * Execute a command against Upstash Redis REST API using native fetch.
+ * Returns the command result, or null on failure / unconfigured KV.
+ */
+export async function kvCommand(command) {
+  const { url, token } = getKvConfig();
+  if (!url || !token) return null;
+
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(command)
+    });
+
+    if (!res.ok) {
+      const errText = await res.text();
+      console.warn('[Upstash KV Error]', res.status, errText);
+      return null;
+    }
+
+    const data = await res.json();
+    return data.result !== undefined ? data.result : null;
+  } catch (err) {
+    console.warn('[Upstash KV Network Error]:', err.message);
+    return null;
+  }
+}
+
+function parseKVResult(result) {
+  if (!result) return null;
+  if (typeof result === 'object') return result;
+  try {
+    return JSON.parse(result);
+  } catch (e) {
+    return result;
+  }
+}
+
+function ensureLocalStore() {
   if (memoryUsers !== null) return memoryUsers;
 
   try {
@@ -21,21 +98,70 @@ function ensureStore() {
       fs.writeFileSync(USERS_FILE, JSON.stringify([], null, 2), 'utf-8');
     }
   } catch (err) {
-    console.warn('[Vercel Auth Store] Fallback to in-memory store:', err.message);
     memoryUsers = [];
   }
   return memoryUsers;
 }
 
-function saveStore(users) {
+function saveLocalStore(users) {
   memoryUsers = users;
   try {
     fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2), 'utf-8');
     return true;
   } catch (err) {
-    console.warn('[Vercel Auth Store] Error persisting to /tmp:', err.message);
     return false;
   }
+}
+
+/**
+ * Fetch full user record from Upstash KV, falling back to local store.
+ * Supports email or user ID.
+ */
+async function getUserRecord(identifier) {
+  if (!identifier) return null;
+  const isEmail = identifier.includes('@');
+  let email = isEmail ? identifier.trim().toLowerCase() : null;
+
+  if (!email) {
+    const kvEmail = await kvCommand(['GET', `uid:${identifier}`]);
+    if (kvEmail) {
+      email = String(kvEmail).trim().toLowerCase();
+    }
+  }
+
+  if (email) {
+    const raw = await kvCommand(['GET', `user:${email}`]);
+    const parsed = parseKVResult(raw);
+    if (parsed) return parsed;
+  }
+
+  // Fallback to local memory / /tmp store
+  const users = ensureLocalStore();
+  return users.find((u) => u.email === identifier || u.id === identifier) || null;
+}
+
+/**
+ * Save user record to both Upstash KV and local memory store.
+ */
+async function saveUser(user) {
+  if (!user || !user.email) return false;
+
+  // Persist to Upstash KV
+  const userJson = JSON.stringify(user);
+  const p1 = kvCommand(['SET', `user:${user.email}`, userJson]);
+  const p2 = user.id ? kvCommand(['SET', `uid:${user.id}`, user.email]) : Promise.resolve();
+  await Promise.all([p1, p2]);
+
+  // Sync to local store
+  const users = ensureLocalStore();
+  const idx = users.findIndex((u) => u.email === user.email);
+  if (idx >= 0) {
+    users[idx] = user;
+  } else {
+    users.push(user);
+  }
+  saveLocalStore(users);
+  return true;
 }
 
 export function getTodayDateString() {
@@ -76,7 +202,7 @@ export function sanitizeUser(user) {
   };
 }
 
-export function registerUser({ email, name, password }) {
+export async function registerUser({ email, name, password }) {
   if (!email || !email.includes('@')) {
     return { success: false, error: 'Please enter a valid email address.' };
   }
@@ -85,8 +211,7 @@ export function registerUser({ email, name, password }) {
   }
 
   const normalizedEmail = email.trim().toLowerCase();
-  const users = ensureStore();
-  const existing = users.find((u) => u.email === normalizedEmail);
+  const existing = await getUserRecord(normalizedEmail);
 
   if (existing) {
     return { success: false, error: 'An account with this email already exists. Please log in.' };
@@ -94,9 +219,10 @@ export function registerUser({ email, name, password }) {
 
   const { salt, hash } = hashPassword(password);
   const token = crypto.randomBytes(32).toString('hex');
+  const userId = 'usr_' + Date.now() + '_' + crypto.randomBytes(4).toString('hex');
 
   const newUser = {
-    id: 'usr_' + Date.now() + '_' + crypto.randomBytes(4).toString('hex'),
+    id: userId,
     email: normalizedEmail,
     name: name ? name.trim() : normalizedEmail.split('@')[0],
     salt,
@@ -113,8 +239,9 @@ export function registerUser({ email, name, password }) {
     tokens: [token]
   };
 
-  users.push(newUser);
-  saveStore(users);
+  // Persist user and session token (30-day TTL)
+  await saveUser(newUser);
+  await kvCommand(['SET', `token:${token}`, normalizedEmail, 'EX', 30 * 86400]);
 
   return {
     success: true,
@@ -124,14 +251,13 @@ export function registerUser({ email, name, password }) {
   };
 }
 
-export function verifyUserCode({ email, code }) {
+export async function verifyUserCode({ email, code }) {
   if (!email) {
     return { success: false, error: 'Email is required.' };
   }
 
   const normalizedEmail = email.trim().toLowerCase();
-  const users = ensureStore();
-  const user = users.find((u) => u.email === normalizedEmail);
+  const user = await getUserRecord(normalizedEmail);
 
   if (!user) {
     return { success: false, error: 'Account not found.' };
@@ -143,7 +269,9 @@ export function verifyUserCode({ email, code }) {
 
   const token = crypto.randomBytes(32).toString('hex');
   user.tokens = [...(user.tokens || []).slice(-4), token];
-  saveStore(users);
+
+  await saveUser(user);
+  await kvCommand(['SET', `token:${token}`, normalizedEmail, 'EX', 30 * 86400]);
 
   return {
     success: true,
@@ -153,14 +281,13 @@ export function verifyUserCode({ email, code }) {
   };
 }
 
-export function loginUser({ email, password }) {
+export async function loginUser({ email, password }) {
   if (!email || !password) {
     return { success: false, error: 'Email and password are required.' };
   }
 
   const normalizedEmail = email.trim().toLowerCase();
-  const users = ensureStore();
-  const user = users.find((u) => u.email === normalizedEmail);
+  const user = await getUserRecord(normalizedEmail);
 
   if (!user) {
     return { success: false, error: 'Invalid email or password.' };
@@ -171,12 +298,13 @@ export function loginUser({ email, password }) {
     return { success: false, error: 'Invalid email or password.' };
   }
 
-  // Auto-activate any legacy unverified user
   user.isVerified = true;
 
   const token = crypto.randomBytes(32).toString('hex');
   user.tokens = [...(user.tokens || []).slice(-4), token];
-  saveStore(users);
+
+  await saveUser(user);
+  await kvCommand(['SET', `token:${token}`, normalizedEmail, 'EX', 30 * 86400]);
 
   return {
     success: true,
@@ -186,40 +314,59 @@ export function loginUser({ email, password }) {
   };
 }
 
-export function getUserByToken(token) {
+export async function getUserByToken(token) {
   if (!token) return null;
-  const users = ensureStore();
-  const user = users.find((u) => Array.isArray(u.tokens) && u.tokens.includes(token));
+
+  let email = null;
+  try {
+    const res = await kvCommand(['GET', `token:${token}`]);
+    if (res) email = String(res).trim().toLowerCase();
+  } catch (e) {}
+
+  let user = null;
+  if (email) {
+    user = await getUserRecord(email);
+  }
+
+  // Fallback to local memory store tokens
+  if (!user) {
+    const users = ensureLocalStore();
+    user = users.find((u) => Array.isArray(u.tokens) && u.tokens.includes(token));
+  }
+
   if (!user) return null;
 
   const today = getTodayDateString();
   if (!user.dailyReviews || user.dailyReviews.date !== today) {
     user.dailyReviews = { date: today, count: 0 };
-    saveStore(users);
+    await saveUser(user);
   }
 
   return sanitizeUser(user);
 }
 
-export function logoutUser(token) {
+export async function logoutUser(token) {
   if (!token) return false;
-  const users = ensureStore();
-  const user = users.find((u) => Array.isArray(u.tokens) && u.tokens.includes(token));
-  if (!user) return false;
 
-  user.tokens = user.tokens.filter((t) => t !== token);
-  saveStore(users);
+  try {
+    await kvCommand(['DEL', `token:${token}`]);
+  } catch (e) {}
+
+  const users = ensureLocalStore();
+  const user = users.find((u) => Array.isArray(u.tokens) && u.tokens.includes(token));
+  if (user) {
+    user.tokens = (user.tokens || []).filter((t) => t !== token);
+    saveLocalStore(users);
+  }
   return true;
 }
 
-export function consumeUserReview(userId) {
-  if (!userId) {
-    return { success: false, error: 'User ID is required.' };
+export async function consumeUserReview(identifier) {
+  if (!identifier) {
+    return { success: false, error: 'User identifier is required.' };
   }
 
-  const users = ensureStore();
-  const user = users.find((u) => u.id === userId);
-
+  const user = await getUserRecord(identifier);
   if (!user) {
     return { success: false, error: 'User account not found.' };
   }
@@ -249,7 +396,7 @@ export function consumeUserReview(userId) {
   }
 
   user.dailyReviews.count += 1;
-  saveStore(users);
+  await saveUser(user);
 
   return {
     success: true,
@@ -257,6 +404,31 @@ export function consumeUserReview(userId) {
     count: user.dailyReviews.count,
     remaining: Math.max(0, DAILY_FREE_LIMIT - user.dailyReviews.count)
   };
+}
+
+export async function upgradeUserToPro({ email, token }) {
+  let targetEmail = email ? email.trim().toLowerCase() : null;
+
+  if (!targetEmail && token) {
+    const res = await kvCommand(['GET', `token:${token}`]);
+    if (res) targetEmail = String(res).trim().toLowerCase();
+    if (!targetEmail) {
+      const users = ensureLocalStore();
+      const u = users.find((usr) => Array.isArray(usr.tokens) && usr.tokens.includes(token));
+      if (u) targetEmail = u.email;
+    }
+  }
+
+  if (!targetEmail) return null;
+
+  const user = await getUserRecord(targetEmail);
+  if (!user) return null;
+
+  user.plan = 'pro';
+  user.proActivatedAt = new Date().toISOString();
+  await saveUser(user);
+
+  return sanitizeUser(user);
 }
 
 export function setCorsHeaders(res) {

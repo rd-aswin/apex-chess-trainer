@@ -1,4 +1,5 @@
 import { API_BASE } from '../config';
+import { getAuthToken, fetchCurrentUser } from './auth';
 
 /**
  * Ensures Razorpay Checkout script is loaded on the page.
@@ -73,9 +74,13 @@ export async function initiateRazorpayCheckout({
       handler: async function (response) {
         try {
           // Step 3: Verify Payment Signature on Backend
+          const authToken = getAuthToken();
           const verifyRes = await fetch(`${API_BASE}/verify-payment`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+              'Content-Type': 'application/json',
+              ...(authToken ? { Authorization: `Bearer ${authToken}` } : {})
+            },
             body: JSON.stringify({
               razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
@@ -85,6 +90,11 @@ export async function initiateRazorpayCheckout({
 
           const verifyData = await verifyRes.json();
           if (verifyRes.ok && verifyData.success) {
+            // Refresh authenticated user in state/store
+            try {
+              await fetchCurrentUser();
+            } catch (e) {}
+
             // Save paid status locally
             try {
               localStorage.setItem('apex_pro_license', JSON.stringify({

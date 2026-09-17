@@ -19,21 +19,21 @@ export default async function handler(req, res) {
       case 'register': {
         if (req.method !== 'POST') return res.status(405).json({ success: false, error: 'Method Not Allowed' });
         const { email, name, password } = req.body || {};
-        const result = registerUser({ email, name, password });
+        const result = await registerUser({ email, name, password });
         return res.status(result.success ? 200 : 400).json(result);
       }
 
       case 'verify': {
         if (req.method !== 'POST') return res.status(405).json({ success: false, error: 'Method Not Allowed' });
         const { email, code } = req.body || {};
-        const result = verifyUserCode({ email, code });
+        const result = await verifyUserCode({ email, code });
         return res.status(result.success ? 200 : 400).json(result);
       }
 
       case 'login': {
         if (req.method !== 'POST') return res.status(405).json({ success: false, error: 'Method Not Allowed' });
         const { email, password } = req.body || {};
-        const result = loginUser({ email, password });
+        const result = await loginUser({ email, password });
         return res.status(result.success ? 200 : 400).json(result);
       }
 
@@ -42,7 +42,7 @@ export default async function handler(req, res) {
         const authHeader = req.headers.authorization || '';
         const token = authHeader.startsWith('Bearer ') ? authHeader.substring(7).trim() : null;
         if (!token) return res.status(401).json({ success: false, error: 'No authorization token provided.' });
-        const user = getUserByToken(token);
+        const user = await getUserByToken(token);
         if (!user) return res.status(401).json({ success: false, error: 'Session expired or invalid token.' });
         return res.status(200).json({ success: true, user });
       }
@@ -51,7 +51,7 @@ export default async function handler(req, res) {
         if (req.method !== 'POST') return res.status(405).json({ success: false, error: 'Method Not Allowed' });
         const authHeader = req.headers.authorization || '';
         const token = authHeader.startsWith('Bearer ') ? authHeader.substring(7).trim() : null;
-        if (token) logoutUser(token);
+        if (token) await logoutUser(token);
         return res.status(200).json({ success: true, message: 'Logged out successfully.' });
       }
 
@@ -66,7 +66,7 @@ export default async function handler(req, res) {
             error: 'Please sign in or create a free account to access match reviews.'
           });
         }
-        const user = getUserByToken(token);
+        const user = await getUserByToken(token);
         if (!user) {
           return res.status(401).json({
             success: false,
@@ -74,7 +74,7 @@ export default async function handler(req, res) {
             error: 'Session expired. Please sign in again.'
           });
         }
-        const result = consumeUserReview(user.id);
+        const result = await consumeUserReview(user.email || user.id);
         return res.status(result.success ? 200 : 403).json(result);
       }
 

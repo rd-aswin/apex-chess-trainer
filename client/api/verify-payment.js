@@ -1,9 +1,10 @@
 import crypto from 'crypto';
+import { upgradeUserToPro } from './auth/_store.js';
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
   if (req.method === 'OPTIONS') return res.status(200).end();
 
@@ -12,7 +13,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body || {};
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, email } = req.body || {};
 
     if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
       return res.status(400).json({
@@ -35,11 +36,24 @@ export default async function handler(req, res) {
       .digest('hex');
 
     if (expectedSignature === razorpay_signature) {
+      // Upgrade user account to Pro if authenticated or email provided
+      const authHeader = req.headers.authorization || '';
+      const token = authHeader.startsWith('Bearer ') ? authHeader.substring(7).trim() : null;
+      let upgradedUser = null;
+      try {
+        if (token || email) {
+          upgradedUser = await upgradeUserToPro({ email, token });
+        }
+      } catch (upgradeErr) {
+        console.warn('[verify-payment] Failed to upgrade user in KV:', upgradeErr.message);
+      }
+
       return res.status(200).json({
         success: true,
         message: 'Payment verified successfully',
         order_id: razorpay_order_id,
-        payment_id: razorpay_payment_id
+        payment_id: razorpay_payment_id,
+        user: upgradedUser
       });
     } else {
       return res.status(400).json({
