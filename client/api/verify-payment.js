@@ -99,15 +99,29 @@ export default async function handler(req, res) {
       console.warn('[verify-payment] Could not mark payment claimed in KV:', claimErr.message);
     }
 
+    const isPlanMonthly = targetPlanId === 'monthly';
+    const isPlanAnnual = targetPlanId === 'annual';
+    const isPlanLifetime = targetPlanId === 'lifetime' || targetPlanId === 'demo';
+
+    const fallbackExpiresAt = isPlanMonthly
+      ? new Date(Date.now() + 30 * 86400 * 1000).toISOString()
+      : isPlanAnnual
+        ? new Date(Date.now() + 365 * 86400 * 1000).toISOString()
+        : null;
+
+    const resolvedDuration = upgradedUser?.planDuration || (isPlanMonthly ? 'monthly' : isPlanAnnual ? 'annual' : 'lifetime');
+    const resolvedIsLifetime = (isPlanMonthly || isPlanAnnual) ? false : (upgradedUser ? upgradedUser.isLifetime : isPlanLifetime);
+    const resolvedExpiresAt = isPlanLifetime ? null : (upgradedUser?.proExpiresAt || fallbackExpiresAt);
+
     return res.status(200).json({
       success: true,
       message: 'Payment verified successfully',
       order_id: razorpay_order_id,
       payment_id: razorpay_payment_id,
       planId: targetPlanId,
-      planDuration: upgradedUser?.planDuration || (targetPlanId === 'monthly' ? 'monthly' : 'lifetime'),
-      isLifetime: upgradedUser?.isLifetime ?? (targetPlanId === 'lifetime' || targetPlanId === 'demo'),
-      proExpiresAt: upgradedUser?.proExpiresAt || null,
+      planDuration: resolvedDuration,
+      isLifetime: resolvedIsLifetime,
+      proExpiresAt: resolvedExpiresAt,
       user: upgradedUser
     });
   } catch (err) {

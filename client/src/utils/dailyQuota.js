@@ -13,28 +13,49 @@ export const QUOTA_STORAGE_KEY = 'apex_daily_free_reviews';
 const AUTH_USER_KEY = 'apex_auth_user';
 
 /**
+ * Helper to retrieve currently authenticated user from localStorage.
+ */
+function getActiveUser() {
+  try {
+    const raw = localStorage.getItem(AUTH_USER_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch (e) {
+    return null;
+  }
+}
+
+/**
  * Checks if the current authenticated user has an active, unexpired Pro license.
+ * Logged-out visitors are NEVER unlimited.
  */
 export function isUserUnlimited() {
   try {
-    // 1. Authenticated User Pro Plan check
-    const rawUser = localStorage.getItem(AUTH_USER_KEY);
-    if (rawUser) {
-      const user = JSON.parse(rawUser);
-      if (user && (user.plan === 'pro' || user.isPro)) {
-        if (user.proExpiresAt && Date.now() > new Date(user.proExpiresAt).getTime()) {
-          return false; // Subscription expired
-        }
-        return true;
-      }
+    const user = getActiveUser();
+    if (!user) {
+      // Visitor / Logged-out -> Never unlimited
+      return false;
     }
 
-    // 2. Verified Pro License storage check
+    if (user.plan === 'pro' || user.isPro) {
+      // Check expiration for monthly/annual plans
+      if (user.proExpiresAt) {
+        const expireTime = new Date(user.proExpiresAt).getTime();
+        if (Date.now() > expireTime) {
+          return false; // Subscription expired
+        }
+      }
+      return true;
+    }
+
+    // Optional license fallback matching this specific user
     const proRaw = localStorage.getItem('apex_pro_license');
     if (proRaw) {
       const parsed = JSON.parse(proRaw);
-      if (parsed && parsed.isPro) {
-        if (parsed.expiresAt && Date.now() > new Date(parsed.expiresAt).getTime()) {
+      const matchesUser = (parsed.userId && parsed.userId === user.id) ||
+                          (parsed.userEmail && parsed.userEmail.toLowerCase() === user.email.toLowerCase());
+      if (matchesUser && parsed.isPro) {
+        const exp = parsed.expiresAt || parsed.proExpiresAt;
+        if (exp && Date.now() > new Date(exp).getTime()) {
           return false; // Expired
         }
         return true;
@@ -48,28 +69,53 @@ export function isUserUnlimited() {
 
 /**
  * Checks if the current user has a permanent Lifetime membership (or ₹1 demo).
+ * Monthly and Annual plans are NEVER lifetime.
+ * Logged-out visitors are NEVER lifetime.
  */
 export function isUserLifetime() {
   try {
-    // Check authenticated user profile
-    const rawUser = localStorage.getItem(AUTH_USER_KEY);
-    if (rawUser) {
-      const user = JSON.parse(rawUser);
-      if (user && (user.plan === 'pro' || user.isPro)) {
-        if (user.isLifetime) return true;
-        if (user.planDuration === 'lifetime') return true;
-        if (!user.proExpiresAt) return true; // Lifetime by default if no expiry
-      }
+    const user = getActiveUser();
+    if (!user) {
+      // Visitor / Logged-out -> Never lifetime
+      return false;
     }
 
-    // Check stored license
+    // Must be Pro
+    if (!user.isPro && user.plan !== 'pro') {
+      return false;
+    }
+
+    // Monthly & Annual plans are explicitly NOT lifetime
+    if (user.planDuration === 'monthly' || user.planDuration === 'annual') {
+      return false;
+    }
+    if (user.planId === 'monthly' || user.planId === 'annual') {
+      return false;
+    }
+
+    // If an active expiration timestamp exists, it is a timed subscription, NOT lifetime
+    if (user.proExpiresAt) {
+      return false;
+    }
+
+    // Explicit lifetime or demo grants
+    if (user.isLifetime === true || user.planDuration === 'lifetime' || user.planId === 'lifetime' || user.planId === 'demo') {
+      return true;
+    }
+
+    // Fallback license check strictly matching this user
     const proRaw = localStorage.getItem('apex_pro_license');
     if (proRaw) {
       const parsed = JSON.parse(proRaw);
-      if (parsed && parsed.isPro) {
-        if (parsed.isLifetime || parsed.planDuration === 'lifetime') return true;
-        if (parsed.plan && parsed.plan.toLowerCase().includes('lifetime')) return true;
-        if (!parsed.expiresAt && !parsed.proExpiresAt) return true;
+      const matchesUser = (parsed.userId && parsed.userId === user.id) ||
+                          (parsed.userEmail && parsed.userEmail.toLowerCase() === user.email.toLowerCase());
+      if (matchesUser && parsed.isPro) {
+        if (parsed.planDuration === 'monthly' || parsed.planDuration === 'annual') return false;
+        if (parsed.planId === 'monthly' || parsed.planId === 'annual') return false;
+        if (parsed.expiresAt || parsed.proExpiresAt) return false;
+        if (parsed.isLifetime === true || parsed.planDuration === 'lifetime' || parsed.planId === 'lifetime' || parsed.planId === 'demo') {
+          return true;
+        }
       }
     }
   } catch (e) {}
@@ -101,29 +147,9 @@ export function getTodayDateString() {
  */
 export function getDailyQuota() {
   const today = getTodayDateString();
+  const currentUser = getActiveUser();
 
-  // Pro users have unlimited reviews
-  if (isUserUnlimited()) {
-    return {
-      isUnlimited: true,
-      usedCount: 0,
-      remainingCount: Infinity,
-      maxAllowed: DAILY_LIMIT,
-      canReview: true,
-      requiresLogin: false,
-      date: today
-    };
-  }
-
-  // Check if user is logged in
-  let currentUser = null;
-  try {
-    const rawUser = localStorage.getItem(AUTH_USER_KEY);
-    if (rawUser) {
-      currentUser = JSON.parse(rawUser);
-    }
-  } catch (e) {}
-
+  // If no user is logged in, they must sign in / are on default free visitor tier
   if (!currentUser) {
     return {
       isUnlimited: false,
@@ -132,6 +158,19 @@ export function getDailyQuota() {
       maxAllowed: DAILY_LIMIT,
       canReview: false,
       requiresLogin: true,
+      date: today
+    };
+  }
+
+  // Authenticated Pro users have unlimited reviews
+  if (isUserUnlimited()) {
+    return {
+      isUnlimited: true,
+      usedCount: 0,
+      remainingCount: Infinity,
+      maxAllowed: DAILY_LIMIT,
+      canReview: true,
+      requiresLogin: false,
       date: today
     };
   }

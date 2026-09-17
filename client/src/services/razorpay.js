@@ -1,5 +1,5 @@
-import { API_BASE } from '../config';
-import { getAuthToken, fetchCurrentUser } from './auth';
+import { API_BASE } from '../config.js';
+import { getAuthToken, fetchCurrentUser, getStoredUser, setStoredUser } from './auth';
 
 /**
  * Ensures Razorpay Checkout script is loaded on the page.
@@ -77,6 +77,7 @@ export async function initiateRazorpayCheckout({
         try {
           // Step 3: Verify Payment Signature on Backend
           const authToken = getAuthToken();
+          const currentUser = getStoredUser();
           const verifyRes = await fetch(`${API_BASE}/verify-payment`, {
             method: 'POST',
             headers: {
@@ -87,31 +88,44 @@ export async function initiateRazorpayCheckout({
               razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_signature: response.razorpay_signature,
-              planId: orderData.planId || planId
+              planId: orderData.planId || planId,
+              email: currentUser?.email || prefill?.email || null
             })
           });
 
           const verifyData = await verifyRes.json();
           if (verifyRes.ok && verifyData.success) {
-            // Refresh authenticated user in state/store
-            try {
-              await fetchCurrentUser();
-            } catch (e) {}
+            // Update authenticated user in state/store immediately
+            if (verifyData.user) {
+              setStoredUser(verifyData.user);
+            } else {
+              try {
+                await fetchCurrentUser();
+              } catch (e) {}
+            }
 
-            // Save paid status locally with accurate duration and lifetime flag
-            try {
-              localStorage.setItem('apex_pro_license', JSON.stringify({
-                isPro: true,
-                plan: planName,
-                planId: verifyData.planId || orderData.planId || planId,
-                planDuration: verifyData.planDuration || (planId === 'monthly' ? 'monthly' : 'lifetime'),
-                isLifetime: verifyData.isLifetime ?? (planId === 'lifetime' || planId === 'demo'),
-                expiresAt: verifyData.proExpiresAt || null,
-                orderId: response.razorpay_order_id,
-                paymentId: response.razorpay_payment_id,
-                activatedAt: new Date().toISOString()
-              }));
-            } catch (e) {}
+            const activeUser = verifyData.user || getStoredUser();
+            const isMonthlyOrAnnual = (verifyData.planDuration === 'monthly' || verifyData.planDuration === 'annual' || planId === 'monthly' || planId === 'annual');
+            const calculatedIsLifetime = isMonthlyOrAnnual ? false : (verifyData.isLifetime ?? (planId === 'lifetime' || planId === 'demo'));
+
+            // Save paid status locally strictly scoped to the active user
+            if (activeUser) {
+              try {
+                localStorage.setItem('apex_pro_license', JSON.stringify({
+                  userId: activeUser.id,
+                  userEmail: activeUser.email,
+                  isPro: true,
+                  plan: planName,
+                  planId: verifyData.planId || orderData.planId || planId,
+                  planDuration: verifyData.planDuration || (planId === 'monthly' ? 'monthly' : 'lifetime'),
+                  isLifetime: calculatedIsLifetime,
+                  expiresAt: verifyData.proExpiresAt || null,
+                  orderId: response.razorpay_order_id,
+                  paymentId: response.razorpay_payment_id,
+                  activatedAt: new Date().toISOString()
+                }));
+              } catch (e) {}
+            }
 
             if (onSuccess) {
               onSuccess({
@@ -119,7 +133,7 @@ export async function initiateRazorpayCheckout({
                 planName,
                 planId: verifyData.planId || orderData.planId || planId,
                 planDuration: verifyData.planDuration || (planId === 'monthly' ? 'monthly' : 'lifetime'),
-                isLifetime: verifyData.isLifetime ?? (planId === 'lifetime' || planId === 'demo'),
+                isLifetime: calculatedIsLifetime,
                 expiresAt: verifyData.proExpiresAt || null,
                 amount: orderData.amount,
                 currency: orderData.currency

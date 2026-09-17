@@ -101,11 +101,21 @@ export function App() {
 
   // Fetch current user and sync auth state
   useEffect(() => {
+    // Purge any stale orphan license if no user is signed in or if user is on free tier
+    const storedUser = getStoredUser();
+    if (!storedUser || (!storedUser.isPro && storedUser.plan !== 'pro')) {
+      try {
+        localStorage.removeItem('apex_pro_license');
+      } catch (e) {}
+    }
+
     fetchCurrentUser().then((u) => {
       if (u) {
         setCurrentUser(u);
-        setQuotaState(getDailyQuota());
+      } else {
+        setCurrentUser(null);
       }
+      setQuotaState(getDailyQuota());
     });
 
     const handleAuth = (e) => {
@@ -1269,22 +1279,29 @@ export function App() {
             <span className="hidden sm:inline">Pricing & Site</span>
           </button>
 
-          {/* Daily Review Quota Pill */}
-          {!quotaState.isUnlimited ? (
+          {/* Daily Review Quota Pill / Member Badge */}
+          {!currentUser ? (
             <button
               onClick={() => {
-                if (!currentUser) {
-                  setAuthPromptMessage('Sign in or create a free account to unlock your 3 free match reviews today.');
-                  setIsAuthModalOpen(true);
-                } else {
-                  setIsDailyQuotaModalOpen(true);
-                }
+                setAuthPromptMessage('Sign in or create a free account to unlock your 3 free match reviews today.');
+                setIsAuthModalOpen(true);
               }}
               className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-800/90 hover:bg-slate-700/90 text-slate-300 hover:text-white transition-colors border border-slate-700 text-xs font-mono"
-              title={currentUser ? "Daily Quota: 3 Free Reviews / Day • Resets Midnight" : "Sign in to activate 3 free reviews/day"}
+              title="Sign in to activate 3 free reviews/day"
+            >
+              <span className="w-2 h-2 rounded-full bg-amber-400" />
+              <span>3/3 Free</span>
+            </button>
+          ) : !quotaState.isUnlimited ? (
+            <button
+              onClick={() => {
+                setIsDailyQuotaModalOpen(true);
+              }}
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-800/90 hover:bg-slate-700/90 text-slate-300 hover:text-white transition-colors border border-slate-700 text-xs font-mono"
+              title="Daily Quota: 3 Free Reviews / Day • Resets Midnight"
             >
               <span className={`w-2 h-2 rounded-full ${quotaState.canReview ? 'bg-emerald-400' : 'bg-amber-400'}`} />
-              <span>{currentUser ? `${quotaState.usedCount}/3 Free` : '3/3 Free'}</span>
+              <span>{`${quotaState.usedCount}/3 Free`}</span>
             </button>
           ) : isUserLifetime() ? (
             <div 

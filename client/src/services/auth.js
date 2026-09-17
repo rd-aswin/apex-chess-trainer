@@ -1,4 +1,4 @@
-import { API_BASE } from '../config';
+import { API_BASE } from '../config.js';
 
 const AUTH_TOKEN_KEY = 'apex_auth_token';
 const AUTH_USER_KEY = 'apex_auth_user';
@@ -34,8 +34,14 @@ export function setStoredUser(user) {
   try {
     if (user) {
       localStorage.setItem(AUTH_USER_KEY, JSON.stringify(user));
+      // If the newly logged in user is not Pro, remove any stale orphan license from previous accounts
+      if (!user.isPro && user.plan !== 'pro') {
+        localStorage.removeItem('apex_pro_license');
+      }
     } else {
       localStorage.removeItem(AUTH_USER_KEY);
+      localStorage.removeItem('apex_pro_license');
+      localStorage.removeItem('apex_daily_free_reviews');
     }
     // Notify app of auth change
     window.dispatchEvent(new CustomEvent('apex_auth_changed', { detail: user }));
@@ -152,6 +158,10 @@ export async function logoutAccount() {
   }
   setAuthToken(null);
   setStoredUser(null);
+  try {
+    localStorage.removeItem('apex_pro_license');
+    localStorage.removeItem('apex_daily_free_reviews');
+  } catch (e) {}
 }
 
 /**

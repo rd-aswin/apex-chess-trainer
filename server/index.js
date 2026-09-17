@@ -576,7 +576,7 @@ app.post('/api/verify-payment', (req, res) => {
       const orderMeta = localOrders.get(razorpay_order_id);
       const verifiedPlanId = orderMeta?.planId || planId || 'lifetime';
 
-      // Upgrade user to Pro if logged in or userId is supplied
+      // Upgrade user to Pro if logged in or userId/email is supplied
       let upgradedUser = null;
       const user = getAuthUserFromRequest(req) || (req.body.userId ? { id: req.body.userId } : null);
       if (user && user.id) {
@@ -587,12 +587,29 @@ app.post('/api/verify-payment', (req, res) => {
         });
       }
 
+      const isPlanMonthly = verifiedPlanId === 'monthly';
+      const isPlanAnnual = verifiedPlanId === 'annual';
+      const isPlanLifetime = verifiedPlanId === 'lifetime' || verifiedPlanId === 'demo';
+
+      const fallbackExpiresAt = isPlanMonthly
+        ? new Date(Date.now() + 30 * 86400 * 1000).toISOString()
+        : isPlanAnnual
+          ? new Date(Date.now() + 365 * 86400 * 1000).toISOString()
+          : null;
+
+      const resolvedDuration = upgradedUser?.planDuration || (isPlanMonthly ? 'monthly' : isPlanAnnual ? 'annual' : 'lifetime');
+      const resolvedIsLifetime = (isPlanMonthly || isPlanAnnual) ? false : (upgradedUser ? upgradedUser.isLifetime : isPlanLifetime);
+      const resolvedExpiresAt = isPlanLifetime ? null : (upgradedUser?.proExpiresAt || fallbackExpiresAt);
+
       return res.status(200).json({
         success: true,
         message: 'Payment verified successfully',
         order_id: razorpay_order_id,
         payment_id: razorpay_payment_id,
         planId: verifiedPlanId,
+        planDuration: resolvedDuration,
+        isLifetime: resolvedIsLifetime,
+        proExpiresAt: resolvedExpiresAt,
         user: upgradedUser
       });
     } else {

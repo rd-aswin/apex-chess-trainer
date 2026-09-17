@@ -8,10 +8,10 @@ import { PaymentReceiptModal } from '../../PaymentReceiptModal';
 import { isUserLifetime, isUserUnlimited } from '../../../utils/dailyQuota';
 import { getStoredUser } from '../../../services/auth';
 
-export function PricingPage({ onNavigate, onLaunchApp }) {
+export function PricingPage({ onNavigate, onLaunchApp, currentUser: propUser = null, onOpenAuth = null }) {
   const [billingCycle, setBillingCycle] = useState('yearly'); // 'monthly' | 'yearly'
   const [isProcessing, setIsProcessing] = useState(false);
-  const [currentUser, setCurrentUser] = useState(() => getStoredUser());
+  const [currentUser, setCurrentUser] = useState(() => propUser || getStoredUser());
   const [lifetimeActive, setLifetimeActive] = useState(() => isUserLifetime());
   const [proActive, setProActive] = useState(() => isUserUnlimited());
 
@@ -20,6 +20,15 @@ export function PricingPage({ onNavigate, onLaunchApp }) {
     status: 'loading',
     details: null
   });
+
+  // Sync prop changes
+  useEffect(() => {
+    if (propUser !== undefined) {
+      setCurrentUser(propUser);
+      setLifetimeActive(isUserLifetime());
+      setProActive(isUserUnlimited());
+    }
+  }, [propUser]);
 
   // Sync auth / pro state dynamically
   useEffect(() => {
@@ -33,6 +42,14 @@ export function PricingPage({ onNavigate, onLaunchApp }) {
   }, []);
 
   const handleCheckout = (planType) => {
+    // Require logged in user before initiating checkout so subscription links to their profile
+    if (!currentUser) {
+      if (onOpenAuth) {
+        onOpenAuth('Please sign in or create an account first so your Pro subscription is linked to your profile.');
+      }
+      return;
+    }
+
     let amount = 39900; // in paise
     let planId = 'monthly';
     let planName = 'Apex Pro Monthly';
@@ -75,6 +92,10 @@ export function PricingPage({ onNavigate, onLaunchApp }) {
       currency: 'INR',
       planName,
       description,
+      prefill: {
+        email: currentUser.email,
+        name: currentUser.name
+      },
       onSuccess: (verifyData) => {
         setIsProcessing(false);
         setLifetimeActive(isUserLifetime());

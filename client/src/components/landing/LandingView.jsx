@@ -51,7 +51,7 @@ export function LandingView({ onLaunchApp, initialPage = 'home', currentUser = n
       case 'home':
         return <HomePage onNavigate={navigateTo} onLaunchApp={onLaunchApp} />;
       case 'pricing':
-        return <PricingPage onNavigate={navigateTo} onLaunchApp={onLaunchApp} />;
+        return <PricingPage onNavigate={navigateTo} onLaunchApp={onLaunchApp} currentUser={currentUser} onOpenAuth={onOpenAuth} />;
       case 'how-byok-works':
         return <ByokGuidePage onNavigate={navigateTo} onLaunchApp={onLaunchApp} />;
       case 'vs-chesscom':
