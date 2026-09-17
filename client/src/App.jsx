@@ -16,11 +16,11 @@ import { AuthModal } from './components/AuthModal';
 import { LandingView } from './components/landing/LandingView';
 import { AnalysisLoadingHUD } from './components/AnalysisLoadingHUD';
 import { useSoundEffects } from './hooks/useSoundEffects';
-import { Swords, RotateCcw, Flag, Sparkles, Award, History, Volume2, VolumeX, Monitor, Bot, RefreshCw, UploadCloud, Loader2, LogIn, LogOut, User as UserIcon } from 'lucide-react';
+import { Swords, RotateCcw, Flag, Sparkles, Award, History, Volume2, VolumeX, Monitor, Bot, RefreshCw, UploadCloud, Loader2, LogIn, LogOut, User as UserIcon, Crown } from 'lucide-react';
 import { API_BASE } from './config';
 import { wasmEngine } from './services/wasmEngine';
 import { analyzeGame } from './services/analyzer';
-import { getDailyQuota, consumeDailyReview } from './utils/dailyQuota';
+import { getDailyQuota, consumeDailyReview, isUserLifetime } from './utils/dailyQuota';
 import { fetchCurrentUser, logoutAccount, getStoredUser, consumeServerReview } from './services/auth';
 
 export function App() {
@@ -1286,13 +1286,21 @@ export function App() {
               <span className={`w-2 h-2 rounded-full ${quotaState.canReview ? 'bg-emerald-400' : 'bg-amber-400'}`} />
               <span>{currentUser ? `${quotaState.usedCount}/3 Free` : '3/3 Free'}</span>
             </button>
+          ) : isUserLifetime() ? (
+            <div 
+              className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/15 border border-amber-500/40 text-amber-300 text-xs font-mono font-bold"
+              title="Lifetime Founder Member: Unlimited Match Reviews Forever"
+            >
+              <Crown size={12} className="text-amber-400 shrink-0" />
+              <span>Lifetime Member</span>
+            </div>
           ) : (
             <div 
-              className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-950/60 border border-emerald-500/30 text-emerald-400 text-xs font-mono"
-              title="Unlimited Match Reviews Active"
+              className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-950/60 border border-emerald-500/30 text-emerald-400 text-xs font-mono"
+              title="Unlimited Match Reviews Active (Pro Membership)"
             >
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span>Unlimited Pro</span>
+              <span>Pro Member</span>
             </div>
           )}
 

@@ -13,7 +13,7 @@ export const QUOTA_STORAGE_KEY = 'apex_daily_free_reviews';
 const AUTH_USER_KEY = 'apex_auth_user';
 
 /**
- * Checks if the current authenticated user has an active Pro license.
+ * Checks if the current authenticated user has an active, unexpired Pro license.
  */
 export function isUserUnlimited() {
   try {
@@ -21,18 +21,58 @@ export function isUserUnlimited() {
     const rawUser = localStorage.getItem(AUTH_USER_KEY);
     if (rawUser) {
       const user = JSON.parse(rawUser);
-      if (user && (user.plan === 'pro' || user.isPro)) return true;
+      if (user && (user.plan === 'pro' || user.isPro)) {
+        if (user.proExpiresAt && Date.now() > new Date(user.proExpiresAt).getTime()) {
+          return false; // Subscription expired
+        }
+        return true;
+      }
     }
 
     // 2. Verified Pro License storage check
     const proRaw = localStorage.getItem('apex_pro_license');
     if (proRaw) {
       const parsed = JSON.parse(proRaw);
-      if (parsed && parsed.isPro) return true;
+      if (parsed && parsed.isPro) {
+        if (parsed.expiresAt && Date.now() > new Date(parsed.expiresAt).getTime()) {
+          return false; // Expired
+        }
+        return true;
+      }
     }
   } catch (e) {
     console.warn('[dailyQuota] Error inspecting unlimited status:', e);
   }
+  return false;
+}
+
+/**
+ * Checks if the current user has a permanent Lifetime membership (or ₹1 demo).
+ */
+export function isUserLifetime() {
+  try {
+    // Check authenticated user profile
+    const rawUser = localStorage.getItem(AUTH_USER_KEY);
+    if (rawUser) {
+      const user = JSON.parse(rawUser);
+      if (user && (user.plan === 'pro' || user.isPro)) {
+        if (user.isLifetime) return true;
+        if (user.planDuration === 'lifetime') return true;
+        if (!user.proExpiresAt) return true; // Lifetime by default if no expiry
+      }
+    }
+
+    // Check stored license
+    const proRaw = localStorage.getItem('apex_pro_license');
+    if (proRaw) {
+      const parsed = JSON.parse(proRaw);
+      if (parsed && parsed.isPro) {
+        if (parsed.isLifetime || parsed.planDuration === 'lifetime') return true;
+        if (parsed.plan && parsed.plan.toLowerCase().includes('lifetime')) return true;
+        if (!parsed.expiresAt && !parsed.proExpiresAt) return true;
+      }
+    }
+  } catch (e) {}
   return false;
 }
 

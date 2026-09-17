@@ -6,6 +6,61 @@ import crypto from 'crypto';
 export const DAILY_FREE_LIMIT = 3;
 const USERS_FILE = path.join(os.tmpdir(), 'apex_users.json');
 
+/**
+ * Authoritative Server-Side Plan Definitions.
+ * Canonical pricing, currencies, and durations.
+ */
+export const AUTHORIZED_PLANS = {
+  demo: {
+    id: 'demo',
+    name: 'Razorpay Test Checkout',
+    amount: 100, // 100 paise = ₹1.00
+    currency: 'INR',
+    duration: 'lifetime' // ₹1 demo grants lifetime Pro as requested
+  },
+  monthly: {
+    id: 'monthly',
+    name: 'Apex Pro Monthly',
+    amount: 39900, // 39900 paise = ₹399.00
+    currency: 'INR',
+    duration: 'monthly',
+    days: 30
+  },
+  annual: {
+    id: 'annual',
+    name: 'Apex Pro Annual',
+    amount: 319900, // 319900 paise = ₹3,199.00
+    currency: 'INR',
+    duration: 'annual',
+    days: 365
+  },
+  lifetime: {
+    id: 'lifetime',
+    name: 'Apex Lifetime Founder',
+    amount: 489900, // 489900 paise = ₹4,899.00
+    currency: 'INR',
+    duration: 'lifetime'
+  }
+};
+
+/**
+ * Checks if a user's Pro subscription has elapsed.
+ * If expired, downgrades user to free. Returns true if updated.
+ */
+export function checkPlanExpiration(user) {
+  if (!user || user.plan !== 'pro') return false;
+  if (user.proExpiresAt) {
+    const expireTime = new Date(user.proExpiresAt).getTime();
+    if (Date.now() > expireTime) {
+      user.plan = 'free';
+      user.planDuration = null;
+      user.proExpiresAt = null;
+      return true;
+    }
+  }
+  return false;
+}
+
 // In-memory cache for warm serverless instances / offline fallback
 let memoryUsers = null;
 
@@ -181,9 +236,24 @@ export function hashPassword(password, salt = null) {
 export function sanitizeUser(user) {
   if (!user) return null;
   const today = getTodayDateString();
+
+  // Check if Pro has expired
+  if (user.plan === 'pro' && user.proExpiresAt) {
+    const expireTime = new Date(user.proExpiresAt).getTime();
+    if (Date.now() > expireTime) {
+      user.plan = 'free';
+      user.planDuration = null;
+      user.proExpiresAt = null;
+    }
+  }
+
+  const isPro = user.plan === 'pro';
+  const duration = isPro ? (user.planDuration || 'lifetime') : null;
+  const isLifetime = isPro && (duration === 'lifetime' || !user.proExpiresAt);
+
   const userDate = user.dailyReviews?.date || today;
   const usedToday = userDate === today ? (user.dailyReviews?.count || 0) : 0;
-  const remaining = user.plan === 'pro' ? Infinity : Math.max(0, DAILY_FREE_LIMIT - usedToday);
+  const remaining = isPro ? Infinity : Math.max(0, DAILY_FREE_LIMIT - usedToday);
 
   return {
     id: user.id,
@@ -191,7 +261,11 @@ export function sanitizeUser(user) {
     name: user.name,
     isVerified: !!user.isVerified,
     plan: user.plan || 'free',
-    isPro: user.plan === 'pro',
+    isPro,
+    planDuration: duration,
+    isLifetime,
+    proExpiresAt: user.proExpiresAt || null,
+    proActivatedAt: user.proActivatedAt || null,
     dailyReviews: {
       date: today,
       count: usedToday,
@@ -336,9 +410,18 @@ export async function getUserByToken(token) {
 
   if (!user) return null;
 
+  let needsSave = false;
+  if (checkPlanExpiration(user)) {
+    needsSave = true;
+  }
+
   const today = getTodayDateString();
   if (!user.dailyReviews || user.dailyReviews.date !== today) {
     user.dailyReviews = { date: today, count: 0 };
+    needsSave = true;
+  }
+
+  if (needsSave) {
     await saveUser(user);
   }
 
@@ -369,6 +452,11 @@ export async function consumeUserReview(identifier) {
   const user = await getUserRecord(identifier);
   if (!user) {
     return { success: false, error: 'User account not found.' };
+  }
+
+  // Check if Pro subscription has expired
+  if (checkPlanExpiration(user)) {
+    await saveUser(user);
   }
 
   if (user.plan === 'pro') {
@@ -406,7 +494,7 @@ export async function consumeUserReview(identifier) {
   };
 }
 
-export async function upgradeUserToPro({ email, token }) {
+export async function upgradeUserToPro({ email, token, planId = 'lifetime' }) {
   let targetEmail = email ? email.trim().toLowerCase() : null;
 
   if (!targetEmail && token) {
@@ -424,8 +512,32 @@ export async function upgradeUserToPro({ email, token }) {
   const user = await getUserRecord(targetEmail);
   if (!user) return null;
 
+  const normalizedPlanId = String(planId || 'lifetime').toLowerCase();
+  const planInfo = AUTHORIZED_PLANS[normalizedPlanId] || AUTHORIZED_PLANS.lifetime;
+
   user.plan = 'pro';
   user.proActivatedAt = new Date().toISOString();
+
+  if (planInfo.duration === 'monthly') {
+    // 30 days duration. If user already has active Pro time, extend from current expiration
+    const baseTime = (user.proExpiresAt && new Date(user.proExpiresAt).getTime() > Date.now())
+      ? new Date(user.proExpiresAt).getTime()
+      : Date.now();
+    user.planDuration = 'monthly';
+    user.proExpiresAt = new Date(baseTime + 30 * 86400 * 1000).toISOString();
+  } else if (planInfo.duration === 'annual') {
+    // 365 days duration
+    const baseTime = (user.proExpiresAt && new Date(user.proExpiresAt).getTime() > Date.now())
+      ? new Date(user.proExpiresAt).getTime()
+      : Date.now();
+    user.planDuration = 'annual';
+    user.proExpiresAt = new Date(baseTime + 365 * 86400 * 1000).toISOString();
+  } else {
+    // Lifetime or Demo (₹1.00) -> Permanent unlimited Pro
+    user.planDuration = 'lifetime';
+    user.proExpiresAt = null;
+  }
+
   await saveUser(user);
 
   return sanitizeUser(user);

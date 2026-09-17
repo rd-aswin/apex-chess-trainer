@@ -20,8 +20,13 @@ import {
   getUserByToken,
   logoutUser,
   consumeUserReview,
-  upgradeUserToPro
+  upgradeUserToPro,
+  AUTHORIZED_PLANS
 } from './auth.js';
+
+// In-memory payment deduplication and order-to-plan cache for local Express server
+const localOrders = new Map();
+const claimedPayments = new Set();
 
 dotenv.config();
 
@@ -455,17 +460,29 @@ app.get('/api/download-launcher', (req, res) => {
 // RAZORPAY STANDARD WEB CHECKOUT INTEGRATION
 // ==========================================
 
-// 1. Create Razorpay Order
+// 1. Create Razorpay Order with Authoritative Server-Side Pricing
 app.post('/api/create-order', async (req, res) => {
   try {
-    const { amount, currency = 'INR', receipt } = req.body;
+    const { planId = 'lifetime', amount, currency = 'INR', receipt } = req.body;
 
-    // Validate amount >= 100 paise (minimum ₹1.00)
-    if (amount === undefined || typeof amount !== 'number' || amount < 100) {
-      return res.status(400).json({
-        success: false,
-        error: 'Amount is required and must be at least 100 paise (₹1.00)'
-      });
+    // Resolve plan configuration
+    const normalizedPlanId = String(planId || 'lifetime').toLowerCase();
+    const planConfig = AUTHORIZED_PLANS[normalizedPlanId];
+
+    let chargeAmount = amount;
+    let finalPlanId = normalizedPlanId;
+
+    if (planConfig) {
+      chargeAmount = planConfig.amount;
+      finalPlanId = planConfig.id;
+    } else {
+      // Fallback validation if custom amount
+      if (chargeAmount === undefined || typeof chargeAmount !== 'number' || chargeAmount < 100) {
+        return res.status(400).json({
+          success: false,
+          error: 'Amount is required and must be at least 100 paise (₹1.00)'
+        });
+      }
     }
 
     const key_id = process.env.RAZORPAY_KEY_ID;
@@ -482,18 +499,27 @@ app.post('/api/create-order', async (req, res) => {
     const orderReceipt = receipt ? String(receipt) : `rcpt_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
 
     const order = await razorpay.orders.create({
-      amount: Math.round(amount),
+      amount: Math.round(chargeAmount),
       currency: (currency || 'INR').toUpperCase(),
       receipt: orderReceipt
     });
 
-    console.log(`[Razorpay Order Created]: ID=${order.id}, Amount=${order.amount} ${order.currency}`);
+    // Store order metadata locally for plan verification
+    localOrders.set(order.id, {
+      planId: finalPlanId,
+      amount: order.amount,
+      currency: order.currency,
+      createdAt: Date.now()
+    });
+
+    console.log(`[Razorpay Order Created]: ID=${order.id}, Plan=${finalPlanId}, Amount=${order.amount} ${order.currency}`);
 
     return res.status(200).json({
       success: true,
       order_id: order.id,
       amount: order.amount,
-      currency: order.currency
+      currency: order.currency,
+      planId: finalPlanId
     });
   } catch (err) {
     console.error('[Razorpay Create Order Error]:', err);
@@ -505,16 +531,24 @@ app.post('/api/create-order', async (req, res) => {
   }
 });
 
-// 2. Verify Razorpay Payment Signature
+// 2. Verify Razorpay Payment Signature & Anti-Replay Defense
 app.post('/api/verify-payment', (req, res) => {
   try {
-    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, planId } = req.body;
 
     // Missing fields validation
     if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
       return res.status(400).json({
         success: false,
         error: 'Missing required fields: razorpay_order_id, razorpay_payment_id, and razorpay_signature are all required'
+      });
+    }
+
+    // Anti-Replay defense: reject already claimed payment IDs
+    if (claimedPayments.has(razorpay_payment_id)) {
+      return res.status(409).json({
+        success: false,
+        error: 'Payment already processed and claimed. Duplicate redemption prevented.'
       });
     }
 
@@ -535,13 +569,21 @@ app.post('/api/verify-payment', (req, res) => {
     if (expectedSignature === razorpay_signature) {
       console.log(`[Razorpay Payment Verified]: Payment ${razorpay_payment_id} for Order ${razorpay_order_id}`);
 
+      // Mark payment as claimed
+      claimedPayments.add(razorpay_payment_id);
+
+      // Resolve planId from local order store or fallback to request body
+      const orderMeta = localOrders.get(razorpay_order_id);
+      const verifiedPlanId = orderMeta?.planId || planId || 'lifetime';
+
       // Upgrade user to Pro if logged in or userId is supplied
       let upgradedUser = null;
       const user = getAuthUserFromRequest(req) || (req.body.userId ? { id: req.body.userId } : null);
       if (user && user.id) {
         upgradedUser = upgradeUserToPro(user.id, {
           order_id: razorpay_order_id,
-          payment_id: razorpay_payment_id
+          payment_id: razorpay_payment_id,
+          planId: verifiedPlanId
         });
       }
 
@@ -550,6 +592,7 @@ app.post('/api/verify-payment', (req, res) => {
         message: 'Payment verified successfully',
         order_id: razorpay_order_id,
         payment_id: razorpay_payment_id,
+        planId: verifiedPlanId,
         user: upgradedUser
       });
     } else {

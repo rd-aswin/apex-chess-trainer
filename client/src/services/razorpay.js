@@ -25,7 +25,8 @@ export function loadRazorpayScript() {
  * 3. On success, calls backend /api/verify-payment to verify signature
  */
 export async function initiateRazorpayCheckout({
-  amount, // in paise (e.g., 39900 = ?399.00)
+  planId = 'monthly',
+  amount, // in paise (e.g., 39900 = ₹399.00)
   currency = 'INR',
   planName = 'Apex Pro',
   description = 'Apex Chess Trainer Pro Upgrade',
@@ -36,7 +37,7 @@ export async function initiateRazorpayCheckout({
 }) {
   try {
     if (!amount || amount < 100) {
-      throw new Error('Minimum order amount is 100 paise (?1.00)');
+      throw new Error('Minimum order amount is 100 paise (₹1.00)');
     }
 
     const isLoaded = await loadRazorpayScript();
@@ -46,11 +47,12 @@ export async function initiateRazorpayCheckout({
 
     const keyId = import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_live_TchwtnFfnGv7OO';
 
-    // Step 1: Create Order on Backend
+    // Step 1: Create Order on Backend with authoritative planId
     const orderRes = await fetch(`${API_BASE}/create-order`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
+        planId,
         amount: Math.round(amount),
         currency,
         receipt: `rcpt_${Date.now()}`
@@ -84,7 +86,8 @@ export async function initiateRazorpayCheckout({
             body: JSON.stringify({
               razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_signature: response.razorpay_signature
+              razorpay_signature: response.razorpay_signature,
+              planId: orderData.planId || planId
             })
           });
 
@@ -95,11 +98,15 @@ export async function initiateRazorpayCheckout({
               await fetchCurrentUser();
             } catch (e) {}
 
-            // Save paid status locally
+            // Save paid status locally with accurate duration and lifetime flag
             try {
               localStorage.setItem('apex_pro_license', JSON.stringify({
                 isPro: true,
                 plan: planName,
+                planId: verifyData.planId || orderData.planId || planId,
+                planDuration: verifyData.planDuration || (planId === 'monthly' ? 'monthly' : 'lifetime'),
+                isLifetime: verifyData.isLifetime ?? (planId === 'lifetime' || planId === 'demo'),
+                expiresAt: verifyData.proExpiresAt || null,
                 orderId: response.razorpay_order_id,
                 paymentId: response.razorpay_payment_id,
                 activatedAt: new Date().toISOString()
@@ -110,6 +117,10 @@ export async function initiateRazorpayCheckout({
               onSuccess({
                 ...verifyData,
                 planName,
+                planId: verifyData.planId || orderData.planId || planId,
+                planDuration: verifyData.planDuration || (planId === 'monthly' ? 'monthly' : 'lifetime'),
+                isLifetime: verifyData.isLifetime ?? (planId === 'lifetime' || planId === 'demo'),
+                expiresAt: verifyData.proExpiresAt || null,
                 amount: orderData.amount,
                 currency: orderData.currency
               });

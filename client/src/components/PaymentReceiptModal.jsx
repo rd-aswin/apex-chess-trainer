@@ -17,8 +17,13 @@ export function PaymentReceiptModal({
   };
 
   const formattedAmount = details?.amount 
-    ? (details.currency === 'INR' ? `?${(details.amount / 100).toFixed(2)}` : `$${(details.amount / 100).toFixed(2)}`)
+    ? (details.currency === 'INR' ? `₹${(details.amount / 100).toFixed(2)}` : `$${(details.amount / 100).toFixed(2)}`)
     : '';
+
+  const isLifetime = details?.isLifetime || details?.planDuration === 'lifetime' || (details?.planName && details.planName.toLowerCase().includes('lifetime')) || details?.amount === 100;
+  const expiryFormatted = details?.expiresAt 
+    ? new Date(details.expiresAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) 
+    : null;
 
   return (
     <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
@@ -55,7 +60,9 @@ export function PaymentReceiptModal({
               Welcome to {details?.planName || 'Apex Pro'}!
             </h2>
             <p className="text-xs text-slate-400 mb-6">
-              Your license is activated on this device with full lifetime benefits.
+              {isLifetime
+                ? 'Your account has permanent, unlimited lifetime access to all Grandmaster Pro features.'
+                : `Your 1-Month Pro membership is active until ${expiryFormatted || '30 days from now'}.`}
             </p>
 
             {/* Receipt Summary Box */}
@@ -63,6 +70,12 @@ export function PaymentReceiptModal({
               <div className="flex justify-between items-center pb-2 border-b border-slate-800">
                 <span className="text-slate-400">Plan</span>
                 <span className="font-bold text-white">{details?.planName || 'Apex Pro'}</span>
+              </div>
+              <div className="flex justify-between items-center pb-2 border-b border-slate-800">
+                <span className="text-slate-400">Duration</span>
+                <span className="font-bold text-emerald-400">
+                  {isLifetime ? 'Lifetime Access (Never Expires)' : (expiryFormatted ? `Active until ${expiryFormatted}` : '30 Days')}
+                </span>
               </div>
               <div className="flex justify-between items-center pb-2 border-b border-slate-800">
                 <span className="text-slate-400">Amount Paid</span>
