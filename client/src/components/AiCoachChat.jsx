@@ -56,7 +56,8 @@ export function AiCoachChat({
   currentScore = null,
   messages: externalMessages = null,
   setMessages: externalSetMessages = null,
-  onClearChat = null
+  onClearChat = null,
+  openSettingsTrigger = 0
 }) {
   const [internalMessages, setInternalMessages] = useState([DEFAULT_COACH_MESSAGE]);
   const messages = externalMessages || internalMessages;
@@ -84,6 +85,33 @@ export function AiCoachChat({
   const [saveStatus, setSaveStatus] = useState('');
 
   const messagesEndRef = useRef(null);
+  const apiKeyInputRef = useRef(null);
+
+  // Sync external open settings trigger
+  useEffect(() => {
+    if (openSettingsTrigger > 0) {
+      setIsSettingsOpen(true);
+    }
+  }, [openSettingsTrigger]);
+
+  // Listen to global apex_open_coach_settings event
+  useEffect(() => {
+    const handleOpenSettings = () => {
+      setIsSettingsOpen(true);
+    };
+    window.addEventListener('apex_open_coach_settings', handleOpenSettings);
+    return () => window.removeEventListener('apex_open_coach_settings', handleOpenSettings);
+  }, []);
+
+  // Auto-focus API key input when settings open
+  useEffect(() => {
+    if (isSettingsOpen) {
+      const timer = setTimeout(() => {
+        apiKeyInputRef.current?.focus();
+      }, 150);
+      return () => clearTimeout(timer);
+    }
+  }, [isSettingsOpen]);
 
   // Identify current opening instantly client-side (0ms latency)
   useEffect(() => {
@@ -470,6 +498,7 @@ export function AiCoachChat({
                     )}
                   </div>
                   <input
+                    ref={apiKeyInputRef}
                     type="password"
                     value={geminiApiKey}
                     onChange={(e) => setGeminiApiKey(e.target.value)}

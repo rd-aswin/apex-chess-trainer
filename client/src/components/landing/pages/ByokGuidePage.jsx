@@ -4,7 +4,7 @@ import {
   Sparkles, Check, DollarSign, Cpu, AlertCircle 
 } from 'lucide-react';
 
-export function ByokGuidePage({ onNavigate, onLaunchApp }) {
+export function ByokGuidePage({ onNavigate, onLaunchApp, onOpenCoachSettings }) {
   return (
     <div className="min-h-screen text-slate-100 pt-28 pb-20 selection:bg-emerald-500/30 selection:text-emerald-200">
       
@@ -82,10 +82,16 @@ export function ByokGuidePage({ onNavigate, onLaunchApp }) {
                 Open Apex Chess, click the <strong>Ask Coach</strong> button, and paste your key. It saves in your browser on your computer so you never have to paste it again.
               </p>
               <button
-                onClick={onLaunchApp}
+                onClick={() => {
+                  if (onOpenCoachSettings) {
+                    onOpenCoachSettings();
+                  } else {
+                    onLaunchApp();
+                  }
+                }}
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-slate-950 bg-emerald-400 hover:bg-emerald-300 transition-colors shadow-md shadow-emerald-500/20"
               >
-                <span>Launch App to Paste Key</span>
+                <span>Launch App & Open Settings to Paste Key</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </div>

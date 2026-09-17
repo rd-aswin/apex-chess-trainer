@@ -133,6 +133,24 @@ export function App() {
     setQuotaState(getDailyQuota());
   };
 
+  // Trigger to directly open AI Coach Chat and expand Coach AI Settings drawer
+  const [openCoachSettingsTrigger, setOpenCoachSettingsTrigger] = useState(0);
+
+  const handleOpenCoachSettings = () => {
+    setView('app');
+    window.location.hash = '#app';
+    setIsDailyQuotaModalOpen(false);
+    if (mode === 'play') {
+      setIsPlayCoachOpen(true);
+    } else {
+      setReviewTab('chat');
+    }
+    setOpenCoachSettingsTrigger((prev) => prev + 1);
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('apex_open_coach_settings'));
+    }, 100);
+  };
+
   // View state: 'landing' (19-page marketing website) vs 'app' (chess trainer board)
   const [view, setView] = useState(() => {
     const hash = window.location.hash.toLowerCase();
@@ -1191,6 +1209,7 @@ export function App() {
           setView('app');
           window.location.hash = '#app';
         }}
+        onOpenCoachSettings={handleOpenCoachSettings}
         currentUser={currentUser}
         onOpenAuth={() => {
           setAuthPromptMessage('');
@@ -1528,6 +1547,7 @@ export function App() {
               messages={coachMessages}
               setMessages={setCoachMessages}
               onClearChat={handleClearCoachChat}
+              openSettingsTrigger={openCoachSettingsTrigger}
             />
           </div>
 
@@ -1709,13 +1729,11 @@ export function App() {
       <DailyQuotaLimitModal
         isOpen={isDailyQuotaModalOpen}
         onClose={() => setIsDailyQuotaModalOpen(false)}
-        onOpenKeySettings={() => {
+        onOpenKeySettings={handleOpenCoachSettings}
+        onNavigateToByokGuide={() => {
           setIsDailyQuotaModalOpen(false);
-          if (mode === 'play') {
-            setIsPlayCoachOpen(true);
-          } else {
-            setReviewTab('chat');
-          }
+          setView('landing');
+          window.location.hash = '#how-byok-works';
         }}
         onOpenPricing={() => {
           setIsDailyQuotaModalOpen(false);
@@ -1770,6 +1788,7 @@ export function App() {
                 messages={coachMessages}
                 setMessages={setCoachMessages}
                 onClearChat={handleClearCoachChat}
+                openSettingsTrigger={openCoachSettingsTrigger}
               />
             </div>
           </div>
