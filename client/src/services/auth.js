@@ -67,12 +67,17 @@ export async function fetchCurrentUser() {
       }
     }
 
-    // Token invalid or expired
-    setAuthToken(null);
-    setStoredUser(null);
-    return null;
+    // Only clear token if server explicitly confirms unauthorized / expired
+    if (res.status === 401 || res.status === 403) {
+      setAuthToken(null);
+      setStoredUser(null);
+      return null;
+    }
+
+    // Transient server error (500/502/504) -> preserve user session and return cached user
+    return getStoredUser();
   } catch (err) {
-    // Offline fallback: return cached user
+    // Offline / network failure fallback: return cached user
     return getStoredUser();
   }
 }

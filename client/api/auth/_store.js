@@ -39,8 +39,8 @@ if (!process.env.KV_REST_API_URL || !process.env.KV_REST_API_TOKEN) {
 }
 
 function getKvConfig() {
-  const url = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
-  const token = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
+  const url = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL || 'https://finer-boa-282082.upstash.io';
+  const token = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN || 'gQAAAAAABE3iAAIgcDJkYTA5MmQyZTg3ODI0ZjhjOTExOWYyZjRkNTU2NmE1YQ';
   return { url, token };
 }
 
